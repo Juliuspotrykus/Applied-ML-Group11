@@ -5,6 +5,8 @@ import torch.nn as nn
 
 
 class ConvBlockConfig:
+    """Configuration for a single convolutional block (Conv2d → BN → activation → MaxPool)."""
+
     def __init__(
         self,
         out_channels: int,
@@ -14,15 +16,26 @@ class ConvBlockConfig:
         batch_norm: bool = True,
         pool_size: int | None = 2,
     ) -> None:
+        """
+        Args:
+            out_channels: Number of filters produced by the conv layer.
+            kernel_size: Size of the convolving kernel.
+            stride: Step size of the convolution.
+            padding: Zero-padding added to both sides of the input.
+            batch_norm: Whether to add BatchNorm2d after the conv layer.
+            pool_size: Kernel size for MaxPool2d. None disables pooling.
+        """
         self.out_channels = out_channels
         self.kernel_size = kernel_size
         self.stride = stride
         self.padding = padding
         self.batch_norm = batch_norm
-        self.pool_size = pool_size  
+        self.pool_size = pool_size
 
 
 class CNNConfig:
+    """Top-level configuration for the CNN architecture."""
+
     def __init__(
         self,
         in_channels: int = 3,
@@ -33,6 +46,18 @@ class CNNConfig:
         dropout: float = 0.5,
         activation: Literal["relu", "gelu", "leaky_relu", "silu"] = "relu",
     ) -> None:
+        """
+        Args:
+            in_channels: Number of input channels (e.g. 1 for grayscale, 3 for RGB).
+            input_height: Height of the input image in pixels.
+            input_width: Width of the input image in pixels.
+            conv_blocks: List of ConvBlockConfig objects defining the backbone.
+                Defaults to three blocks with 32, 64, and 128 filters.
+            fc_layers: Widths of the fully-connected head layers. The last value
+                is the number of output classes. Defaults to [256, 10].
+            dropout: Dropout probability applied between FC layers.
+            activation: Activation function used after conv and FC layers.
+        """
         self.in_channels = in_channels
         self.input_height = input_height
         self.input_width = input_width
@@ -62,7 +87,13 @@ def _build_activation(name: str) -> nn.Module:
 
 
 class CNN(nn.Module):
+    """Configurable CNN with a convolutional backbone and fully-connected classifier head."""
+
     def __init__(self, config: CNNConfig | None = None) -> None:
+        """
+        Args:
+            config: CNNConfig instance. Defaults to CNNConfig() if not provided.
+        """
         super().__init__()
         self.config = config or CNNConfig()
 
@@ -71,6 +102,7 @@ class CNN(nn.Module):
         self.classifier = self._build_classifier(flat_dim)
 
     def _build_backbone(self) -> nn.Sequential:
+        """Stacks conv blocks as defined in config.conv_blocks."""
         layers: list[nn.Module] = []
         in_ch = self.config.in_channels
 
@@ -94,6 +126,7 @@ class CNN(nn.Module):
         return nn.Sequential(*layers)
 
     def _infer_flat_dim(self) -> int:
+        """Runs a dummy forward pass to determine the flattened backbone output size."""
         with torch.no_grad():
             dummy = torch.zeros(
                 1, self.config.in_channels, self.config.input_height, self.config.input_width
@@ -101,6 +134,7 @@ class CNN(nn.Module):
             return int(self.backbone(dummy).numel())
 
     def _build_classifier(self, flat_dim: int) -> nn.Sequential:
+        """Builds the FC head from flat_dim to the final output size."""
         layers: list[nn.Module] = []
         in_features = flat_dim
 
@@ -115,6 +149,7 @@ class CNN(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass: backbone → flatten → classifier."""
         x = self.backbone(x)
         x = x.flatten(start_dim=1)
         return self.classifier(x)
