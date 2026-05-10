@@ -29,6 +29,5 @@ print("Bombay files:", len(bombay_files))
 print("Jakarta files:", len(jakarta_files))
 print("Total to remove:", len(bombay_files) + len(jakarta_files))
 
-# TODO: uncomment code to delete files
-# for f in bombay_files + jakarta_files:
-#     os.remove(os.path.join(sealake_path_ms, f))
+for f in bombay_files + jakarta_files:
+    os.remove(os.path.join(sealake_path_ms, f))
