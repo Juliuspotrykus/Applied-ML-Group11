@@ -3,12 +3,9 @@ from typing import Callable, Optional
 
 import numpy as np
 import torch
+from label_map import label_map
 from PIL import Image
-from torch.utils.data import DataLoader, Dataset, random_split
-from torchvision import transforms
-
-from data.download import get_dataset_path
-from data.clean import clean_sealake_folder
+from torch.utils.data import Dataset
 
 
 class EuroSATDataset(Dataset):
@@ -49,7 +46,7 @@ class EuroSATRGBDataset(EuroSATDataset):
         return Image.open(path).convert("RGB")
 
 
-class EuroSATMSDataset(EuroSATBase):
+class EuroSATMSDataset(EuroSATDataset):
     """Dataset for MS tif files, return torch tensor of dimension [13, H, W], so for us [13, 64, 64]"""
 
     FILE_TYPE = ".tif"
