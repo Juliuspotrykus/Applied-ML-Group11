@@ -11,8 +11,6 @@ from torch.utils.data import Dataset
 class EuroSATDataset(Dataset):
     """Super class for RGB and MS dataset"""
 
-    FILE_TYPE: str = ""
-
     def __init__(self, root: str | Path, transform: Optional[Callable] = None) -> None:
         self.root = Path(root)
         self.transform = transform
@@ -40,16 +38,12 @@ class EuroSATDataset(Dataset):
 class EuroSATRGBDataset(EuroSATDataset):
     """Dataset for RGB jpg images"""
 
-    FILE_TYPE = ".jpg"
-
     def _load_image(self, path: Path) -> Image.Image:
         return Image.open(path).convert("RGB")
 
 
 class EuroSATMSDataset(EuroSATDataset):
     """Dataset for MS tif files, return torch tensor of dimension [13, H, W], so for us [13, 64, 64]"""
-
-    FILE_TYPE = ".tif"
 
     def _load_image(self, path: Path) -> torch.Tensor:
         import tifffile  # placed here so package does not need to be imported when not necessary
