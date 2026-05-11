@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -8,8 +9,8 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 
-class EuroSATDataset(Dataset):
-    """Super class for RGB and MS dataset"""
+class EuroSATDataset(Dataset, ABC):
+    """Abstract class for RGB and MS dataset"""
 
     def __init__(self, root: str | Path, transform: Optional[Callable] = None) -> None:
         self.root = Path(root)
@@ -24,8 +25,9 @@ class EuroSATDataset(Dataset):
     def __len__(self) -> int:
         return len(self.samples)
 
+    @abstractmethod
     def _load_image(self, path: Path):
-        raise NotImplementedError
+        pass
 
     def __getitem__(self, idx: int):
         path, label = self.samples[idx]
