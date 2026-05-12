@@ -39,8 +39,8 @@ class CNNConfig:
     def __init__(
         self,
         in_channels: int = 3,
-        input_height: int = 32,
-        input_width: int = 32,
+        input_height: int = 64,
+        input_width: int = 64,
         conv_blocks: list[ConvBlockConfig] | None = None,
         fc_layers: list[int] | None = None,
         dropout: float = 0.5,
