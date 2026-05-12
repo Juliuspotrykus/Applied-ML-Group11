@@ -20,7 +20,7 @@ class EuroSATDataset(Dataset, ABC):
         for idx, class_name in label_map.items():
             class_dir = self.root / class_name
             for f in class_dir.iterdir():
-                self.samples.append((f, idx))
+                self.samples.append((f.name, f, idx))
 
     def __len__(self) -> int:
         return len(self.samples)
