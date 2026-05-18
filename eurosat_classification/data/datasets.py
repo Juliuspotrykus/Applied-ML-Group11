@@ -27,10 +27,10 @@ class EuroSATDataset(Dataset, ABC):
         return len(self.samples)
 
     @abstractmethod
-    def _load_image(self, path: Path):
+    def _load_image(self, path: Path) -> torch.Tensor:
         pass
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
         _, path, label = self.samples[idx]
         img = self._load_image(path)
         if self.transform is not None:
