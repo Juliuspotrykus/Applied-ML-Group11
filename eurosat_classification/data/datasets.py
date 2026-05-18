@@ -7,6 +7,7 @@ import torch
 from label_map import label_map
 from PIL import Image
 from torch.utils.data import Dataset
+from torchvision import transforms
 
 
 class EuroSATDataset(Dataset, ABC):
@@ -30,7 +31,7 @@ class EuroSATDataset(Dataset, ABC):
         pass
 
     def __getitem__(self, idx: int):
-        path, label = self.samples[idx]
+        _, path, label = self.samples[idx]
         img = self._load_image(path)
         if self.transform is not None:
             img = self.transform(img)
@@ -40,8 +41,9 @@ class EuroSATDataset(Dataset, ABC):
 class EuroSATRGBDataset(EuroSATDataset):
     """Dataset for RGB jpg images"""
 
-    def _load_image(self, path: Path) -> Image.Image:
-        return Image.open(path).convert("RGB")
+    def _load_image(self, path: Path) -> torch.Tensor:
+        img = Image.open(path).convert("RGB")
+        return transforms.ToTensor()(img)
 
 
 class EuroSATMSDataset(EuroSATDataset):
@@ -54,5 +56,5 @@ class EuroSATMSDataset(EuroSATDataset):
         arr = arr.astype(np.float32)
         tensor = torch.from_numpy(arr).permute(
             2, 0, 1
-        )  # Reorders axes to match PyTorch's conventions → [13, H, W]
+        )  # Reorders axes to match PyTorch's conventions -> [13, H, W]
         return tensor
