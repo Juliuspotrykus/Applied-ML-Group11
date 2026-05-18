@@ -10,5 +10,8 @@ repos:
     - id: run-unittests
       name: Run unittests
       entry: python -m unittest discover tests
+      additional_dependencies:
+        - torch
+        - torchvision
       language: python
       pass_filenames: false
