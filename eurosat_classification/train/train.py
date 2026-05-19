@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+from sklearn.metrics import f1_score
 
 from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
 from ..data.datasets import create_dataloaders
@@ -35,7 +36,7 @@ val_losses = []
 
 print("Starting training...")
 
-for epoch in range(0):
+for epoch in range(10):
     model.train()
     total_loss_train = 0
     for images, labels in train_loader:
@@ -47,27 +48,35 @@ for epoch in range(0):
 
     model.eval()
     total_loss_val = 0
+    all_preds, all_labels = [], []
     with torch.no_grad():
         for images, labels in val_loader:
-            loss = loss_fn(model(images), labels)
-            total_loss_val += loss.item()
+            outputs = model(images)
+            total_loss_val += loss_fn(outputs, labels).item()
+            all_preds.extend(outputs.argmax(dim=1).tolist())
+            all_labels.extend(labels.tolist())
 
     avg_train_loss = total_loss_train / len(train_loader)
     avg_val_loss = total_loss_val / len(val_loader)
+    val_f1 = f1_score(all_labels, all_preds, average="macro")
     train_losses.append(avg_train_loss)
     val_losses.append(avg_val_loss)
-    print(f"Epoch {epoch+1}, Train loss: {avg_train_loss:.4f}, Val loss: {avg_val_loss:.4f}")
+    print(f"Epoch {epoch+1}, Train loss: {avg_train_loss:.4f}, Val loss: {avg_val_loss:.4f}, Val F1: {val_f1:.4f}")
 
 torch.save(model, "models/model1.pkl")
 
 # Test evaluation (after training)
 model.eval()
 total_loss_test = 0
+all_preds, all_labels = [], []
 with torch.no_grad():
     for images, labels in test_loader:
-        loss = loss_fn(model(images), labels)
-        total_loss_test += loss.item()
-print(f"Test loss: {total_loss_test / len(test_loader):.4f}")
+        outputs = model(images)
+        total_loss_test += loss_fn(outputs, labels).item()
+        all_preds.extend(outputs.argmax(dim=1).tolist())
+        all_labels.extend(labels.tolist())
+test_f1 = f1_score(all_labels, all_preds, average="macro")
+print(f"Test loss: {total_loss_test / len(test_loader):.4f}, Test F1: {test_f1:.4f}")
 
 plt.plot(train_losses, label="Train")
 plt.plot(val_losses, label="Val")
