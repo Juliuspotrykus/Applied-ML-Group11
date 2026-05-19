@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Callable, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 import torch
 from clean import clean_sealake_folder
 from download import get_dataset_path
@@ -14,25 +15,30 @@ from torch.utils.data import DataLoader, Dataset
 class EuroSATDataset(Dataset, ABC):
     """Abstract class for RGB and MS dataset"""
 
-    def __init__(self, root: str | Path, transform: Optional[Callable] = None) -> None:
+    def __init__(self, root: str | Path, split_csv_path: str, transform: Optional[Callable] = None) -> None:
         self.root = Path(root)
+        self.split_csv = pd.read_csv(split_csv_path)
         self.transform = transform
         self.samples = []
+
+        # Get the file names for the files in the split (without folder name or extension)
+        self.split_filenames = set(self.split_csv["Filename"].apply(lambda path: Path(path).stem))
 
         for idx, class_name in label_map.items():
             class_dir = self.root / class_name
             for f in class_dir.iterdir():
-                self.samples.append((f.name, f, idx))
+                if f.stem in self.split_filenames:
+                    self.samples.append((f.name, f, idx))
 
     def __len__(self) -> int:
         return len(self.samples)
 
     @abstractmethod
-    def _load_image(self, path: Path):
+    def _load_image(self, path: Path) -> torch.Tensor:
         pass
 
-    def __getitem__(self, idx: int):
-        path, label = self.samples[idx]
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        _, path, label = self.samples[idx]
         img = self._load_image(path)
         if self.transform is not None:
             img = self.transform(img)
@@ -42,8 +48,9 @@ class EuroSATDataset(Dataset, ABC):
 class EuroSATRGBDataset(EuroSATDataset):
     """Dataset for RGB jpg images"""
 
-    def _load_image(self, path: Path) -> Image.Image:
-        return Image.open(path).convert("RGB")
+    def _load_image(self, path: Path) -> torch.Tensor:
+        img = Image.open(path).convert("RGB")
+        return transforms.ToTensor()(img)
 
 
 class EuroSATMSDataset(EuroSATDataset):
@@ -56,7 +63,7 @@ class EuroSATMSDataset(EuroSATDataset):
         arr = arr.astype(np.float32)
         tensor = torch.from_numpy(arr).permute(
             2, 0, 1
-        )  # Reorders axes to match PyTorch's conventions → [13, H, W]
+        )  # Reorders axes to match PyTorch's conventions -> [13, H, W]
         return tensor
 
 
