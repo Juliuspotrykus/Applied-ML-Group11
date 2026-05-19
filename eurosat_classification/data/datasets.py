@@ -19,11 +19,11 @@ class EuroSATDataset(Dataset, ABC):
     def __init__(
         self,
         root: str | Path,
-        split_csv_path: str,
+        csv_path: str,
         transform: Optional[Callable] = None,
     ) -> None:
         self.root = Path(root)
-        self.split_csv = pd.read_csv(split_csv_path)
+        self.split_csv = pd.read_csv(csv_path)
         self.transform = transform
         self.samples = []
 
