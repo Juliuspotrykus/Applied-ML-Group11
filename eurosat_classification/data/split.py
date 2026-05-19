@@ -24,6 +24,5 @@ def get_train_val_test_splits() -> tuple[str, str, str]:
         raise ValueError("Validation path not found.")
     if test_path is None:
         raise ValueError("Test path not found.")
-    
-    return train_path, val_path, test_path
 
+    return train_path, val_path, test_path
