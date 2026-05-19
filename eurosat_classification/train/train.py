@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
-from euroset_classification.models.cnn import CNN, CNNConfig, ConvBlockConfig
+from eurosat_classification.models.cnn import CNN, CNNConfig, ConvBlockConfig
+from eurosat_classification.data.datasets import create_dataloaders
 
 # Example training script for CNN model.
 
@@ -22,10 +23,7 @@ config = CNNConfig(
 )
 
 model = CNN(config)
-# TODO Data - To be implemented, use torch DataLoader
-train_loader = ... 
-val_loader = ...
-test_loader = ...
+train_loader, val_loader, test_loader = create_dataloaders(image_type="rgb", batch_size=64)
 
 # Training setup 
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
