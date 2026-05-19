@@ -61,7 +61,7 @@ class EuroSATMSDataset(EuroSATDataset):
 
 
 def create_dataloaders(
-    type: str, batch_size: int = 64
+    image_type: str, batch_size: int = 64
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """Method to create the dataloaders for either the RGB or the MS data
 
@@ -80,16 +80,16 @@ def create_dataloaders(
 
     train_path, val_path, test_path = get_train_val_test_splits()
 
-    if type == "rgb":
+    if image_type == "rgb":
         train_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=train_path)
         val_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
         test_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
-    elif type == "ms":
+    elif image_type == "ms":
         train_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=train_path)
         val_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
         test_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
     else:
-        raise ValueError()
+        raise ValueError("Wrong image types! Possible image types include: rgb and ms")
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
