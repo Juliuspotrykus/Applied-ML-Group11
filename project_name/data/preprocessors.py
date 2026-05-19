@@ -2,13 +2,6 @@ import torch
 from torchvision import transforms
 
 
-def normalize_RGB_img(img: torch.Tensor) -> torch.Tensor:
-    """
-    Normalizes a given RGB image to pixel values in the range [0, 1].
-    """
-    return img / 255
-
-
 def normalize_MS_img(img: torch.Tensor) -> torch.Tensor:
     """
     Normalize all bands of a given image,
