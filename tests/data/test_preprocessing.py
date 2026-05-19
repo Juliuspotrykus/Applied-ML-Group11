@@ -1,7 +1,7 @@
 import unittest
 
 import torch
-from project_name.data.preprocessors import normalize_MS_img
+from eurosat_classification.data.preprocessors import normalize_MS_img
 
 
 class PreprocessingTest(unittest.TestCase):
