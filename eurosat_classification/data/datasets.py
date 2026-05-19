@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 import numpy as np
+import pandas as pd
 import torch
 from label_map import label_map
 from PIL import Image
@@ -13,15 +14,20 @@ from torchvision import transforms
 class EuroSATDataset(Dataset, ABC):
     """Abstract class for RGB and MS dataset"""
 
-    def __init__(self, root: str | Path, transform: Optional[Callable] = None) -> None:
+    def __init__(self, root: str | Path, split_csv_path: str, transform: Optional[Callable] = None) -> None:
         self.root = Path(root)
+        self.split_csv = pd.read_csv(split_csv_path)
         self.transform = transform
         self.samples = []
+
+        # Get the file names for the files in the split (without folder name or extension)
+        self.split_filenames = set(self.split_csv["Filename"].apply(lambda path: Path(path).stem))
 
         for idx, class_name in label_map.items():
             class_dir = self.root / class_name
             for f in class_dir.iterdir():
-                self.samples.append((f.name, f, idx))
+                if f.stem in self.split_filenames:
+                    self.samples.append((f.name, f, idx))
 
     def __len__(self) -> int:
         return len(self.samples)
