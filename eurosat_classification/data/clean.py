@@ -1,6 +1,6 @@
 import os
 
-from data.download import get_dataset_path
+from .download import get_dataset_path
 
 
 def clean_sealake_folder() -> None:

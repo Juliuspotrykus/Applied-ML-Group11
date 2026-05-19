@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
-from eurosat_classification.models.cnn import CNN, CNNConfig, ConvBlockConfig
-from eurosat_classification.data.datasets import create_dataloaders
+from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
+from ..data.datasets import create_dataloaders
 
 # Example training script for CNN model.
 
@@ -32,6 +32,8 @@ loss_fn = nn.CrossEntropyLoss()
 # Training loop
 train_losses = []
 val_losses = []
+
+print("Starting training...")
 
 for epoch in range(10):
     model.train()
