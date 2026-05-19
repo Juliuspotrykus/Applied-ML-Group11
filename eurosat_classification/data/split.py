@@ -2,7 +2,7 @@ import os
 
 from data.download import get_dataset_path
 
-def get_train_val_splits() -> tuple[str, str, str]:
+def get_train_val_test_splits() -> tuple[str, str, str]:
     rgb_path = os.path.join(get_dataset_path(), "EuroSAT")
     train_path = None
     val_path = None
