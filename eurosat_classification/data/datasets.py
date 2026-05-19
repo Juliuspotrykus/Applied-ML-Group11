@@ -92,7 +92,7 @@ def create_dataloaders(
         type (DataLoader): The three data loaders for train, test, and validation split.
     """
     path = get_dataset_path()
-    clean_sealake_folder(path)
+    clean_sealake_folder()
 
     train_path, val_path, test_path = get_train_val_test_splits()
 
