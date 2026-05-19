@@ -35,7 +35,7 @@ val_losses = []
 
 print("Starting training...")
 
-for epoch in range(10):
+for epoch in range(0):
     model.train()
     total_loss_train = 0
     for images, labels in train_loader:
@@ -57,6 +57,8 @@ for epoch in range(10):
     train_losses.append(avg_train_loss)
     val_losses.append(avg_val_loss)
     print(f"Epoch {epoch+1}, Train loss: {avg_train_loss:.4f}, Val loss: {avg_val_loss:.4f}")
+
+torch.save(model, "models/model1.pkl")
 
 # Test evaluation (after training)
 model.eval()
