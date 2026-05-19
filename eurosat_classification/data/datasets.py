@@ -11,6 +11,7 @@ from label_map import label_map
 from PIL import Image
 from split import get_train_val_test_splits
 from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
 
 
 class EuroSATDataset(Dataset, ABC):
