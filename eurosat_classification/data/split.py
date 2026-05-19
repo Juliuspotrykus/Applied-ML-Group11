@@ -1,6 +1,7 @@
 import os
 
-from data.download import get_dataset_path
+from .download import get_dataset_path
+
 
 def get_train_val_test_splits() -> tuple[str, str, str]:
     rgb_path = os.path.join(get_dataset_path(), "EuroSAT")
@@ -14,7 +15,7 @@ def get_train_val_test_splits() -> tuple[str, str, str]:
 
         elif f.startswith("validation"):
             val_path = f
-        
+
         elif f.startswith("test"):
             test_path = f
 
@@ -24,6 +25,5 @@ def get_train_val_test_splits() -> tuple[str, str, str]:
         raise ValueError("Validation path not found.")
     if test_path is None:
         raise ValueError("Test path not found.")
-    
-    return train_path, val_path, test_path
 
+    return train_path, val_path, test_path
