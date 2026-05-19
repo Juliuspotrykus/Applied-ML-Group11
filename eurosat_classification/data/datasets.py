@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import torch
+from clean import clean_sealake_folder
+from download import get_dataset_path
 from label_map import label_map
 from PIL import Image
-from torch.utils.data import Dataset
-from torchvision import transforms
+from torch.utils.data import DataLoader, Dataset
 
 
 class EuroSATDataset(Dataset, ABC):
@@ -64,3 +65,41 @@ class EuroSATMSDataset(EuroSATDataset):
             2, 0, 1
         )  # Reorders axes to match PyTorch's conventions -> [13, H, W]
         return tensor
+
+
+def create_dataloaders(
+    image_type: str, batch_size: int = 64
+) -> Tuple[DataLoader, DataLoader, DataLoader]:
+    """Method to create the dataloaders for either the RGB or the MS data
+
+    Args:
+        type (str): Possible values are "rgb" or "ms"
+        batch_size (int, optional): Defaults to 64.
+
+    Raises:
+        ValueError: If wrong type is passed it will raise a value error
+
+    Returns:
+        type (DataLoader): The three data loaders for train, test, and validation split.
+    """
+    path = get_dataset_path()
+    clean_sealake_folder(path)
+
+    train_path, val_path, test_path = get_train_val_test_splits()
+
+    if image_type == "rgb":
+        train_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=train_path)
+        val_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
+        test_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
+    elif image_type == "ms":
+        train_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=train_path)
+        val_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
+        test_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
+    else:
+        raise ValueError("Wrong image types! Possible image types include: rgb and ms")
+
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False)
+
+    return train_loader, val_loader, test_loader
