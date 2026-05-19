@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
-from project_name.models.cnn import CNN, CNNConfig, ConvBlockConfig
+from euroset_classification.models.cnn import CNN, CNNConfig, ConvBlockConfig
 
 # Example training script for CNN model.
 
