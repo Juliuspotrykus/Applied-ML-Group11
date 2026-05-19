@@ -12,6 +12,7 @@ from PIL import Image
 from .split import get_train_val_test_splits
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
+from .preprocessors import normalize_MS_img
 
 
 class EuroSATDataset(Dataset, ABC):
@@ -101,11 +102,11 @@ def create_dataloaders(
         val_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
         test_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
     elif image_type == "ms":
-        train_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=train_path)
-        val_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
-        test_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
+        train_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=train_path, transform=normalize_MS_img)
+        val_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=val_path, transform=normalize_MS_img)
+        test_ds = EuroSATMSDataset(root=Path(path) / "EuroSAT", csv_path=test_path, transform=normalize_MS_img)
     else:
-        raise ValueError("Wrong image types! Possible image types include: rgb and ms")
+        raise ValueError("Wrong image types! Possible image types include: rgb and ms") 
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
