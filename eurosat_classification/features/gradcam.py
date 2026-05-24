@@ -40,3 +40,13 @@ def visualize_gradcam_rgb(model: CNN, input_tensor: Tensor, input_rgb_image: np.
         
         return show_cam_on_image(input_rgb_image, grayscale_cam, use_rgb=True)
 
+def visualize_gradcam_ms(model: CNN, input_tensor: Tensor):
+    # Select RGB bands for GradCam visualization -> (3, 64, 64)
+    rgb_bands = input_tensor[[3, 2, 1], :, :]
+    # Reorder dimensions -> (64, 64, 3)
+    rgb_bands = rgb_bands.transpose(1, 2, 0)
+    # normalize to [0, 1]
+    # TODO: maybe we prefer using the normalization from the preprocessing, but this is just for visualization purposes
+    normalized_rgb = (rgb_bands - rgb_bands.min()) / (rgb_bands.max() - rgb_bands.min())
+
+    visualize_gradcam_rgb(model, input_tensor=input_tensor, input_rgb_image=normalized_rgb)
