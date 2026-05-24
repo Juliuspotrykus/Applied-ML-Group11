@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score
 
 from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
+from ..features.gradcam import visualize_gradcam_ms, visualize_gradcam_rgb
 from ..data.datasets import create_dataloaders
 
 # Example training script for CNN model.
@@ -83,4 +84,16 @@ plt.plot(val_losses, label="Val")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.legend()
+plt.show()
+
+print("GradCam visualization for RGB image")
+images, labels = next(iter(test_loader))  # gets one batch from test set
+sample = images[0] 
+# Reshape to (64, 64, 3) np array
+rgb_image = sample.permute(1, 2, 0).numpy()
+
+visualization = visualize_gradcam_rgb(model, input_tensor=sample, input_rgb_image=rgb_image)
+plt.imshow(visualization)
+plt.title(f"GradCAM")
+plt.axis("off")
 plt.show()
