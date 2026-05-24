@@ -27,9 +27,12 @@ def visualize_gradcam_rgb(model: CNN, input_tensor: Tensor, input_rgb_image: np.
     """
     Args:
         model (CNN): CNN model used for prediction
-        input_tensor (Tensor): (1, 3, 64, 64) shaped tensor of input image
+        input_tensor (Tensor): (1, 3, 64, 64) or (3, 64, 64) shaped tensor of input image
         input_rgb_image (np.ndarray): (64, 64, 3) array of input image, normalized to [0, 1]
     """
+    if input_tensor.dim() == 3:
+        input_tensor = input_tensor.unsqueeze(0)  # → (1, 3, 64, 64)
+        
     # Note: We can also make the target layer be all the layers, in which case they are aggregated
     with GradCAM(model=model, target_layers=get_last_conv_layer(model)) as cam:
         # targets as none defaults to highest scoring category (per batch)
@@ -49,4 +52,4 @@ def visualize_gradcam_ms(model: CNN, input_tensor: Tensor):
     # TODO: maybe we prefer using the normalization from the preprocessing, but this is just for visualization purposes
     normalized_rgb = (rgb_bands - rgb_bands.min()) / (rgb_bands.max() - rgb_bands.min())
 
-    visualize_gradcam_rgb(model, input_tensor=input_tensor, input_rgb_image=normalized_rgb)
+    return visualize_gradcam_rgb(model, input_tensor=input_tensor, input_rgb_image=normalized_rgb.numpy())
