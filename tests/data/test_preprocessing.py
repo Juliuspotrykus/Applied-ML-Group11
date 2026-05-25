@@ -1,7 +1,13 @@
 import unittest
 
 import torch
-from eurosat_classification.data.preprocessors import normalize_MS_img
+from eurosat_classification.data.preprocessors import (
+    clip_maxs,
+    clip_mins,
+    means,
+    normalize_MS_img,
+    stdevs,
+)
 
 
 class PreprocessingTest(unittest.TestCase):
@@ -19,11 +25,15 @@ class PreprocessingTest(unittest.TestCase):
         # Check that shapes are identical after preprocessing.
         self.assertTrue(self.ms_img.shape == self.preprocessed_ms_img.shape)
 
-    def test_MS(self):
+    def test_expected_values(self):
         # For each band, check that the values are between the
         # expected minimum and expected maximum values.
-        # TODO
-        pass
+        for band in range(13):
+            band_vals = self.preprocessed_ms_img[band, :, :]
+            expected_minimum = (clip_mins[band] - means[band]) / stdevs[band]
+            expected_maximum = (clip_maxs[band] - means[band]) / stdevs[band]
+            self.assertTrue(torch.all(band_vals >= expected_minimum))
+            self.assertTrue(torch.all(band_vals <= expected_maximum))
 
     def test_extreme_values(self):
         # Sanity check that all values are between -3 and 3,
