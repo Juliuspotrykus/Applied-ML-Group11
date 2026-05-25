@@ -1,42 +1,72 @@
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score
 
-from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
 from ..data.datasets import create_dataloaders
+from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
 
 # Example training script for CNN model.
 
 # Config
 config = CNNConfig(
-    in_channels=3, # 3 Channels for RGB images
-    input_height=64, 
+    in_channels=3,  # 3 Channels for RGB images
+    input_height=64,
     input_width=64,
     conv_blocks=[
-        ConvBlockConfig(out_channels=32, kernel_size=3, stride=1, padding=1, batch_norm=True, pool_size=2),
-        ConvBlockConfig(out_channels=64, kernel_size=3, stride=1, padding=1, batch_norm=True, pool_size=2),
-        ConvBlockConfig(out_channels=128, kernel_size=3, stride=1, padding=1, batch_norm=True, pool_size=2),
+        ConvBlockConfig(
+            out_channels=32,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            batch_norm=True,
+            pool_size=2,
+        ),
+        ConvBlockConfig(
+            out_channels=64,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            batch_norm=True,
+            pool_size=2,
+        ),
+        ConvBlockConfig(
+            out_channels=128,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            batch_norm=True,
+            pool_size=2,
+        ),
     ],
-    fc_layers=[128, 10], # 128 units in hidden layer, 10 output classes --> You can also specify this as [128, 64, 10] for an additional hidden layer
+    fc_layers=[
+        128,
+        10,
+    ],  # 128 units in hidden layer, 10 output classes --> You can also specify this as [128, 64, 10] for an additional hidden layer
     dropout=0.5,
-    activation="relu"
+    activation="relu",
 )
 
 model = CNN(config)
-train_loader, val_loader, test_loader = create_dataloaders(image_type="rgb", batch_size=64)
+train_loader, val_loader, test_loader = create_dataloaders(
+    image_type="rgb", batch_size=64
+)
 
-# Training setup 
+# Training setup
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 loss_fn = nn.CrossEntropyLoss()
 
 # Training loop
+PATIENCE = 5
+
 train_losses = []
 val_losses = []
+best_val_loss = float("inf")
+epochs_no_improve = 0
 
 print("Starting training...")
 
-for epoch in range(10):
+for epoch in range(100):
     model.train()
     total_loss_train = 0
     for images, labels in train_loader:
@@ -61,11 +91,24 @@ for epoch in range(10):
     val_f1 = f1_score(all_labels, all_preds, average="macro")
     train_losses.append(avg_train_loss)
     val_losses.append(avg_val_loss)
-    print(f"Epoch {epoch+1}, Train loss: {avg_train_loss:.4f}, Val loss: {avg_val_loss:.4f}, Val F1: {val_f1:.4f}")
+    print(
+        f"Epoch {epoch + 1}, Train loss: {avg_train_loss:.4f}, Val loss: {avg_val_loss:.4f}, Val F1: {val_f1:.4f}"
+    )
 
-torch.save(model, "models/model1.pkl")
+    if avg_val_loss < best_val_loss:
+        best_val_loss = avg_val_loss
+        epochs_no_improve = 0
+        torch.save(model, "models/model1.pkl")
+    else:
+        epochs_no_improve += 1
+        if epochs_no_improve >= PATIENCE:
+            print(
+                f"Early stopping at epoch {epoch + 1} (no improvement for {PATIENCE} epochs)"
+            )
+            break
 
 # Test evaluation (after training)
+model = torch.load("models/model1.pkl")
 model.eval()
 total_loss_test = 0
 all_preds, all_labels = [], []
