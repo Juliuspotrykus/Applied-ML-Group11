@@ -15,6 +15,10 @@ class PreprocessingTest(unittest.TestCase):
         )
         self.preprocessed_ms_img = normalize_MS_img(self.ms_img)
 
+    def test_shape(self):
+        # Check that shapes are identical after preprocessing.
+        self.assertTrue(self.ms_img.shape == self.preprocessed_ms_img.shape)
+
     def test_MS(self):
         # For each band, check that the values are between the
         # expected minimum and expected maximum values.
