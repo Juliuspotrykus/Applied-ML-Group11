@@ -23,7 +23,9 @@ class PreprocessingTest(unittest.TestCase):
         # For each band, check that the values are between the
         # expected minimum and expected maximum values.
         # TODO
+        pass
 
+    def test_extreme_values(self):
         # Sanity check that all values are between -3 and 3,
         # should be consistent because of the clipping.
         self.assertTrue(torch.all(self.preprocessed_ms_img >= -3))
