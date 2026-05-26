@@ -1,6 +1,31 @@
-from fastapi import FastAPI
-from starlette.responses import RedirectResponse
+from typing import List
 
+# import numpy as np
+import PIL
+
+# import tifffile
+import torch
+import torch.nn.functional as F
+from eurosat_classification.data.label_map import label_map
+
+# from eurosat_classification.data.preprocessors import normalize_MS_img
+from fastapi import FastAPI, HTTPException, UploadFile
+from PIL import Image
+from pydantic import BaseModel
+from starlette.responses import RedirectResponse
+from torchvision import transforms
+
+
+class ClassConfidence(BaseModel):
+    class_pred: str = "AnnualCrop"
+    confidence: float = 0.1
+
+
+class ClassPredictions(BaseModel):
+    predictions: List[ClassConfidence]
+
+
+# Define API and description
 app = FastAPI(
     title="Satellite Image Classifier",
     summary="""An API endpoint to classify satellite images into one of ten
@@ -22,6 +47,58 @@ data.
 )
 
 
+# Load RGB and MS models here. We have the full model stored,
+# so we have to make use of weights_only=False.
+model_rgb = torch.load("models/model1.pkl", weights_only=False)
+# model_ms = torch.load("models/other_model.pkl", weights_only=False)
+
+# def load_image(image: UploadFile, image_type: str):
+#     pass
+
+
+def process_image(file: UploadFile, image_type: str):
+    """Processes an image given by a user."""
+    if image_type == "RGB":
+        # Resize, normalize, and add batch dimension
+        image = Image.open(file.file).convert("RGB").resize((64, 64))
+        image = transforms.ToTensor()(image).unsqueeze(0)
+    # if image_type == "MS":
+    #     image = tifffile.imread(file.file)
+    #     image = torch.from_numpy(image).permute(2, 0, 1)
+    return image.to(torch.float32)
+
+
 @app.get("/", description="Root endpoint that redirects to documentation.")
 async def root():
     return RedirectResponse(url="/docs")
+
+
+@app.post(
+    "/predict_rgb",
+    description="Image classifier endpoint. Add {'image': binary_image} "
+    "to json body to send request. This image should be an RGB satellite "
+    "image using a 10m ground sampling distance. That is, the distance "
+    "between the center of two consecutive pixels is 10m when measured "
+    "on the ground. Returns class confidences.",
+    response_model=None,
+    response_description="""Confidences for each of the possible classes:
+                        AnnualCrop, Forest, HerbaceousVegetation, Highway,
+                        Industrial, Pasture, PermanentCrop, Residential,
+                        River, SeaLake.""",
+)
+async def predict_rgb(image: UploadFile):
+    # for final API version, create something
+    # that can handle more than 10x10 meter images.
+    try:
+        tensor_image = process_image(image, "RGB")
+    except PIL.UnidentifiedImageError:
+        raise HTTPException(status_code=415, detail="Invalid image")
+
+    confs = model_rgb(tensor_image).detach()[0]
+    confs = F.softmax(confs, dim=0)
+    class_confs = [
+        ClassConfidence(class_pred=label_map[i], confidence=conf)
+        for i, conf in enumerate(confs)
+    ]
+
+    return ClassPredictions(predictions=class_confs)
