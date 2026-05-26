@@ -1,3 +1,5 @@
+import argparse
+
 import optuna
 import torch
 from optuna.trial import FixedTrial
@@ -75,19 +77,15 @@ def tune_image_type(image_type, n_trials=30):
 
 
 def main():
-    studies = {}
-    for image_type in ("rgb", "ms"):
-        print(f"\n=== Tuning {image_type} ===")
-        studies[image_type] = tune_image_type(image_type)
+    parser = argparse.ArgumentParser(description="Hyperparameter tuning")
+    parser.add_argument("image_type", choices=("rgb", "ms"))
+    args = parser.parse_args()
 
-    print("\n=== Comparison ===")
-    for image_type, study in studies.items():
-        print(
-            f"{image_type}: best F1 = {study.best_value:.4f}, params = {study.best_params}"
-        )
-
-    best = max(studies, key=lambda t: studies[t].best_value)
-    print(f"\nOverall best: {best} (F1 = {studies[best].best_value:.4f})")
+    print(f"\n=== Tuning {args.image_type} ===")
+    study = tune_image_type(args.image_type)
+    print(
+        f"{args.image_type}: best F1 = {study.best_value:.4f}, params = {study.best_params}"
+    )
 
 
 if __name__ == "__main__":
