@@ -9,10 +9,12 @@ from ..models.cnn import CNN, CNNConfig
 
 def evaluate(model, loader, loss_fn):
     model.eval()
+    device = next(model.parameters()).device
     total_loss = 0
     all_preds, all_labels = [], []
     with torch.no_grad():
         for images, labels in loader:
+            images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             total_loss += loss_fn(outputs, labels).item()
             all_preds.extend(outputs.argmax(dim=1).tolist())
@@ -29,7 +31,8 @@ def train_model(
     patience: int,
     check_prune: Callable | None = None,
 ):
-    model = CNN(config)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = CNN(config).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn = nn.CrossEntropyLoss()
 
@@ -38,6 +41,7 @@ def train_model(
     for epoch in range(epochs):
         model.train()
         for images, labels in train_loader:
+            images, labels = images.to(device), labels.to(device)
             optimizer.zero_grad()
             loss = loss_fn(model(images), labels)
             loss.backward()
