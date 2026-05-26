@@ -11,6 +11,7 @@ dependencies = [
     "numpy>=2.4.4",
     "optuna>=4.8.0",
     "scikit-learn>=1.6.0",
+    "tifffile>=2026.5.15",
     "torch>=2.11.0",
     "torchvision>=0.26.0",
 ]
