@@ -24,6 +24,27 @@ class ClassConfidence(BaseModel):
 
 class ClassPredictions(BaseModel):
     predictions: List[ClassConfidence]
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "predictions": [
+                    {"class_pred": "PermanentCrop", "confidence": 0.971},
+                    {
+                        "class_pred": "HerbaceousVegetation",
+                        "confidence": 0.028,
+                    },
+                    {"class_pred": "Highway", "confidence": 0.001},
+                    {"class_pred": "AnnualCrop", "confidence": 0},
+                    {"class_pred": "Forest", "confidence": 0},
+                    {"class_pred": "Industrial", "confidence": 0},
+                    {"class_pred": "Pasture", "confidence": 0},
+                    {"class_pred": "Residential", "confidence": 0},
+                    {"class_pred": "River", "confidence": 0},
+                    {"class_pred": "SeaLake", "confidence": 0},
+                ]
+            }
+        }
+    }
 
 
 # Define API and description
