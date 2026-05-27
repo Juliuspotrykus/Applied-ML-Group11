@@ -34,30 +34,27 @@ from ..data.label_map import label_map
 from ..data.preprocessors import normalize_MS_img
 
 def load_rgb(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
-    """Load a 3-band JPG/PNG image.
+    """Load a 3-band JPG/PNG as a [3, H, W] float tensor in [0, 1].
 
-    Returns
-    -------
-    raw          : [3, H, W] float tensor in [0, 1] – used for display
-    preprocessed : same as raw (RGB training used no extra normalisation)
-    baseline     : all-zeros tensor – represents a blank/dark image
+    RGB training used no normalisation, so the raw image is also the model input.
+
+    Returns (image, baseline).
     """
-    preprocessed = transforms.ToTensor()(Image.open(path).convert("RGB"))
-    baseline = torch.zeros_like(preprocessed) # Use zeros as baseline
-    return preprocessed, preprocessed.clone(), baseline
+    image = transforms.ToTensor()(Image.open(path).convert("RGB"))
+    baseline = torch.zeros_like(image)
+    return image, baseline
 
 def load_ms(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    """Load a 13-band GeoTIFF image.
+    """Load a 13-band GeoTIFF as a [13, H, W] float tensor.
 
-    Returns
-    -------
-    raw          : [13, H, W] raw digital-number values – used for display
-    preprocessed : [13, H, W] clipped and z-score normalised – fed to the model
-    baseline     : normalised all-zeros – represents a blank image in model space
+    Returns (raw, preprocessed, baseline) where raw holds the original
+    digital-number values for display, preprocessed is clipped and
+    z-score normalised for the model, and baseline is all-zeros in
+    normalised space.
     """
     raw = torch.from_numpy(tifffile.imread(str(path)).astype("float32")).permute(2, 0, 1)
     preprocessed = normalize_MS_img(raw)
-    baseline = torch.zeros_like(preprocessed) # Use zeros as baseline
+    baseline = torch.zeros_like(preprocessed)
     return raw, preprocessed, baseline
 
 def integrated_gradients(
@@ -67,25 +64,22 @@ def integrated_gradients(
     target_class: int,
     n_steps: int = 50,
 ) -> torch.Tensor:
-    """Compute Integrated Gradients attributions.
+    """Compute Integrated Gradients attributions for a single image.
 
-    Interpolates `n_steps` images between `baseline` and `input_tensor`,
-    runs them all through the model in one batch, and averages the gradients
-    using the trapezoidal rule.  Multiplying by (input - baseline) gives the
-    final attribution, which satisfies the *completeness* axiom:
+    Interpolates n_steps images between baseline and input_tensor, runs them
+    through the model in one batch, and averages the gradients using the
+    trapezoidal rule. The result satisfies the completeness axiom:
         sum(attributions) ≈ model(input)[target] - model(baseline)[target]
 
-    Parameters
-    ----------
-    model        : trained nn.Module (must be in eval mode)
-    input_tensor : preprocessed input  [C, H, W]
-    baseline     : reference input     [C, H, W]
-    target_class : class index whose logit is differentiated
-    n_steps      : number of interpolation steps
+    Args:
+        model: Trained nn.Module in eval mode.
+        input_tensor: Preprocessed input [C, H, W].
+        baseline: Reference input [C, H, W], typically all-zeros.
+        target_class: Class index whose logit is differentiated.
+        n_steps: Number of interpolation steps (more = more accurate).
 
-    Returns
-    -------
-    attributions : [C, H, W]  signed attribution per pixel and channel
+    Returns:
+        Signed attribution tensor [C, H, W] per pixel and channel.
     """
     alphas = torch.linspace(0, 1, n_steps + 1)                              # [n_steps+1]
     path = baseline + alphas.view(-1, 1, 1, 1) * (input_tensor - baseline)  # [n_steps+1, C, H, W]
@@ -129,11 +123,18 @@ def visualise_rgb(
     target_class: int,
     output_path: str | Path | None,
 ) -> None:
-    """Plot a two-panel figure for RGB images.
+    """Plot a two-panel attribution figure for RGB images.
 
-    Left  – original image.
-    Right – aggregate attribution overlaid in orange/red ("hot" colormap):
-            brighter areas contributed most to the predicted class.
+    Left panel shows the original image; right panel overlays the aggregate
+    attribution heatmap (sum of absolute attributions across channels) on top
+    of the original. Brighter areas drove the classification decision most.
+
+    Args:
+        raw: [3, H, W] float tensor in [0, 1].
+        attrs: [3, H, W] attribution tensor from integrated_gradients().
+        predicted_class: Class predicted by the model.
+        target_class: Class being explained.
+        output_path: Save figure here, or None to display interactively.
     """
     orig = raw.permute(1, 2, 0).numpy()
     agg  = _aggregate_attribution(attrs)
@@ -148,8 +149,6 @@ def visualise_rgb(
     ax1.set_title("Original image")
     ax1.axis("off")
 
-    # Overlay: the heatmap is semi-transparent so the original scene is still visible.
-    # Bright spots mark pixels that most strongly drove the classification decision.
     ax2.imshow(orig)
     ax2.imshow(agg, cmap="hot", alpha=0.6)
     ax2.set_title("Attribution heatmap (overlaid)\nBrighter = more influential pixels")
@@ -166,13 +165,19 @@ def visualise_ms(
     target_class: int,
     output_path: str | Path | None,
 ) -> None:
-    """Plot a 3×5 grid of attribution heatmaps for 13-band MS images.
+    """Plot a 3×5 attribution grid for 13-band MS images.
 
-    Cell 0    – scaled-rgb colour composite for visual context.
-    Cells 1-13 – per-band attribution maps using a red/blue diverging colormap:
-                  red  = positive attribution (band pushed model toward the class),
-                  blue = negative attribution (band pushed model away from the class).
-    Cell 14   – aggregate across all 13 bands (bright = most influential location).
+    Cell 0 shows a RGB composite (R=B4, G=B3, B=B2) for visual context.
+    Cells 1–13 show per-band attribution maps using a diverging red/blue colormap:
+    red = pushed model toward the class, blue = pushed model away from it.
+    Cell 14 shows the aggregate attribution (sum of absolute values across all bands).
+
+    Args:
+        raw: [13, H, W] raw digital-number tensor, used for the RGB composite.
+        attrs: [13, H, W] attribution tensor from integrated_gradients().
+        predicted_class: Class predicted by the model.
+        target_class: Class being explained.
+        output_path: Save figure here, or None to display interactively.
     """
     fig, axes = plt.subplots(3, 5, figsize=(15, 9))
     fig.suptitle(
@@ -231,7 +236,8 @@ def main():
     if is_ms:
         raw, preprocessed, baseline = load_ms(args.input_file)
     else:
-        raw, preprocessed, baseline = load_rgb(args.input_file)
+        image, baseline = load_rgb(args.input_file)
+        raw = preprocessed = image  # for RGB, the raw image is also the model input
 
     with torch.no_grad():
         predicted_class = int(model(preprocessed.unsqueeze(0)).argmax(1).item())
