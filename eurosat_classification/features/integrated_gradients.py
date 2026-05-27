@@ -243,6 +243,11 @@ def main():
         predicted_class = int(model(preprocessed.unsqueeze(0)).argmax(1).item())
 
     target_class = args.target_class if args.target_class is not None else predicted_class
+
+    if target_class not in label_map:
+        valid = ", ".join(f"{k} ({v})" for k, v in label_map.items())
+        raise ValueError(f"Invalid target class {target_class}. Valid options are: {valid}")
+
     print(f"Predicted : {label_map[predicted_class]}")
     print(f"Explaining: {label_map[target_class]}")
 
