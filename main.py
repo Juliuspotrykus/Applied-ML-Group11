@@ -1,14 +1,13 @@
+import io
 from typing import List
 
 # import numpy as np
 import PIL
-
-# import tifffile
+import tifffile
 import torch
 import torch.nn.functional as F
 from eurosat_classification.data.label_map import label_map
-
-# from eurosat_classification.data.preprocessors import normalize_MS_img
+from eurosat_classification.data.preprocessors import normalize_MS_img
 from fastapi import FastAPI, HTTPException, UploadFile
 from PIL import Image
 from pydantic import BaseModel
@@ -50,21 +49,22 @@ data.
 # Load RGB and MS models here. We have the full model stored,
 # so we have to make use of weights_only=False.
 model_rgb = torch.load("models/model1.pkl", weights_only=False)
-# model_ms = torch.load("models/other_model.pkl", weights_only=False)
-
-# def load_image(image: UploadFile, image_type: str):
-#     pass
+model_ms = torch.load("models/model2.pkl", weights_only=False)
 
 
-def process_image(file: UploadFile, image_type: str):
+def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
     """Processes an image given by a user."""
     if image_type == "RGB":
         # Resize, normalize, and add batch dimension
         image = Image.open(file.file).convert("RGB").resize((64, 64))
         image = transforms.ToTensor()(image).unsqueeze(0)
-    # if image_type == "MS":
-    #     image = tifffile.imread(file.file)
-    #     image = torch.from_numpy(image).permute(2, 0, 1)
+    elif image_type == "MS":
+        # read TIFF from bytes, direct approach
+        # using tiff.imread(file.file) crashes.
+        tif_bytes = file.file.read()
+        image = tifffile.imread(io.BytesIO(tif_bytes))
+        image = torch.from_numpy(image).permute(2, 0, 1).resize((64, 64))
+        image = normalize_MS_img(image).unsqueeze(0)
     return image.to(torch.float32)
 
 
@@ -75,16 +75,25 @@ async def root():
 
 @app.post(
     "/predict_rgb",
+    summary="Predict class of a three-channel RGB satellite image.",
     description="Image classifier endpoint. Add {'image': binary_image} "
     "to json body to send request. This image should be an RGB satellite "
     "image using a 10m ground sampling distance. That is, the distance "
     "between the center of two consecutive pixels is 10m when measured "
     "on the ground. Returns class confidences.",
-    response_model=None,
-    response_description="""Confidences for each of the possible classes:
-                        AnnualCrop, Forest, HerbaceousVegetation, Highway,
-                        Industrial, Pasture, PermanentCrop, Residential,
-                        River, SeaLake.""",
+    response_model=ClassPredictions,
+    response_description="""Returns model confidences for the following
+        classes:\n
+        - AnnualCrop
+        - Forest
+        - HerbaceousVegetation
+        - Highway
+        - Industrial
+        - Pasture
+        - PermanentCrop
+        - Residential
+        - River
+        - SeaLake""",
 )
 async def predict_rgb(image: UploadFile):
     # for final API version, create something
@@ -98,6 +107,48 @@ async def predict_rgb(image: UploadFile):
     confs = F.softmax(confs, dim=0)
     class_confs = [
         ClassConfidence(class_pred=label_map[i], confidence=conf)
+        for i, conf in enumerate(confs)
+    ]
+    return ClassPredictions(predictions=class_confs)
+
+
+@app.post(
+    "/predict_ms",
+    summary="Predict class of a multispectral (13-band) satellite image.",
+    description="Image classifier endpoint. Add {'image': binary_image} "
+    "to json body to send request. This image should be a multispectral "
+    "(13-band) satellite image using a 10m ground sampling distance. "
+    "That is, the distance between the center of two consecutive pixels "
+    "is 10m when measured on the ground. Returns class confidences.",
+    response_model=ClassPredictions,
+    response_description="""Returns model confidences for the following
+        classes:\n
+        - AnnualCrop
+        - Forest
+        - HerbaceousVegetation
+        - Highway
+        - Industrial
+        - Pasture
+        - PermanentCrop
+        - Residential
+        - River
+        - SeaLake""",
+)
+async def predict_ms(image: UploadFile):
+    try:
+        tensor_image = process_image(image, "MS")
+    except tifffile.tifffile.TiffFileError:
+        raise HTTPException(
+            status_code=415,
+            detail="Invalid image extension specified. "
+            "Multispectral image prediction accepts "
+            "only TIF files.",
+        )
+
+    confs = model_ms(tensor_image).detach()[0]
+    confs = F.softmax(confs, dim=0)
+    class_confs = [
+        ClassConfidence(class_pred=label_map[i], confidence=round(conf))
         for i, conf in enumerate(confs)
     ]
 
