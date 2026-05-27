@@ -1,6 +1,8 @@
 import io
 from typing import List
 
+import eurosat_classification
+
 # import numpy as np
 import PIL
 import tifffile
@@ -36,10 +38,12 @@ and one trained on multispectral images (13-dimensional).
 
 ## Model Usage - RGB
 This model is trained on 64x64 RGB images of Sentinel-2 satellite data.
+Expected input is a three-channel RGB satellite image, preferably 64 by 64
+pixels, although other formats are supported.
 
 ## Model Usage - MS
 This model is trained on 64x64 multispectral images of Sentinel-2 satellite
-data.
+data. Expected input is a thirteen-channel multispectral satellite image.
 
     """,
     version="alpha",
@@ -63,9 +67,25 @@ def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
         # using tiff.imread(file.file) crashes.
         tif_bytes = file.file.read()
         image = tifffile.imread(io.BytesIO(tif_bytes))
-        image = torch.from_numpy(image).permute(2, 0, 1).resize((64, 64))
+        image = torch.from_numpy(image).permute(2, 0, 1)
         image = normalize_MS_img(image).unsqueeze(0)
     return image.to(torch.float32)
+
+
+def model_predict(
+    model: eurosat_classification.models.cnn.CNN, image: torch.Tensor
+) -> ClassPredictions:
+    """Classifies a given image using a given model."""
+    confs = model(image).detach()[0]
+    confs = F.softmax(confs, dim=0)
+    class_confs = [
+        ClassConfidence(
+            class_pred=label_map[i], confidence=round(float(conf), 3)
+        )
+        for i, conf in enumerate(confs)
+    ]
+    class_confs = sorted(class_confs, key=lambda x: x.confidence, reverse=True)
+    return ClassPredictions(predictions=class_confs)
 
 
 @app.get("/", description="Root endpoint that redirects to documentation.")
@@ -103,13 +123,7 @@ async def predict_rgb(image: UploadFile):
     except PIL.UnidentifiedImageError:
         raise HTTPException(status_code=415, detail="Invalid image")
 
-    confs = model_rgb(tensor_image).detach()[0]
-    confs = F.softmax(confs, dim=0)
-    class_confs = [
-        ClassConfidence(class_pred=label_map[i], confidence=conf)
-        for i, conf in enumerate(confs)
-    ]
-    return ClassPredictions(predictions=class_confs)
+    return model_predict(model_rgb, tensor_image)
 
 
 @app.post(
@@ -145,11 +159,4 @@ async def predict_ms(image: UploadFile):
             "only TIF files.",
         )
 
-    confs = model_ms(tensor_image).detach()[0]
-    confs = F.softmax(confs, dim=0)
-    class_confs = [
-        ClassConfidence(class_pred=label_map[i], confidence=round(conf))
-        for i, conf in enumerate(confs)
-    ]
-
-    return ClassPredictions(predictions=class_confs)
+    return model_predict(model_ms, tensor_image)
