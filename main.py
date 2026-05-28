@@ -8,6 +8,7 @@ import torch
 import torch.nn.functional as F
 from eurosat_classification.data.label_map import label_map
 from eurosat_classification.data.preprocessors import normalize_MS_img
+from eurosat_classification.features.retrieve_model import get_model
 from eurosat_classification.models.cnn import CNN
 from fastapi import FastAPI, HTTPException, UploadFile
 from PIL import Image
@@ -70,10 +71,8 @@ data. Expected input is a thirteen-channel multispectral satellite image.
 )
 
 
-# Load RGB and MS models here. We have the full model stored,
-# so we have to make use of weights_only=False.
-model_rgb = torch.load("models/model1.pkl", weights_only=False)
-model_ms = torch.load("models/model2.pkl", weights_only=False)
+model_rgb = get_model("models/model1.pkl")
+model_ms = get_model("models/model2.pkl")
 
 
 def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
