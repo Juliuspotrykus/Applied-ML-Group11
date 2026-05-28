@@ -124,7 +124,7 @@ async def root():
     "score, in json format.",
     response_model=ClassPredictions,
     response_description="""Returns model confidences for the following
-        classes:\n
+        classes, ranked by confidence score:\n
         - AnnualCrop
         - Forest
         - HerbaceousVegetation
@@ -161,7 +161,7 @@ async def predict_rgb(image: UploadFile):
     "classes, ranked by confidence score, in json format.",
     response_model=ClassPredictions,
     response_description="""Returns model confidences for the following
-        classes:\n
+        classes, ranked by confidence score:\n
         - AnnualCrop
         - Forest
         - HerbaceousVegetation
