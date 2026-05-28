@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score
 
 from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
+from ..features.gradcam import visualize_gradcam_ms, visualize_gradcam_rgb
 from ..data.datasets import create_dataloaders
 
 # Example training script for CNN model.
@@ -84,3 +85,4 @@ plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.legend()
 plt.show()
+
