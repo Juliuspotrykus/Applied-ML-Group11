@@ -16,13 +16,13 @@ KERNEL_OPTIONS = {
     "single_5":   [Kernel(5)],
     "multi_3_5":  [Kernel(3), Kernel(5)],
     "multi_3_7":  [Kernel(3), Kernel(7)],
-    "multi_3_5_7":[Kernel(3), Kernel(5), Kernel(7)],
+    "multi_3_5_7_9":[Kernel(3), Kernel(5), Kernel(7), Kernel(9)],
 }
 
 
 def build_config(trial, image_type):
     n_blocks = trial.suggest_int("n_conv_blocks", 2, 4)
-    base = trial.suggest_categorical("base_channels", [16, 32, 64])
+    base = trial.suggest_categorical("base_channels", [16, 32, 64, 128])
     kernel_choice = trial.suggest_categorical("kernels", list(KERNEL_OPTIONS))
     kernels = KERNEL_OPTIONS[kernel_choice]
 
