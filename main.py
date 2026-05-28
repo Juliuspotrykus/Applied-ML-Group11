@@ -18,8 +18,8 @@ from torchvision import transforms
 
 
 class ClassConfidence(BaseModel):
-    class_pred: str = "AnnualCrop"
-    confidence: float = 0.1
+    class_pred: str
+    confidence: float
 
 
 class ClassPredictions(BaseModel):
