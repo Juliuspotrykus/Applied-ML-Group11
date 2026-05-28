@@ -5,25 +5,42 @@ import torch
 from optuna.trial import FixedTrial
 
 from ..data.datasets import create_dataloaders
-from ..models.cnn import CNNConfig, ConvBlockConfig
+from ..models.cnn import CNNConfig, ConvBlockConfig, Kernel
 from .train import train_model
 
 CHANNELS = {"rgb": 3, "ms": 13}
 
 
+KERNEL_OPTIONS = {
+    "single_3":   [Kernel(3)],
+    "single_5":   [Kernel(5)],
+    "multi_3_5":  [Kernel(3), Kernel(5)],
+    "multi_3_7":  [Kernel(3), Kernel(7)],
+    "multi_3_5_7":[Kernel(3), Kernel(5), Kernel(7)],
+}
+
+
 def build_config(trial, image_type):
     n_blocks = trial.suggest_int("n_conv_blocks", 2, 4)
     base = trial.suggest_categorical("base_channels", [16, 32, 64])
+    kernel_choice = trial.suggest_categorical("kernels", list(KERNEL_OPTIONS))
+    kernels = KERNEL_OPTIONS[kernel_choice]
+
     conv_blocks = [
-        ConvBlockConfig(out_channels=base * (2**i), batch_norm=True, pool_size=2)
+        ConvBlockConfig(out_channels=base * (2**i), kernels=kernels, batch_norm=True, pool_size=2)
         for i in range(n_blocks)
     ]
+
+    n_fc_layers = trial.suggest_int("n_fc_layers", 1, 3)
+    fc_hidden_size = trial.suggest_categorical("fc_hidden", [64, 128, 256, 512])
+    fc_layers = [fc_hidden_size] * n_fc_layers + [10]
+
     return CNNConfig(
         in_channels=CHANNELS[image_type],
         input_height=64,
         input_width=64,
         conv_blocks=conv_blocks,
-        fc_layers=[trial.suggest_categorical("fc_hidden", [64, 128, 256]), 10],
+        fc_layers=fc_layers,
         dropout=trial.suggest_float("dropout", 0.2, 0.6),
         activation=trial.suggest_categorical("activation", ["relu", "gelu", "silu"]),
     )
