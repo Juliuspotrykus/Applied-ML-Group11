@@ -6,6 +6,7 @@ import tifffile
 from ..data.preprocessors import normalize_MS_img
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
+from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 import numpy as np
 from pathlib import Path
 import torch
@@ -76,6 +77,12 @@ def load_ms(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
 
 def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, target_class: int | None = None):
     with GradCAM(model=model, target_layers=get_last_conv_layer(model)) as cam:
+        if target_class is not None:
+            targets = [ClassifierOutputTarget(target_class)]
+        else:
+            # when targets is None it defaults to the highest predicted class
+            targets = None 
+    
         # Set model to evaluation mode before applying gradcam
         model.eval()
 
