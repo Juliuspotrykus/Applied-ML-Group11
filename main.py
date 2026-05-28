@@ -1,8 +1,6 @@
 import io
 from typing import List
 
-import eurosat_classification
-
 # import numpy as np
 import PIL
 import tifffile
@@ -10,6 +8,7 @@ import torch
 import torch.nn.functional as F
 from eurosat_classification.data.label_map import label_map
 from eurosat_classification.data.preprocessors import normalize_MS_img
+from eurosat_classification.models.cnn import CNN
 from fastapi import FastAPI, HTTPException, UploadFile
 from PIL import Image
 from pydantic import BaseModel
@@ -93,9 +92,7 @@ def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
     return image.to(torch.float32)
 
 
-def model_predict(
-    model: eurosat_classification.models.cnn.CNN, image: torch.Tensor
-) -> ClassPredictions:
+def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
     """Classifies a given image using a given model."""
     confs = model(image).detach()[0]
     confs = F.softmax(confs, dim=0)
@@ -117,11 +114,14 @@ async def root():
 @app.post(
     "/predict_rgb",
     summary="Predict class of a three-channel RGB satellite image.",
-    description="Image classifier endpoint. Add {'image': binary_image} "
-    "to json body to send request. This image should be an RGB satellite "
-    "image using a 10m ground sampling distance. That is, the distance "
-    "between the center of two consecutive pixels is 10m when measured "
-    "on the ground. Returns class confidences.",
+    description="Image classifier endpoint to classify three-channel RGB "
+    "satellite images. Requests should be of the format multipart/form-data, "
+    "and include an image sent using the applicable 'image' field. The given "
+    "image should be a three-channel RGB satellite image using a 10m ground "
+    "sampling distance. That is, the distance between the center of two "
+    "consecutive pixels is 10m when measured on the ground. Returns class "
+    "confidences for each of the ten supported classes, ranked by confidence "
+    "score, in json format.",
     response_model=ClassPredictions,
     response_description="""Returns model confidences for the following
         classes:\n
@@ -150,11 +150,15 @@ async def predict_rgb(image: UploadFile):
 @app.post(
     "/predict_ms",
     summary="Predict class of a multispectral (13-band) satellite image.",
-    description="Image classifier endpoint. Add {'image': binary_image} "
-    "to json body to send request. This image should be a multispectral "
-    "(13-band) satellite image using a 10m ground sampling distance. "
-    "That is, the distance between the center of two consecutive pixels "
-    "is 10m when measured on the ground. Returns class confidences.",
+    description="Image classifier endpoint to classify multispectral "
+    "(13-band) satellite images. Requests should be of the format "
+    "multipart/form-data, and include an image sent using the "
+    "applicable 'image' field. The given image should be a "
+    "thirteen-channel multispectral satellite image using a 10m ground "
+    "sampling distance. That is, the distance between the center of "
+    "two consecutive pixels is 10m when measured on the ground. "
+    "Returns class confidences for each of the ten supported "
+    "classes, ranked by confidence score, in json format.",
     response_model=ClassPredictions,
     response_description="""Returns model confidences for the following
         classes:\n
