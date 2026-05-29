@@ -21,18 +21,22 @@ KERNEL_OPTIONS = {
 
 
 def build_config(trial, image_type):
-    n_blocks = trial.suggest_int("n_conv_blocks", 2, 4)
-    base = trial.suggest_categorical("base_channels", [16, 32, 64, 128])
-    kernel_choice = trial.suggest_categorical("kernels", list(KERNEL_OPTIONS))
-    kernels = KERNEL_OPTIONS[kernel_choice]
+    n_blocks = trial.suggest_int("n_conv_blocks", 2, 15)
+    base = trial.suggest_categorical("base_channels", [16, 32, 64, 128, 256, 512])
+    conv_blocks = []
+    for i in range(n_blocks):
+        kernel_choice = trial.suggest_categorical(f"kernels_block_{i}", list(KERNEL_OPTIONS))
+        conv_blocks.append(
+            ConvBlockConfig(
+                out_channels=base * (2**i),
+                kernels=KERNEL_OPTIONS[kernel_choice],
+                batch_norm=True,
+                pool_size=2,
+            )
+        )
 
-    conv_blocks = [
-        ConvBlockConfig(out_channels=base * (2**i), kernels=kernels, batch_norm=True, pool_size=2)
-        for i in range(n_blocks)
-    ]
-
-    n_fc_layers = trial.suggest_int("n_fc_layers", 1, 3)
-    fc_hidden_size = trial.suggest_categorical("fc_hidden", [64, 128, 256, 512])
+    n_fc_layers = trial.suggest_int("n_fc_layers", 1, 10)
+    fc_hidden_size = trial.suggest_categorical("fc_hidden", [64, 128, 256, 512, 1024, 2048])
     fc_layers = [fc_hidden_size] * n_fc_layers + [10]
 
     return CNNConfig(
