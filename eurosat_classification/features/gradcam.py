@@ -87,7 +87,7 @@ def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, targe
         model.eval()
 
         # targets as none defaults to highest scoring category (per batch)
-        grayscale_cam = cam(input_tensor=input_tensor, targets=target_class)
+        grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
         
         # In this example grayscale_cam has only one image in the batch:
         grayscale_cam = grayscale_cam[0, :]
