@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import torch
-import torch.nn as nn
+from torch import nn
 from sklearn.metrics import f1_score
 
 from ..data.datasets import create_dataloaders
