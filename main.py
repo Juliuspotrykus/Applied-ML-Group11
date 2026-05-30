@@ -1,26 +1,35 @@
 import io
 from typing import List
 
+import matplotlib
 import numpy as np
 import PIL
 import tifffile
 import torch
 import torch.nn.functional as F
-from eurosat_classification.data.label_map import label_map, reverse_label_map
-from eurosat_classification.data.preprocessors import normalize_MS_img
-from eurosat_classification.features.retrieve_model import get_model
-from eurosat_classification.models.cnn import CNN
-from eurosat_classification.features.integrated_gradients import load_rgb_ig, load_ms_ig, integrated_gradients, visualise_rgb, visualise_ms
-from eurosat_classification.features.gradcam import gradcam, _scaled_rgb_colour
 from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 from torchvision import transforms
-import matplotlib
+
+from eurosat_classification.data.label_map import label_map, reverse_label_map
+from eurosat_classification.data.preprocessors import normalize_MS_img
+from eurosat_classification.features.gradcam import _scaled_rgb_colour, gradcam
+from eurosat_classification.features.integrated_gradients import (
+    integrated_gradients,
+    load_ms_ig,
+    load_rgb_ig,
+    visualise_ms,
+    visualise_rgb,
+)
+from eurosat_classification.features.retrieve_model import get_model
+from eurosat_classification.models.cnn import CNN
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 
 ## Classes for prediction API
 class ClassConfidence(BaseModel):

@@ -1,22 +1,22 @@
-from .retrieve_model import get_model
-from ..models.cnn import CNN
-import torch.nn as nn
-from torch import Tensor
+import argparse
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
 import tifffile
-from ..data.preprocessors import normalize_MS_img
+import torch
+import torch.nn as nn
+from PIL import Image
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
-import numpy as np
-from pathlib import Path
-import torch
+from torch import Tensor
 from torchvision import transforms
-from PIL import Image
-import matplotlib.pyplot as plt
+
 from ..data.label_map import label_map
-import argparse
-
-
+from ..data.preprocessors import normalize_MS_img
+from ..models.cnn import CNN
+from .retrieve_model import get_model
 
 
 def get_last_conv_layer(model: CNN) -> list[nn.Conv2d]:

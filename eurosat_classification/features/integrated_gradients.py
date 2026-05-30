@@ -24,14 +24,15 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
 import tifffile
+import torch
 from PIL import Image
 from torchvision import transforms
 
 from ..data.band_names import MS_BAND_NAMES
 from ..data.label_map import label_map
 from ..data.preprocessors import normalize_MS_img
+
 
 def load_rgb_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
     """Load a 3-band JPG/PNG as a [3, H, W] float tensor in [0, 1].
