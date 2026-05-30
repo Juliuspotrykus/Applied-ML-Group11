@@ -41,7 +41,7 @@ def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
     Returns (tensor, np array).
     """
     img_tensor = transforms.ToTensor()(Image.open(path).convert("RGB")).unsqueeze(0)
-    img_array = img_tensor.permute(1, 2, 0).numpy()
+    img_array = img_tensor[0].permute(1, 2, 0).numpy()
 
     return img_tensor, img_array
 
