@@ -33,7 +33,7 @@ from ..data.band_names import MS_BAND_NAMES
 from ..data.label_map import label_map
 from ..data.preprocessors import normalize_MS_img
 
-def load_rgb(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
+def load_rgb_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
     """Load a 3-band JPG/PNG as a [3, H, W] float tensor in [0, 1].
 
     RGB training used no normalisation, so the raw image is also the model input.
@@ -44,7 +44,7 @@ def load_rgb(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
     baseline = torch.zeros_like(image)
     return image, baseline
 
-def load_ms(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def load_ms_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Load a 13-band GeoTIFF as a [13, H, W] float tensor.
 
     Returns (raw, preprocessed, baseline) where raw holds the original
@@ -234,9 +234,9 @@ def main():
     model.eval()
 
     if is_ms:
-        raw, preprocessed, baseline = load_ms(args.input_file)
+        raw, preprocessed, baseline = load_ms_ig(args.input_file)
     else:
-        image, baseline = load_rgb(args.input_file)
+        image, baseline = load_rgb_ig(args.input_file)
         raw = preprocessed = image  # for RGB, the raw image is also the model input
 
     with torch.no_grad():
