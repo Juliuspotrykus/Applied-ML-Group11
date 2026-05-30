@@ -77,6 +77,8 @@ data. Expected input is a thirteen-channel multispectral satellite image.
 # Load models
 model_rgb = get_model("models/model1.pkl")
 model_ms = get_model("models/model2.pkl")
+model_rgb.eval()
+model_ms.eval()
 
 # Functions for prediction API
 def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
@@ -97,7 +99,8 @@ def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
 
 def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
     """Classifies a given image using a given model."""
-    confs = model(image).detach()[0]
+    with torch.no_grad():
+        confs = model(image).detach()[0]
     confs = F.softmax(confs, dim=0)
     class_confs = [
         ClassConfidence(
@@ -155,10 +158,10 @@ def combine_xai_figures(ig_fig, gradcam_fig):
 
 def ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type):
     if image_type == "RGB":
-        attrs = integrated_gradients(model_rgb.eval(), preprocessed, baseline, target_class, n_steps)
+        attrs = integrated_gradients(model_rgb, preprocessed, baseline, target_class, n_steps)
         figure = visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
     elif image_type == "MS":
-        attrs = integrated_gradients(model_ms.eval(), preprocessed, baseline, target_class, n_steps)
+        attrs = integrated_gradients(model_ms, preprocessed, baseline, target_class, n_steps)
         figure = visualise_ms(raw, attrs, predicted_class, target_class, output_path=None)
 
     return figure
@@ -277,11 +280,17 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
 
     except PIL.UnidentifiedImageError:
         raise HTTPException(status_code=415, detail="Invalid image")
-    
+
     predicted_class = class_to_explain(tensor_image, "RGB")
     if target_class is None:
         target_class = predicted_class
 
+    if target_class not in label_map:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid target_class. Valid options are integers 0-9"
+        )
+    
     ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="RGB")
     gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="RGB")
 
@@ -300,16 +309,15 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
 )
 async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
     try:
-        # GradCAM
-        tensor_image = process_image(image, "MS") # dim: (1, 13, H, W)
-        array_image = _scaled_rgb_colour(tensor_image)
-
-        # Integrated gradients
         tif_bytes = image.file.read()
+
         raw = tifffile.imread(io.BytesIO(tif_bytes))
         raw = torch.from_numpy(raw).permute(2, 0, 1)
+        tensor_image = normalize_MS_img(raw).unsqueeze(0) # dim: (1, 13, H, W)
         preprocessed = tensor_image[0]
         baseline = torch.zeros_like(preprocessed)
+        array_image = _scaled_rgb_colour(raw)
+
     except tifffile.tifffile.TiffFileError:
         raise HTTPException(
             status_code=415,
@@ -317,10 +325,16 @@ async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps
             "Multispectral image prediction accepts "
             "only TIF files.",
         )
-    
+
     predicted_class = class_to_explain(preprocessed.unsqueeze(0), "MS")
     if target_class is None:
         target_class = predicted_class
+
+    if target_class not in label_map:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid target_class. Valid options are integers 0-9"
+        )
 
     ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="MS")
     gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="MS")
