@@ -1,7 +1,7 @@
 import io
 from typing import List
 
-# import numpy as np
+import numpy as np
 import PIL
 import tifffile
 import torch
@@ -22,7 +22,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# Classes for prediction API
+## Classes for prediction API
 class ClassConfidence(BaseModel):
     class_pred: str
     confidence: float
@@ -53,38 +53,81 @@ class ClassPredictions(BaseModel):
     }
 
 
-# Define API and description
+## Define API app
 app = FastAPI(
     title="Satellite Image Classifier",
     summary="""An API endpoint to classify satellite images into one of ten
             classes using a CNN. Trained using the EuroSAT dataset.""",
     description="""
 # An API endpoint to access CNN classifiers trained on the EuroSAT dataset.
-Two models are accessible; one trained on RGB images (3-dimensional),
+Two models are accessible; a baseline one trained on RGB images (3-dimensional),
 and one trained on multispectral images (13-dimensional).
+
+Ten classes into which satellite images can be classified and their index:
+| Index | Class Name |
+|-------|------|
+| 0 | AnnualCrop |
+| 1 | Forest |
+| 2 | HerbaceousVegetation |
+| 3 | Highway |
+| 4 | Industrial |
+| 5 | Pasture |
+| 6 | PermanentCrop |
+| 7 | Residential |
+| 8 | River |
+| 9 | SeaLake |
 
 ## Model Usage - RGB
 This model is trained on 64x64 RGB images of Sentinel-2 satellite data.
 Expected input is a three-channel RGB satellite image, preferably 64 by 64
-pixels, although other formats are supported.
+pixels, although other formats are supported. The ground sampling distance
+should be 10 meters.
 
-## Model Usage - MS
+## Model Usage - Multi-spectral (MS)
 This model is trained on 64x64 multispectral images of Sentinel-2 satellite
-data. Expected input is a thirteen-channel multispectral satellite image.
+data. Expected input is a 13-channel multispectral satellite image. See table
+below for descriptions of the 13 bands. The ground sampling distanceshould be 
+10 meters.
+
+| Index | Band | Name |
+|-------|------|------|
+| 0 | B01 | Aerosols |
+| 1 | B02 | Blue |
+| 2 | B03 | Green |
+| 3 | B04 | Red |
+| 4 | B05 | Red Edge 1 |
+| 5 | B06 | Red Edge 2 |
+| 6 | B07 | Red Edge 3 |
+| 7 | B08 | Near Infrared (NIR) |
+| 8 | B08A | Narrow NIR |
+| 9 | B09 | Water Vapour |
+| 10 | B10 | Short-wave Infrared (SWIR) - Cirrus |
+| 11 | B11 | SWIR 1 |
+| 12 | B12 | SWIR 2 |
 
     """,
     version="alpha",
 )
 
-# Load models
+#@ Load models
 model_rgb = get_model("models/model1.pkl")
 model_ms = get_model("models/model2.pkl")
 model_rgb.eval()
 model_ms.eval()
 
-# Functions for prediction API
+## Functions for prediction API
 def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
-    """Processes an image given by a user."""
+    """    
+    Pre-processes an image given by a user.
+    Resizing (for RGB), normalization, and clipping extreme values (for MS).
+
+    Args:
+        file (UploadFile): User uploaded image or TIF file.
+        image_type (str): File type. Options are "RGB" or "MS".
+
+    Returns:
+        torch.Tensor: Processed images as a tensor.
+    """
     if image_type == "RGB":
         # Resize, normalize, and add batch dimension
         image = Image.open(file.file).convert("RGB").resize((64, 64))
@@ -100,7 +143,16 @@ def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
 
 
 def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
-    """Classifies a given image using a given model."""
+    """
+    Classifies a given image using a given model.
+
+    Args:
+        model (CNN): Model to use for prediction.
+        image (torch.Tensor): Image to predict.
+
+    Returns:
+        ClassPredictions: Sorted predictions and confidence for each class.
+    """
     with torch.no_grad():
         confs = model(image).detach()[0]
     confs = F.softmax(confs, dim=0)
@@ -114,8 +166,22 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
     return ClassPredictions(predictions=class_confs)
 
 
-# Functions for XAI API
+## Functions for XAI API
 def parse_target(target_class: int | str | None = None) -> int | None:
+    """
+    Parse target class for explainability from integer index or string.
+    Default is None, for which explanation will be given for predicted class. 
+
+    Args:
+        target_class (int | str | None, optional): Target class to explain entered by user. 
+                                                   Defaults to None.
+
+    Raises:
+        HTTPException: Invalid target class entered.
+
+    Returns:
+        int | None: Integer index for target class, or None.
+    """
     if target_class is None:
         return None
     elif isinstance(target_class, int) and target_class in label_map:
@@ -125,11 +191,23 @@ def parse_target(target_class: int | str | None = None) -> int | None:
 
     raise HTTPException(
             status_code=400,
-            detail="Invalid target_class. Valid options are integers 0-9"
+            detail="Invalid target_class. Valid options are integers 0-9 or "\
+            "string representations from documentation."
         )
 
 
 def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
+    """
+    Finds top prediction class for an input image using its corresponding type
+    model.
+
+    Args:
+        preprocessed_img (torch.Tensor): Image to predict.
+        image_type (str): File type. Options are "RGB" or "MS".
+
+    Returns:
+        int: Index of predicted class.
+    """
     with torch.no_grad():
         if image_type == "RGB":
             predicted_class = int(model_rgb(preprocessed_img).argmax(1).item())
@@ -140,6 +218,16 @@ def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
     return predicted_class
 
 def api_show_figures(figure: plt.Figure) -> StreamingResponse:
+    """
+    Transforms plt figure into StreamingResponse object for displaying images
+    in FastAPI.
+
+    Args:
+        figure (plt.Figure): Figure to display.
+
+    Returns:
+        StreamingResponse: StreamingResponse object with figure to display.
+    """
     # Save figure to buffer
     buffer = io.BytesIO()
     figure.savefig(buffer, format="png")
@@ -148,7 +236,18 @@ def api_show_figures(figure: plt.Figure) -> StreamingResponse:
     return StreamingResponse(buffer, media_type="image/png")
 
 
-def combine_xai_figures(ig_fig, gradcam_fig):
+def combine_xai_figures(ig_fig: plt.Figure, gradcam_fig: plt.Figure) -> plt.Figure:
+    """
+    Combines Integrated Gradients and GradCAM XAI figures into one figure in a
+    side-by-side layout.
+
+    Args:
+        ig_fig (plt.Figure): Integrated Gradients figure.
+        gradcam_fig (plt.Figure): GradCAM figure.
+
+    Returns:
+        plt.Figure: Combined figure.
+    """
     ig_buf = io.BytesIO()
     ig_fig.savefig(ig_buf, format="png")
     plt.close(ig_fig)
@@ -172,7 +271,23 @@ def combine_xai_figures(ig_fig, gradcam_fig):
     return fig
 
 
-def ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type):
+def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Tensor, predicted_class: int, target_class: int | None, n_steps: int, image_type: str) -> plt.Figure:
+    """
+    Performs Integrated Gradients on input image for a requested target class
+    and returns visualization.
+
+    Args:
+        raw (torch.Tensor): [3, H, W] float tensor in [0, 1]
+        preprocessed (torch.Tensor): Preprocessed input [C, H, W].
+        baseline (torch.Tensor): Reference input [C, H, W], typically all-zeros.
+        predicted_class (int): Class predicted by the model.
+        target_class (int | None): Class being explained.
+        n_steps (int): Number of interpolation steps (more = more accurate).
+        image_type (str): File type. Options are "RGB" or "MS".
+
+    Returns:
+        plt.Figure: Visualization of Integrated Gradients explanation.
+    """
     if image_type == "RGB":
         attrs = integrated_gradients(model_rgb, preprocessed, baseline, target_class, n_steps)
         figure = visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
@@ -182,7 +297,21 @@ def ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_ste
 
     return figure
 
-def gradcam_explain(img_tensor, img_array, predicted_class, target_class, image_type):
+def gradcam_explain(img_tensor: torch.Tensor, img_array: np.ndarray, predicted_class: int, target_class: int | None, image_type: str) -> plt.Figure:
+    """
+    Performs GradCAM on input image for a requested target class and returns 
+    visualization.    
+
+    Args:
+        img_tensor (torch.Tensor): Tensor of image to explain.
+        img_array (np.ndarray): Array of image to explain.
+        predicted_class (int): Class predicted by the model.
+        target_class (int | None): Class being explained.
+        image_type (str): File type. Options are "RGB" or "MS".
+
+    Returns:
+        plt.Figure: Visualization of GradCAM explanation.
+    """
     if image_type == "RGB":
         gradcam_visualization = gradcam(model_rgb, img_tensor, img_array, target_class)
     elif image_type == "MS":
@@ -194,8 +323,8 @@ def gradcam_explain(img_tensor, img_array, predicted_class, target_class, image_
     ax.axis("off")
     return figure
 
-# API endpoints
-@app.get("/", description="Root endpoint that redirects to documentation.")
+## API endpoints
+@app.get("/", description="Root endpoint that redirects to API documentation.")
 async def root():
     return RedirectResponse(url="/docs")
 
@@ -225,9 +354,9 @@ async def root():
         - River
         - SeaLake""",
 )
-async def predict_rgb(image: UploadFile):
-    # for final API version, create something
-    # that can handle more than 10x10 meter images.
+async def predict_rgb(image: UploadFile) -> ClassPredictions:
+    # For final API version, create something
+    # that can handle more than 10x10 meter images. TODO
     try:
         tensor_image = process_image(image, "RGB")
     except PIL.UnidentifiedImageError:
@@ -262,7 +391,7 @@ async def predict_rgb(image: UploadFile):
         - River
         - SeaLake""",
 )
-async def predict_ms(image: UploadFile):
+async def predict_ms(image: UploadFile) -> ClassPredictions:
     try:
         tensor_image = process_image(image, "MS")
     except tifffile.tifffile.TiffFileError:
@@ -278,19 +407,37 @@ async def predict_ms(image: UploadFile):
 # Explainability for RGB (i.e. baseline) model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_rgb",
-    summary="Explainability for RGB model.",
-    description="description",
-    response_description="returns gradcam heatmap for specified target class" \
-    "of input, or 4x4 images with integrated gradients expalantaopns",
+    summary="Provide explainability for RGB model on input image for desired " 
+    "class.",
+    description="RGB explainability endpoint to give insight into model "
+    "responses for RGB inputs. Requests should be of the format multipart/form-data, "
+    "and include an image sent using the applicable 'image' field. The given "
+    "image should be a three-channel RGB satellite image using a 10m ground "
+    "sampling distance. That is, the distance between the center of two "
+    "consecutive pixels is 10m when measured on the ground. Optionally, a "
+    "target class may be included in the request. This should either be an "
+    "integer between 0 and 9 included, or a class name as written in the "
+    "table above. When no target class is provided, the explanation of the "
+    "model will be given for the predicted class. Additionally, an n_steps "
+    "input can be included in the request. This refers to the number of "
+    "interpolation steps for integrated gradients, and higher numbers "
+    "generally create more accurate results. The default value is 50. Returns "
+    "a double panel: on the left, the Integrated Gradients explanation is "
+    "shown alongside the original input, where brighter colors indicate more " 
+    "influential pixels; on the right, the GradCAM explanation is shown "
+    "alongside the original input, and red colors indicate more influential "
+    "pixels.",
+    response_description="Returns Integrated Gradients attribution heatmap " 
+    "and GradCAM heatmap for specified target class.",
     response_class = StreamingResponse,
 )
-async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
+async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50) -> StreamingResponse:
     try:
-        # GradCam
+        # GradCam inputs
         tensor_image = process_image(image, "RGB") # dim (1, 3, H, W)
         array_image = tensor_image[0].permute(1, 2, 0).numpy() 
 
-        # Integrated gradients
+        # Integrated gradients inputs
         preprocessed = tensor_image[0]
         raw = preprocessed
         baseline = torch.zeros_like(preprocessed)
@@ -314,13 +461,37 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
 # Explainability for MS model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_ms",
-    summary="Explainability for MS model.",
-    description="description",
-    response_description="returns gradcam heatmap for specified target class" \
-    "of input, or 4x4 images with integrated gradients expalantaopns",
+    summary="Provide explainability for MS model on input image for desired " 
+    "class.",
+    description="MS explainability endpoint to give insight into model "
+    "responses for MS inputs. Requests should be of the format multipart/form-data, "
+    "and include an image sent using the applicable 'image' field. The given "
+    "image should be a thirteen-channel multispectral satellite image using a "
+    "10m ground sampling distance. That is, the distance between the center of two "
+    "consecutive pixels is 10m when measured on the ground. Optionally, a "
+    "target class may be included in the request. This should either be an "
+    "integer between 0 and 9 included, or a class name as written in the "
+    "table above. When no target class is provided, the explanation of the "
+    "model will be given for the predicted class. Additionally, an n_steps "
+    "input can be included in the request. This refers to the number of "
+    "interpolation steps for integrated gradients, and higher numbers "
+    "generally create more accurate results. The default value is 50. Returns "
+    "a double panel: on the left, the Integrated Gradients explanation is "
+    "shown (per-band and aggregated) alongside the original input, where " 
+    "brighter colors indicate more influential pixels; on the right, the "
+    "GradCAM explanation is shown alongside the original input, and red colors " 
+    "indicate more influential pixels.",    
+    response_description="Returns Integrated Gradients attribution heatmap " 
+    "and GradCAM heatmap for specified target class. Integrated Gradients "
+    "visualization contains 15 heatmaps:" \n
+    " - Cell 0: RGB composite (R=B4, G=B3, B=B2) for visual context."
+    " - Cells 1-13: Per-band attribution maps using a diverging red/blue colormap:"
+    "       Red = pushed model toward the class"
+    "       Blue = pushed model away from the class"
+    " - Cell 14: Aggregate attribution (sum of absolute values across all bands)",
     response_class = StreamingResponse,
 )
-async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
+async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50) -> StreamingResponse:
     try:
         tif_bytes = image.file.read()
 
