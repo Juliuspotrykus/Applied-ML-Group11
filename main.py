@@ -6,7 +6,7 @@ import PIL
 import tifffile
 import torch
 import torch.nn.functional as F
-from eurosat_classification.data.label_map import label_map
+from eurosat_classification.data.label_map import label_map, reverse_label_map
 from eurosat_classification.data.preprocessors import normalize_MS_img
 from eurosat_classification.features.retrieve_model import get_model
 from eurosat_classification.models.cnn import CNN
@@ -115,6 +115,20 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
 
 
 # Functions for XAI API
+def parse_target(target_class: int | str | None = None) -> int | None:
+    if target_class is None:
+        return None
+    elif isinstance(target_class, int) and target_class in label_map:
+        return target_class
+    elif isinstance(target_class, str) and target_class in reverse_label_map:
+        return reverse_label_map[target_class]
+
+    raise HTTPException(
+            status_code=400,
+            detail="Invalid target_class. Valid options are integers 0-9"
+        )
+
+
 def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
     with torch.no_grad():
         if image_type == "RGB":
@@ -284,15 +298,10 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
     except PIL.UnidentifiedImageError:
         raise HTTPException(status_code=415, detail="Invalid image")
 
+    target_class = parse_target(target_class)
     predicted_class = class_to_explain(tensor_image, "RGB")
     if target_class is None:
         target_class = predicted_class
-
-    if target_class not in label_map:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid target_class. Valid options are integers 0-9"
-        )
     
     ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="RGB")
     gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="RGB")
@@ -329,16 +338,10 @@ async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps
             "Multispectral image prediction accepts "
             "only TIF files.",
         )
-
+    target_class = parse_target(target_class)
     predicted_class = class_to_explain(preprocessed.unsqueeze(0), "MS")
     if target_class is None:
         target_class = predicted_class
-
-    if target_class not in label_map:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid target_class. Valid options are integers 0-9"
-        )
 
     ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="MS")
     gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="MS")
