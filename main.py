@@ -268,6 +268,7 @@ async def predict_ms(image: UploadFile):
     description="description",
     response_description="returns gradcam heatmap for specified target class" \
     "of input, or 4x4 images with integrated gradients expalantaopns",
+    response_class = StreamingResponse,
 )
 async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
     try:
@@ -308,6 +309,7 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
     description="description",
     response_description="returns gradcam heatmap for specified target class" \
     "of input, or 4x4 images with integrated gradients expalantaopns",
+    response_class = StreamingResponse,
 )
 async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
     try:
