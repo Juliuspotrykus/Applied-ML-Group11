@@ -11,11 +11,13 @@ from eurosat_classification.data.preprocessors import normalize_MS_img
 from eurosat_classification.features.retrieve_model import get_model
 from eurosat_classification.models.cnn import CNN
 from eurosat_classification.features.integrated_gradients import load_rgb_ig, load_ms_ig, integrated_gradients, visualise_rgb, visualise_ms
+from eurosat_classification.features.gradcam import gradcam, _scaled_rgb_colour
 from fastapi import FastAPI, HTTPException, UploadFile
 from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 from torchvision import transforms
+import matplotlib.pyplot as plt
 
 # Classes for prediction API
 class ClassConfidence(BaseModel):
@@ -107,18 +109,36 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
 
 
 # Functions for XAI API
-def ig_explain(raw, preprocessed, baseline, target_class, n_steps, image_type):
+def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
     with torch.no_grad():
-        predicted_class = int(model_rgb(preprocessed.unsqueeze(0)).argmax(1).item())
-    target_class = target_class if target_class is not None else predicted_class
+        if image_type == "RGB":
+            predicted_class = int(model_rgb(preprocessed_img.unsqueeze(0)).argmax(1).item())
+    
+        elif image_type == "MS":
+            predicted_class = int(model_ms(preprocessed_img.unsqueeze(0)).argmax(1).item())
 
-    attrs = integrated_gradients(model_rgb.eval(), preprocessed, baseline, target_class, n_steps)
+    return predicted_class
+    
 
+def ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type):
     if image_type == "RGB":
+        attrs = integrated_gradients(model_rgb.eval(), preprocessed, baseline, target_class, n_steps)
         return visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
     elif image_type == "MS":
+        attrs = integrated_gradients(model_ms.eval(), preprocessed, baseline, target_class, n_steps)
         return visualise_ms(raw, attrs, predicted_class, target_class, output_path=None)
 
+def gradcam_explain(img_tensor, img_array, predicted_class, target_class, image_type):
+    if image_type == "RGB":
+        gradcam_visualization = gradcam(model_rgb, img_tensor, img_array, target_class)
+    elif image_type == "MS":
+        gradcam_visualization = gradcam(model_ms, img_tensor, img_array, target_class)
+    
+    fig, ax = plt.subplots()
+    ax.imshow(gradcam_visualization)
+    ax.set_title(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
+    ax.axis("off")
+    plt.show()
 
 # API endpoints
 @app.get("/", description="Root endpoint that redirects to documentation.")
@@ -210,14 +230,22 @@ async def predict_ms(image: UploadFile):
     "of input, or 4x4 images with integrated gradients expalantaopns",
 )
 async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
-    # Integrated gradients
     try:
+        # Integrated gradients
         img, baseline = load_rgb_ig(image.file)
         raw = preprocessed = img
+
+        # GradCam
+        tensor_image = process_image(image, "RGB")
+        array_image = tensor_image.permute(1, 2, 0).numpy() 
     except PIL.UnidentifiedImageError:
         raise HTTPException(status_code=415, detail="Invalid image")
     
-    return ig_explain(raw, preprocessed, baseline, target_class, n_steps, image_type="RGB")
+    predicted_class = class_to_explain(preprocessed, "RGB")
+    if target_class is None:
+        target_class = predicted_class
+
+    return ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="RGB"), gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="RGB")
 
 
 
@@ -230,9 +258,13 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
     "of input, or 4x4 images with integrated gradients expalantaopns",
 )
 async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
-    # Integrated gradients
     try:
+        # Integrated gradients
         raw, preprocessed, baseline = load_ms_ig(image)
+
+        # GradCAM
+        tensor_image = process_image(image, "MS")
+        array_image = _scaled_rgb_colour(tensor_image)
     except tifffile.tifffile.TiffFileError:
         raise HTTPException(
             status_code=415,
@@ -241,4 +273,8 @@ async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps
             "only TIF files.",
         )
     
-    return ig_explain(raw, preprocessed, baseline, target_class, n_steps, image_type="MS")
+    predicted_class = class_to_explain(preprocessed, "MS")
+    if target_class is None:
+        target_class = predicted_class
+
+    return ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="MS"), gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="MS")
