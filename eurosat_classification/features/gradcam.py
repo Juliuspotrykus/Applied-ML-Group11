@@ -70,7 +70,7 @@ def load_ms(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
     raw = torch.from_numpy(tifffile.imread(str(path)).astype("float32")).permute(2, 0, 1)
     img_tensor = normalize_MS_img(raw)
 
-    img_array = _scaled_rgb_colour(img_tensor)
+    img_array = _scaled_rgb_colour(raw)
 
     return img_tensor.unsqueeze(0), img_array
 
