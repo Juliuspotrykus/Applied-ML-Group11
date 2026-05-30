@@ -483,7 +483,7 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
     "indicate more influential pixels.",    
     response_description="Returns Integrated Gradients attribution heatmap " 
     "and GradCAM heatmap for specified target class. Integrated Gradients "
-    "visualization contains 15 heatmaps:" \n
+    "visualization contains 15 heatmaps: \n"
     " - Cell 0: RGB composite (R=B4, G=B3, B=B2) for visual context."
     " - Cells 1-13: Per-band attribution maps using a diverging red/blue colormap:"
     "       Red = pushed model toward the class"
