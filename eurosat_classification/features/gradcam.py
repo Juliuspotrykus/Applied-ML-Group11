@@ -95,14 +95,15 @@ def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, targe
         return show_cam_on_image(input_rgb_image, grayscale_cam, use_rgb=True)
     
 
-def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None:
+def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches="tight")
         print(f"Saved: {Path(output_path).resolve()}")
+        plt.close(fig)
+        return None
     else:
-        plt.show()
-    plt.close(fig)
+        return fig
 
 
 
@@ -151,7 +152,11 @@ def main():
     ax.set_title(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
     ax.axis("off")
 
-    _save_or_show(fig, args.output_path)
+    fig = _save_or_show(fig, args.output_path)
+
+    if fig is not None:
+        plt.show()
+        plt.close(fig)
 
 
 if __name__ == "__main__":

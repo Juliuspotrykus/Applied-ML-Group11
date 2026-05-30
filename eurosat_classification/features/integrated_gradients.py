@@ -122,7 +122,7 @@ def visualise_rgb(
     predicted_class: int,
     target_class: int,
     output_path: str | Path | None,
-) -> None:
+) -> None | plt.Figure:
     """Plot a two-panel attribution figure for RGB images.
 
     Left panel shows the original image; right panel overlays the aggregate
@@ -155,7 +155,7 @@ def visualise_rgb(
     ax2.axis("off")
 
     plt.tight_layout()
-    _save_or_show(fig, output_path)
+    return _save_or_show(fig, output_path)
 
 
 def visualise_ms(
@@ -164,11 +164,11 @@ def visualise_ms(
     predicted_class: int,
     target_class: int,
     output_path: str | Path | None,
-) -> None:
-    """Plot a 3×5 attribution grid for 13-band MS images.
+) -> None | plt.Figure:
+    """Plot a 3x5 attribution grid for 13-band MS images.
 
     Cell 0 shows a RGB composite (R=B4, G=B3, B=B2) for visual context.
-    Cells 1–13 show per-band attribution maps using a diverging red/blue colormap:
+    Cells 1-13 show per-band attribution maps using a diverging red/blue colormap:
     red = pushed model toward the class, blue = pushed model away from it.
     Cell 14 shows the aggregate attribution (sum of absolute values across all bands).
 
@@ -202,17 +202,19 @@ def visualise_ms(
     flat[14].axis("off")
 
     plt.tight_layout()
-    _save_or_show(fig, output_path)
+    return _save_or_show(fig, output_path)
 
 
-def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None:
+def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches="tight")
         print(f"Saved: {Path(output_path).resolve()}")
+        plt.close(fig)
+        return None
     else:
-        plt.show()
-    plt.close(fig)
+        return fig
+    
 
 def main():
     parser = argparse.ArgumentParser(
@@ -254,10 +256,13 @@ def main():
     attrs = integrated_gradients(model, preprocessed, baseline, target_class, args.n_steps)
 
     if is_ms:
-        visualise_ms(raw, attrs, predicted_class, target_class, args.output_path)
+        fig = visualise_ms(raw, attrs, predicted_class, target_class, args.output_path)
     else:
-        visualise_rgb(raw, attrs, predicted_class, target_class, args.output_path)
+        fig = visualise_rgb(raw, attrs, predicted_class, target_class, args.output_path)
 
+    if fig is not None:
+        plt.show()
+        plt.close(fig)
 
 if __name__ == "__main__":
     main()

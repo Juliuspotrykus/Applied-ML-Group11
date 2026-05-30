@@ -18,6 +18,8 @@ from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 from torchvision import transforms
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 # Classes for prediction API
