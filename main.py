@@ -112,10 +112,10 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
 def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
     with torch.no_grad():
         if image_type == "RGB":
-            predicted_class = int(model_rgb(preprocessed_img.unsqueeze(0)).argmax(1).item())
+            predicted_class = int(model_rgb(preprocessed_img).argmax(1).item())
     
         elif image_type == "MS":
-            predicted_class = int(model_ms(preprocessed_img.unsqueeze(0)).argmax(1).item())
+            predicted_class = int(model_ms(preprocessed_img).argmax(1).item())
 
     return predicted_class
     
@@ -237,7 +237,7 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
 
         # GradCam
         tensor_image = process_image(image, "RGB")
-        array_image = tensor_image.permute(1, 2, 0).numpy() 
+        array_image = tensor_image[0].permute(1, 2, 0).numpy() 
     except PIL.UnidentifiedImageError:
         raise HTTPException(status_code=415, detail="Invalid image")
     
