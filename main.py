@@ -13,6 +13,7 @@ from eurosat_classification.models.cnn import CNN
 from eurosat_classification.features.integrated_gradients import load_rgb_ig, load_ms_ig, integrated_gradients, visualise_rgb, visualise_ms
 from eurosat_classification.features.gradcam import gradcam, _scaled_rgb_colour
 from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
@@ -118,15 +119,49 @@ def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
             predicted_class = int(model_ms(preprocessed_img).argmax(1).item())
 
     return predicted_class
-    
+
+def api_show_figures(figure: plt.Figure) -> StreamingResponse:
+    # Save figure to buffer
+    buffer = io.BytesIO()
+    figure.savefig(buffer, format="png")
+    plt.close(figure)
+    buffer.seek(0)
+    return StreamingResponse(buffer, media_type="image/png")
+
+
+def combine_xai_figures(ig_fig, gradcam_fig):
+    ig_buf = io.BytesIO()
+    ig_fig.savefig(ig_buf, format="png")
+    plt.close(ig_fig)
+
+    gradcam_buf = io.BytesIO()
+    gradcam_fig.savefig(gradcam_buf, format="png")
+    plt.close(gradcam_fig)
+
+    ig_buf.seek(0)
+    gradcam_buf.seek(0)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    ax1.imshow(plt.imread(ig_buf))
+    ax1.axis("off")
+    ax1.set_title("Integrated Gradients")
+    ax2.imshow(plt.imread(gradcam_buf))
+    ax2.axis("off")
+    ax2.set_title("GradCAM")
+    plt.tight_layout()
+
+    return fig
+
 
 def ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type):
     if image_type == "RGB":
         attrs = integrated_gradients(model_rgb.eval(), preprocessed, baseline, target_class, n_steps)
-        return visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
+        figure = visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
     elif image_type == "MS":
         attrs = integrated_gradients(model_ms.eval(), preprocessed, baseline, target_class, n_steps)
-        return visualise_ms(raw, attrs, predicted_class, target_class, output_path=None)
+        figure = visualise_ms(raw, attrs, predicted_class, target_class, output_path=None)
+
+    return figure
 
 def gradcam_explain(img_tensor, img_array, predicted_class, target_class, image_type):
     if image_type == "RGB":
@@ -134,11 +169,11 @@ def gradcam_explain(img_tensor, img_array, predicted_class, target_class, image_
     elif image_type == "MS":
         gradcam_visualization = gradcam(model_ms, img_tensor, img_array, target_class)
     
-    fig, ax = plt.subplots()
+    figure, ax = plt.subplots()
     ax.imshow(gradcam_visualization)
     ax.set_title(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
     ax.axis("off")
-    plt.show()
+    return figure
 
 # API endpoints
 @app.get("/", description="Root endpoint that redirects to documentation.")
@@ -245,7 +280,11 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
     if target_class is None:
         target_class = predicted_class
 
-    return ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="RGB"), gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="RGB")
+    ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="RGB")
+    gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="RGB")
+
+    return api_show_figures(combine_xai_figures(ig_fig, gradcam_fig))
+
 
 
 
@@ -277,4 +316,7 @@ async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps
     if target_class is None:
         target_class = predicted_class
 
-    return ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="MS"), gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="MS")
+    ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="MS")
+    gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="MS")
+
+    return api_show_figures(combine_xai_figures(ig_fig, gradcam_fig))
