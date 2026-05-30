@@ -147,10 +147,16 @@ def main():
 
     gradcam_visualization = gradcam(model, img_tensor, img_array, target_class)
 
-    fig, ax = plt.subplots()
-    ax.imshow(gradcam_visualization)
-    ax.set_title(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
-    ax.axis("off")
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    fig.suptitle(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
+
+    ax1.imshow(img_array)
+    ax1.set_title("Original image")
+    ax1.axis("off")
+
+    ax2.imshow(gradcam_visualization)
+    ax2.set_title("GradCAM heatmap (overlaid)\nRed = most influential, Blue = least influential")
+    ax2.axis("off")
 
     fig = _save_or_show(fig, args.output_path)
 
