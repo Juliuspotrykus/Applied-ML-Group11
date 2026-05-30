@@ -430,6 +430,15 @@ async def predict_ms(image: UploadFile) -> ClassPredictions:
     response_description="Returns Integrated Gradients attribution heatmap " 
     "and GradCAM heatmap for specified target class.",
     response_class = StreamingResponse,
+    responses = {
+        200: {
+            "content": {"image/png": {}},
+            "description": "Integrated Gradients and GradCAM visualizations"
+            "for RGB input",
+        },
+        400: {"description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."},
+        415: {"description": "Invalid file format. Expected an RGB JPEG or PNG."},
+    }
 )
 async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50) -> StreamingResponse:
     try:
@@ -490,6 +499,15 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
     "       Blue = pushed model away from the class"
     " - Cell 14: Aggregate attribution (sum of absolute values across all bands)",
     response_class = StreamingResponse,
+    responses = {
+        200: {
+            "content": {"image/png": {}},
+            "description": "Integrated Gradients and GradCAM visualizations"
+            "for MS input",
+        },
+        400: {"description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."},
+        415: {"description": "Invalid file format. Expected a 13-band GeoTIFF (.tif)."},
+    }
 )
 async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50) -> StreamingResponse:
     try:
