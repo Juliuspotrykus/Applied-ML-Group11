@@ -10,13 +10,14 @@ from eurosat_classification.data.label_map import label_map
 from eurosat_classification.data.preprocessors import normalize_MS_img
 from eurosat_classification.features.retrieve_model import get_model
 from eurosat_classification.models.cnn import CNN
+from eurosat_classification.features.integrated_gradients import load_rgb_ig, load_ms_ig, integrated_gradients, visualise_rgb, visualise_ms
 from fastapi import FastAPI, HTTPException, UploadFile
 from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 from torchvision import transforms
 
-
+# Classes for prediction API
 class ClassConfidence(BaseModel):
     class_pred: str
     confidence: float
@@ -70,11 +71,11 @@ data. Expected input is a thirteen-channel multispectral satellite image.
     version="alpha",
 )
 
-
+# Load models
 model_rgb = get_model("models/model1.pkl")
 model_ms = get_model("models/model2.pkl")
 
-
+# Functions for prediction API
 def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
     """Processes an image given by a user."""
     if image_type == "RGB":
@@ -105,11 +106,26 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
     return ClassPredictions(predictions=class_confs)
 
 
+# Functions for XAI API
+def ig_explain(raw, preprocessed, baseline, target_class, n_steps, image_type):
+    with torch.no_grad():
+        predicted_class = int(model_rgb(preprocessed.unsqueeze(0)).argmax(1).item())
+    target_class = target_class if target_class is not None else predicted_class
+
+    attrs = integrated_gradients(model_rgb.eval(), preprocessed, baseline, target_class, n_steps)
+
+    if image_type == "RGB":
+        return visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
+    elif image_type == "MS":
+        return visualise_ms(raw, attrs, predicted_class, target_class, output_path=None)
+
+
+# API endpoints
 @app.get("/", description="Root endpoint that redirects to documentation.")
 async def root():
     return RedirectResponse(url="/docs")
 
-
+# Predict for RGB model (i.e. baseline)
 @app.post(
     "/predict_rgb",
     summary="Predict class of a three-channel RGB satellite image.",
@@ -145,7 +161,7 @@ async def predict_rgb(image: UploadFile):
 
     return model_predict(model_rgb, tensor_image)
 
-
+# Predict for MS model
 @app.post(
     "/predict_ms",
     summary="Predict class of a multispectral (13-band) satellite image.",
@@ -184,3 +200,45 @@ async def predict_ms(image: UploadFile):
         )
 
     return model_predict(model_ms, tensor_image)
+
+# Explainability for RGB (i.e. baseline) model - GradCAM & Integrated Gradients
+@app.post(
+    "/explain_rgb",
+    summary="Explainability for RGB model.",
+    description="description",
+    response_description="returns gradcam heatmap for specified target class" \
+    "of input, or 4x4 images with integrated gradients expalantaopns",
+)
+async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
+    # Integrated gradients
+    try:
+        img, baseline = load_rgb_ig(image.file)
+        raw = preprocessed = img
+    except PIL.UnidentifiedImageError:
+        raise HTTPException(status_code=415, detail="Invalid image")
+    
+    return ig_explain(raw, preprocessed, baseline, target_class, n_steps, image_type="RGB")
+
+
+
+# Explainability for MS model - GradCAM & Integrated Gradients
+@app.post(
+    "/explain_ms",
+    summary="Explainability for MS model.",
+    description="description",
+    response_description="returns gradcam heatmap for specified target class" \
+    "of input, or 4x4 images with integrated gradients expalantaopns",
+)
+async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
+    # Integrated gradients
+    try:
+        raw, preprocessed, baseline = load_ms_ig(image)
+    except tifffile.tifffile.TiffFileError:
+        raise HTTPException(
+            status_code=415,
+            detail="Invalid image extension specified. "
+            "Multispectral image prediction accepts "
+            "only TIF files.",
+        )
+    
+    return ig_explain(raw, preprocessed, baseline, target_class, n_steps, image_type="MS")
