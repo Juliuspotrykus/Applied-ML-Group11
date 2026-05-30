@@ -266,17 +266,19 @@ async def predict_ms(image: UploadFile):
 )
 async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
     try:
-        # Integrated gradients
-        img, baseline = load_rgb_ig(image.file)
-        raw = preprocessed = img
-
         # GradCam
-        tensor_image = process_image(image, "RGB")
+        tensor_image = process_image(image, "RGB") # dim (1, 3, H, W)
         array_image = tensor_image[0].permute(1, 2, 0).numpy() 
+
+        # Integrated gradients
+        preprocessed = tensor_image[0]
+        raw = preprocessed
+        baseline = torch.zeros_like(preprocessed)
+
     except PIL.UnidentifiedImageError:
         raise HTTPException(status_code=415, detail="Invalid image")
     
-    predicted_class = class_to_explain(preprocessed, "RGB")
+    predicted_class = class_to_explain(tensor_image, "RGB")
     if target_class is None:
         target_class = predicted_class
 
@@ -298,12 +300,16 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
 )
 async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50):
     try:
-        # Integrated gradients
-        raw, preprocessed, baseline = load_ms_ig(image)
-
         # GradCAM
-        tensor_image = process_image(image, "MS")
+        tensor_image = process_image(image, "MS") # dim: (1, 13, H, W)
         array_image = _scaled_rgb_colour(tensor_image)
+
+        # Integrated gradients
+        tif_bytes = image.file.read()
+        raw = tifffile.imread(io.BytesIO(tif_bytes))
+        raw = torch.from_numpy(raw).permute(2, 0, 1)
+        preprocessed = tensor_image[0]
+        baseline = torch.zeros_like(preprocessed)
     except tifffile.tifffile.TiffFileError:
         raise HTTPException(
             status_code=415,
@@ -312,7 +318,7 @@ async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps
             "only TIF files.",
         )
     
-    predicted_class = class_to_explain(preprocessed, "MS")
+    predicted_class = class_to_explain(preprocessed.unsqueeze(0), "MS")
     if target_class is None:
         target_class = predicted_class
 
