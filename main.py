@@ -281,7 +281,7 @@ def combine_xai_figures(ig_fig: plt.Figure, gradcam_fig: plt.Figure) -> plt.Figu
     return fig
 
 
-def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Tensor, predicted_class: int, target_class: int, n_steps: int, image_type: str) -> plt.Figure:
+def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Tensor, predicted_class: int, target_class: int | None, n_steps: int, image_type: str) -> plt.Figure:
     """
     Performs Integrated Gradients on input image for a requested target class
     and returns visualization.
@@ -291,13 +291,15 @@ def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Te
         preprocessed (torch.Tensor): Preprocessed input [C, H, W].
         baseline (torch.Tensor): Reference input [C, H, W], typically all-zeros.
         predicted_class (int): Class predicted by the model.
-        target_class (int): Resolved integer class index to explain. Must not be None.
+        target_class (int | None): Class being explained. Defaults to predicted_class if None.
         n_steps (int): Number of interpolation steps (more = more accurate).
         image_type (str): File type. Options are "RGB" or "MS".
 
     Returns:
         plt.Figure: Visualization of Integrated Gradients explanation.
     """
+    if target_class is None:
+        target_class = predicted_class
     if image_type == "RGB":
         attrs = integrated_gradients(model_rgb, preprocessed, baseline, target_class, n_steps)
         figure = visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
