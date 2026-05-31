@@ -220,9 +220,10 @@ def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
     with torch.no_grad():
         if image_type == "RGB":
             predicted_class = int(model_rgb(preprocessed_img).argmax(1).item())
-    
         elif image_type == "MS":
             predicted_class = int(model_ms(preprocessed_img).argmax(1).item())
+        else:
+            raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
 
     return predicted_class
 
@@ -280,7 +281,7 @@ def combine_xai_figures(ig_fig: plt.Figure, gradcam_fig: plt.Figure) -> plt.Figu
     return fig
 
 
-def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Tensor, predicted_class: int, target_class: int | None, n_steps: int, image_type: str) -> plt.Figure:
+def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Tensor, predicted_class: int, target_class: int, n_steps: int, image_type: str) -> plt.Figure:
     """
     Performs Integrated Gradients on input image for a requested target class
     and returns visualization.
@@ -290,7 +291,7 @@ def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Te
         preprocessed (torch.Tensor): Preprocessed input [C, H, W].
         baseline (torch.Tensor): Reference input [C, H, W], typically all-zeros.
         predicted_class (int): Class predicted by the model.
-        target_class (int | None): Class being explained.
+        target_class (int): Resolved integer class index to explain. Must not be None.
         n_steps (int): Number of interpolation steps (more = more accurate).
         image_type (str): File type. Options are "RGB" or "MS".
 
@@ -303,13 +304,15 @@ def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Te
     elif image_type == "MS":
         attrs = integrated_gradients(model_ms, preprocessed, baseline, target_class, n_steps)
         figure = visualise_ms(raw, attrs, predicted_class, target_class, output_path=None)
+    else:
+        raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
 
     return figure
 
 def gradcam_explain(img_tensor: torch.Tensor, img_array: np.ndarray, predicted_class: int, target_class: int | None, image_type: str) -> plt.Figure:
     """
-    Performs GradCAM on input image for a requested target class and returns 
-    visualization.    
+    Performs GradCAM on input image for a requested target class and returns
+    visualization.
 
     Args:
         img_tensor (torch.Tensor): Tensor of image to explain.
@@ -325,6 +328,8 @@ def gradcam_explain(img_tensor: torch.Tensor, img_array: np.ndarray, predicted_c
         gradcam_visualization = gradcam(model_rgb, img_tensor, img_array, target_class)
     elif image_type == "MS":
         gradcam_visualization = gradcam(model_ms, img_tensor, img_array, target_class)
+    else:
+        raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
     
     figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
     figure.suptitle(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
@@ -455,13 +460,13 @@ async def predict_ms(image: UploadFile) -> ClassPredictions:
         415: {"description": "Invalid file format. Expected an RGB JPEG or PNG."},
     }
 )
-async def explain_rgb(image: UploadFile, target_class: int | None = None, n_steps: int = 50) -> StreamingResponse:
+async def explain_rgb(image: UploadFile, target_class: int | str | None = None, n_steps: int = 50) -> StreamingResponse:
     try:
         # GradCam inputs
         tensor_image = process_image(image, "RGB") # dim (1, 3, H, W)
-        array_image = tensor_image[0].permute(1, 2, 0).numpy() 
+        array_image = tensor_image[0].permute(1, 2, 0).numpy()
 
-        # Integrated gradients inputs
+        # For RGB, no separate normalisation step — raw pixels == model input
         preprocessed = tensor_image[0]
         raw = preprocessed
         baseline = torch.zeros_like(preprocessed)
@@ -505,14 +510,16 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
     "brighter colors indicate more influential pixels; on the right, the "
     "GradCAM explanation is shown alongside the original input, and red colors " 
     "indicate more influential pixels.",    
-    response_description="Returns Integrated Gradients attribution heatmap " 
-    "and GradCAM heatmap for specified target class. Integrated Gradients "
-    "visualization contains 15 heatmaps: \n"
+    response_description="Returns a side-by-side figure with Integrated Gradients (left) "
+    "and GradCAM (right) for the specified target class. "
+    "The Integrated Gradients panel contains 15 heatmaps: \n"
     " - Cell 0: RGB composite (R=B4, G=B3, B=B2) for visual context."
     " - Cells 1-13: Per-band attribution maps using a diverging red/blue colormap:"
     "       Red = pushed model toward the class"
     "       Blue = pushed model away from the class"
-    " - Cell 14: Aggregate attribution (sum of absolute values across all bands)",
+    " - Cell 14: Aggregate attribution (sum of absolute values across all bands)."
+    "The GradCAM panel shows the original image alongside the GradCAM heatmap overlaid: "
+    "red = most influential regions, blue = least influential.",
     response_class = StreamingResponse,
     responses = {
         200: {
@@ -524,7 +531,7 @@ async def explain_rgb(image: UploadFile, target_class: int | None = None, n_step
         415: {"description": "Invalid file format. Expected a 13-band GeoTIFF (.tif)."},
     }
 )
-async def explain_ms(image: UploadFile, target_class: int | None = None, n_steps: int = 50) -> StreamingResponse:
+async def explain_ms(image: UploadFile, target_class: int | str | None = None, n_steps: int = 50) -> StreamingResponse:
     try:
         tif_bytes = image.file.read()
 
