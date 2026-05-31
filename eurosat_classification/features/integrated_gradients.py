@@ -32,6 +32,7 @@ from torchvision import transforms
 from ..data.band_names import MS_BAND_NAMES
 from ..data.label_map import label_map
 from ..data.preprocessors import normalize_MS_img
+from .gradcam import _scaled_rgb_colour
 
 
 def load_rgb_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
@@ -104,18 +105,6 @@ def _aggregate_attribution(attrs: torch.Tensor) -> np.ndarray:
     # Normalise to [0, 1] for display (add small epsilon to avoid division by zero)
     return (agg - agg.min()) / (agg.max() - agg.min() + 1e-8)
 
-
-def _scaled_rgb_colour(raw: torch.Tensor) -> np.ndarray:
-    """Build a uint8 scaled-rgb colour composite from raw MS bands (R=B4, G=B3, B=B2).
-
-    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking landscape view
-    similar to what the human eye would see from a satellite.
-    """
-    def scale(band):
-        lo, hi = band.min(), band.max()
-        return (band - lo) / (hi - lo + 1e-8) 
-    # Stack the three bands into a single [H, W, 3] array and scale to [0, 255] uint8 for display
-    return np.stack([scale(raw[i].numpy()) for i in (3, 2, 1)], axis=-1)
 
 def visualise_rgb(
     raw: torch.Tensor,
