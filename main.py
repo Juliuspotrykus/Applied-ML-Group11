@@ -381,7 +381,7 @@ async def predict_rgb(image: UploadFile) -> ClassPredictions:
     # that can handle more than 10x10 meter images. TODO
     try:
         tensor_image = process_image(image, "RGB")
-    except PIL.UnidentifiedImageError:
+    except (PIL.UnidentifiedImageError, OSError):
         raise HTTPException(status_code=415, detail="Invalid image")
 
     return model_predict(model_rgb, tensor_image)
@@ -416,7 +416,7 @@ async def predict_rgb(image: UploadFile) -> ClassPredictions:
 async def predict_ms(image: UploadFile) -> ClassPredictions:
     try:
         tensor_image = process_image(image, "MS")
-    except tifffile.tifffile.TiffFileError:
+    except (tifffile.tifffile.TiffFileError, OSError):
         raise HTTPException(
             status_code=415,
             detail="Invalid image extension specified. "
@@ -473,7 +473,7 @@ async def explain_rgb(image: UploadFile, target_class: int | str | None = None, 
         raw = preprocessed
         baseline = torch.zeros_like(preprocessed)
 
-    except PIL.UnidentifiedImageError:
+    except (PIL.UnidentifiedImageError, OSError):
         raise HTTPException(status_code=415, detail="Invalid image")
 
     target_class = parse_target(target_class)
@@ -544,7 +544,7 @@ async def explain_ms(image: UploadFile, target_class: int | str | None = None, n
         baseline = torch.zeros_like(preprocessed)
         array_image = _scaled_rgb_colour(raw)
 
-    except tifffile.tifffile.TiffFileError:
+    except (tifffile.tifffile.TiffFileError, OSError):
         raise HTTPException(
             status_code=415,
             detail="Invalid image extension specified. "
