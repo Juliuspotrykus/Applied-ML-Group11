@@ -1,3 +1,4 @@
+import copy
 from typing import Callable
 
 import torch
@@ -38,8 +39,11 @@ def train_model(
     loss_fn = nn.CrossEntropyLoss()
 
     best_val_f1 = 0.0
+    best_state = None
     epochs_no_improve = 0
-    history: dict = {"train_loss": [], "val_loss": [], "val_f1": []} if track_history else {}
+    history: dict = (
+        {"train_loss": [], "val_loss": [], "val_f1": []} if track_history else {}
+    )
 
     for epoch in range(epochs):
         model.train()
@@ -60,7 +64,9 @@ def train_model(
             history["train_loss"].append(train_loss)
             history["val_loss"].append(val_loss)
             history["val_f1"].append(val_f1)
-            print(f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}")
+            print(
+                f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}"
+            )
         else:
             print(f"Epoch {epoch + 1}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}")
 
@@ -69,11 +75,15 @@ def train_model(
 
         if val_f1 > best_val_f1:
             best_val_f1 = val_f1
+            best_state = copy.deepcopy(model.state_dict())
             epochs_no_improve = 0
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= patience:
                 break
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
 
     if track_history:
         return model, best_val_f1, history
