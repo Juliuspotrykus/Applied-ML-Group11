@@ -19,7 +19,7 @@ from eurosat_classification.features.integrated_gradients import (
 )
 from eurosat_classification.features.retrieve_model import get_model
 from eurosat_classification.models.cnn import CNN
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from PIL import Image
 from pydantic import BaseModel
@@ -531,7 +531,16 @@ async def predict_ms(image: UploadFile) -> ClassPredictions:
     },
 )
 async def explain_rgb(
-    image: UploadFile, target_class: int | str | None = None, n_steps: int = 50
+    image: UploadFile,
+    target_class: int | str | None = None,
+    n_steps: int = Query(
+        default=50,
+        ge=1,
+        description=(
+            "Number of interpolation steps used by Integrated Gradients. "
+            "Recommended range: 20-300."
+        ),
+    ),
 ) -> StreamingResponse:
     try:
         # GradCam inputs
@@ -620,7 +629,16 @@ async def explain_rgb(
     },
 )
 async def explain_ms(
-    image: UploadFile, target_class: int | str | None = None, n_steps: int = 50
+    image: UploadFile,
+    target_class: int | str | None = None,
+    n_steps: int = Query(
+        default=50,
+        ge=1,
+        description=(
+            "Number of interpolation steps used by Integrated Gradients. "
+            "Recommended range: 20-300."
+        ),
+    ),
 ) -> StreamingResponse:
     try:
         tif_bytes = image.file.read()
