@@ -103,14 +103,47 @@ def create_dataloaders(
         val_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
         test_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
     elif image_type == "ms":
-        train_ds = EuroSATMSDataset(root=Path(path) / "EuroSATallBands", csv_path=train_path, transform=normalize_MS_img)
-        val_ds = EuroSATMSDataset(root=Path(path) / "EuroSATallBands", csv_path=val_path, transform=normalize_MS_img)
-        test_ds = EuroSATMSDataset(root=Path(path) / "EuroSATallBands", csv_path=test_path, transform=normalize_MS_img)
+        train_ds = EuroSATMSDataset(
+            root=Path(path) / "EuroSATallBands",
+            csv_path=train_path,
+            transform=normalize_MS_img,
+        )
+        val_ds = EuroSATMSDataset(
+            root=Path(path) / "EuroSATallBands",
+            csv_path=val_path,
+            transform=normalize_MS_img,
+        )
+        test_ds = EuroSATMSDataset(
+            root=Path(path) / "EuroSATallBands",
+            csv_path=test_path,
+            transform=normalize_MS_img,
+        )
     else:
-        raise ValueError("Wrong image types! Possible image types include: rgb and ms") 
+        raise ValueError("Wrong image types! Possible image types include: rgb and ms")
 
-    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True,
+    )
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True,
+    )
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=8,
+        pin_memory=True,
+        persistent_workers=True,
+    )
 
     return train_loader, val_loader, test_loader

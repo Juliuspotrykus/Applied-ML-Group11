@@ -118,8 +118,8 @@ below for descriptions of the 13 bands. The ground sampling distanceshould be
 )
 
 # @ Load models
-model_rgb = get_model("models/model1.pkl")
-model_ms = get_model("models/model2.pkl")
+model_rgb = get_model("models/rgb_model_final.pkl")
+model_ms = get_model("models/ms_model_final.pkl")
 model_rgb.eval()
 model_ms.eval()
 
@@ -171,9 +171,7 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
         confs = model(image).detach()[0]
     confs = F.softmax(confs, dim=0)
     class_confs = [
-        ClassConfidence(
-            class_pred=label_map[i], confidence=round(float(conf), 3)
-        )
+        ClassConfidence(class_pred=label_map[i], confidence=round(float(conf), 3))
         for i, conf in enumerate(confs)
     ]
     class_confs = sorted(class_confs, key=lambda x: x.confidence, reverse=True)
@@ -370,9 +368,7 @@ def gradcam_explain(
             model_ms, img_tensor, img_array, target_class
         )
     else:
-        raise ValueError(
-            f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'."
-        )
+        raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
 
     figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
     figure.suptitle(
@@ -507,8 +503,7 @@ async def predict_ms(
 # Explainability for RGB (i.e. baseline) model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_rgb",
-    summary="Provide explainability for RGB model on input image for desired "
-    "class.",
+    summary="Provide explainability for RGB model on input image for desired class.",
     description="RGB explainability endpoint to give insight into model "
     "responses for RGB inputs. Requests should be of the format multipart/form-data, "
     "and include an image sent using the applicable 'image' field. The given "
@@ -599,8 +594,7 @@ async def explain_rgb(
 # Explainability for MS model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_ms",
-    summary="Provide explainability for MS model on input image for desired "
-    "class.",
+    summary="Provide explainability for MS model on input image for desired class.",
     description="MS explainability endpoint to give insight into model "
     "responses for MS inputs. Requests should be of the format multipart/form-data, "
     "and include an image sent using the applicable 'image' field. The given "
