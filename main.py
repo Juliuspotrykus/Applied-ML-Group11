@@ -147,6 +147,11 @@ def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
         tif_bytes = file.file.read()
         image = tifffile.imread(io.BytesIO(tif_bytes))
         image = torch.from_numpy(image).permute(2, 0, 1)
+        if image.shape[0] != 13:
+            raise HTTPException(
+                status_code=422,
+                detail=("Invalid image shape. Expected a 13-band image. "),
+            )
         image = normalize_MS_img(image).unsqueeze(0)
     return image.to(torch.float32)
 
@@ -478,6 +483,7 @@ async def predict_rgb(
             "Multispectral image prediction accepts "
             "only TIF files."
         },
+        422: {"description": "Invalid image shape. Expected a 13-band image."},
     },
 )
 async def predict_ms(
@@ -636,6 +642,7 @@ async def explain_rgb(
         415: {
             "description": "Invalid file format. Expected a 13-band GeoTIFF (.tif)."
         },
+        422: {"description": "Invalid image shape. Expected a 13-band image."},
     },
 )
 async def explain_ms(
