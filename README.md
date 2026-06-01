@@ -52,6 +52,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 git clone https://github.com/Juliuspotrykus/Applied-ML-Group11.git Applied-ML-Group11
 cd Applied-ML-Group11
 uv sync
+source .venv/bin/activate
 ```
 
 ## Data
@@ -65,7 +66,7 @@ The multispectral contains a handful of spurious files in the
 `EuroSATallBands/SeaLake` folder. These are removed automatically by
 `clean_sealake_folder()` before the datasets are constructed.
 
-To download and clean the data independently, e.g. to inspect it before training:
+To download and clean the data independently, e.g. to inspect it before training, start a Python session and run::
 
 ```python
 from eurosat_classification.data.download import get_dataset_path
@@ -121,19 +122,6 @@ srun --partition=gpu --gpus-per-node=rtx_pro_6000:1 --cpus-per-task=8 --mem=32GB
 
 Swap `rgb` for `ms` to train the multispectral model. The saved model and plot
 land in `models/` as described above.
-
-### Loading a trained model
-
-`run_training.py` pickles the **whole model** (`torch.save(model, ...)`). Because it's a full pickle, load with `weights_only=False`:
-
-```python
-import torch
-
-model = torch.load("models/rgb_model_final.pkl", map_location="cpu", weights_only=False)
-model.eval()
-```
-
-The same loading logic is wrapped in `eurosat_classification.features.retrieve_model.get_model()`.
 
 ## API
 
