@@ -30,6 +30,7 @@ def train_model(
     epochs: int,
     patience: int,
     check_prune: Callable | None = None,
+    track_history: bool = False,
 ):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = CNN(config).to(device)
@@ -38,17 +39,30 @@ def train_model(
 
     best_val_f1 = 0.0
     epochs_no_improve = 0
+    history: dict = {"train_loss": [], "val_loss": [], "val_f1": []} if track_history else {}
+
     for epoch in range(epochs):
         model.train()
+        train_loss = 0.0
         for images, labels in train_loader:
             images, labels = images.to(device), labels.to(device)
             optimizer.zero_grad()
             loss = loss_fn(model(images), labels)
             loss.backward()
             optimizer.step()
+            if track_history:
+                train_loss += loss.item()
 
         val_loss, val_f1 = evaluate(model, val_loader, loss_fn)
-        print(f"Epoch {epoch + 1}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}")
+
+        if track_history:
+            train_loss /= len(train_loader)
+            history["train_loss"].append(train_loss)
+            history["val_loss"].append(val_loss)
+            history["val_f1"].append(val_f1)
+            print(f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}")
+        else:
+            print(f"Epoch {epoch + 1}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}")
 
         if check_prune is not None:
             check_prune(epoch, val_f1)
@@ -61,4 +75,6 @@ def train_model(
             if epochs_no_improve >= patience:
                 break
 
+    if track_history:
+        return model, best_val_f1, history
     return model, best_val_f1
