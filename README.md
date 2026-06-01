@@ -123,6 +123,14 @@ srun --partition=gpu --gpus-per-node=rtx_pro_6000:1 --cpus-per-task=8 --mem=32GB
 Swap `rgb` for `ms` to train the multispectral model. The saved model and plot
 land in `models/` as described above.
 
-## API
+## How to run the API
 
-TODO
+### Running the API
+From the project root, run:
+```bash
+uvicorn main:app --reload
+```
+
+### Access the API
+Open the following link in your browser: `http://127.0.0.1:8000`
+
