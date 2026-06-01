@@ -24,16 +24,18 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
 import tifffile
+import torch
 from PIL import Image
 from torchvision import transforms
 
 from ..data.band_names import MS_BAND_NAMES
 from ..data.label_map import label_map
 from ..data.preprocessors import normalize_MS_img
+from .gradcam import _scaled_rgb_colour
 
-def load_rgb(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
+
+def load_rgb_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
     """Load a 3-band JPG/PNG as a [3, H, W] float tensor in [0, 1].
 
     RGB training used no normalisation, so the raw image is also the model input.
@@ -44,7 +46,7 @@ def load_rgb(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
     baseline = torch.zeros_like(image)
     return image, baseline
 
-def load_ms(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def load_ms_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Load a 13-band GeoTIFF as a [13, H, W] float tensor.
 
     Returns (raw, preprocessed, baseline) where raw holds the original
@@ -104,25 +106,13 @@ def _aggregate_attribution(attrs: torch.Tensor) -> np.ndarray:
     return (agg - agg.min()) / (agg.max() - agg.min() + 1e-8)
 
 
-def _scaled_rgb_colour(raw: torch.Tensor) -> np.ndarray:
-    """Build a uint8 scaled-rgb colour composite from raw MS bands (R=B4, G=B3, B=B2).
-
-    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking landscape view
-    similar to what the human eye would see from a satellite.
-    """
-    def scale(band):
-        lo, hi = band.min(), band.max()
-        return (band - lo) / (hi - lo + 1e-8) 
-    # Stack the three bands into a single [H, W, 3] array and scale to [0, 255] uint8 for display
-    return np.stack([scale(raw[i].numpy()) for i in (3, 2, 1)], axis=-1)
-
 def visualise_rgb(
     raw: torch.Tensor,
     attrs: torch.Tensor,
     predicted_class: int,
     target_class: int,
     output_path: str | Path | None,
-) -> None:
+) -> None | plt.Figure:
     """Plot a two-panel attribution figure for RGB images.
 
     Left panel shows the original image; right panel overlays the aggregate
@@ -155,7 +145,7 @@ def visualise_rgb(
     ax2.axis("off")
 
     plt.tight_layout()
-    _save_or_show(fig, output_path)
+    return _save_or_show(fig, output_path)
 
 
 def visualise_ms(
@@ -164,11 +154,11 @@ def visualise_ms(
     predicted_class: int,
     target_class: int,
     output_path: str | Path | None,
-) -> None:
-    """Plot a 3×5 attribution grid for 13-band MS images.
+) -> None | plt.Figure:
+    """Plot a 3x5 attribution grid for 13-band MS images.
 
     Cell 0 shows a RGB composite (R=B4, G=B3, B=B2) for visual context.
-    Cells 1–13 show per-band attribution maps using a diverging red/blue colormap:
+    Cells 1-13 show per-band attribution maps using a diverging red/blue colormap:
     red = pushed model toward the class, blue = pushed model away from it.
     Cell 14 shows the aggregate attribution (sum of absolute values across all bands).
 
@@ -202,17 +192,19 @@ def visualise_ms(
     flat[14].axis("off")
 
     plt.tight_layout()
-    _save_or_show(fig, output_path)
+    return _save_or_show(fig, output_path)
 
 
-def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None:
+def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches="tight")
         print(f"Saved: {Path(output_path).resolve()}")
+        plt.close(fig)
+        return None
     else:
-        plt.show()
-    plt.close(fig)
+        return fig
+    
 
 def main():
     parser = argparse.ArgumentParser(
@@ -234,9 +226,9 @@ def main():
     model.eval()
 
     if is_ms:
-        raw, preprocessed, baseline = load_ms(args.input_file)
+        raw, preprocessed, baseline = load_ms_ig(args.input_file)
     else:
-        image, baseline = load_rgb(args.input_file)
+        image, baseline = load_rgb_ig(args.input_file)
         raw = preprocessed = image  # for RGB, the raw image is also the model input
 
     with torch.no_grad():
@@ -254,10 +246,13 @@ def main():
     attrs = integrated_gradients(model, preprocessed, baseline, target_class, args.n_steps)
 
     if is_ms:
-        visualise_ms(raw, attrs, predicted_class, target_class, args.output_path)
+        fig = visualise_ms(raw, attrs, predicted_class, target_class, args.output_path)
     else:
-        visualise_rgb(raw, attrs, predicted_class, target_class, args.output_path)
+        fig = visualise_rgb(raw, attrs, predicted_class, target_class, args.output_path)
 
+    if fig is not None:
+        plt.show()
+        plt.close(fig)
 
 if __name__ == "__main__":
     main()

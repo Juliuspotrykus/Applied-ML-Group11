@@ -10,3 +10,5 @@ label_map = {
     8: "River",
     9: "SeaLake",
 }
+
+reverse_label_map = {name: num for num, name in label_map.items()}

@@ -1,22 +1,22 @@
-from .retrieve_model import get_model
-from ..models.cnn import CNN
-import torch.nn as nn
-from torch import Tensor
+import argparse
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
 import tifffile
-from ..data.preprocessors import normalize_MS_img
+import torch
+from torch import nn
+from PIL import Image
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
-import numpy as np
-from pathlib import Path
-import torch
+from torch import Tensor
 from torchvision import transforms
-from PIL import Image
-import matplotlib.pyplot as plt
+
 from ..data.label_map import label_map
-import argparse
-
-
+from ..data.preprocessors import normalize_MS_img
+from ..models.cnn import CNN
+from .retrieve_model import get_model
 
 
 def get_last_conv_layer(model: CNN) -> list[nn.Conv2d]:
@@ -41,7 +41,7 @@ def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
     Returns (tensor, np array).
     """
     img_tensor = transforms.ToTensor()(Image.open(path).convert("RGB")).unsqueeze(0)
-    img_array = img_tensor.permute(1, 2, 0).numpy()
+    img_array = img_tensor[0].permute(1, 2, 0).numpy()
 
     return img_tensor, img_array
 
@@ -70,7 +70,7 @@ def load_ms(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
     raw = torch.from_numpy(tifffile.imread(str(path)).astype("float32")).permute(2, 0, 1)
     img_tensor = normalize_MS_img(raw)
 
-    img_array = _scaled_rgb_colour(img_tensor)
+    img_array = _scaled_rgb_colour(raw)
 
     return img_tensor.unsqueeze(0), img_array
 
@@ -87,7 +87,7 @@ def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, targe
         model.eval()
 
         # targets as none defaults to highest scoring category (per batch)
-        grayscale_cam = cam(input_tensor=input_tensor, targets=target_class)
+        grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
         
         # In this example grayscale_cam has only one image in the batch:
         grayscale_cam = grayscale_cam[0, :]
@@ -95,18 +95,18 @@ def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, targe
         return show_cam_on_image(input_rgb_image, grayscale_cam, use_rgb=True)
     
 
-def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None:
+def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches="tight")
         print(f"Saved: {Path(output_path).resolve()}")
-    else:
-        plt.show()
-    plt.close(fig)
+        plt.close(fig)
+        return None
+    return fig
 
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="GradCAM for EuroSAT CNN models.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -146,12 +146,22 @@ def main():
 
     gradcam_visualization = gradcam(model, img_tensor, img_array, target_class)
 
-    fig, ax = plt.subplots()
-    ax.imshow(gradcam_visualization)
-    ax.set_title(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
-    ax.axis("off")
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    fig.suptitle(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
 
-    _save_or_show(fig, args.output_path)
+    ax1.imshow(img_array)
+    ax1.set_title("Original image")
+    ax1.axis("off")
+
+    ax2.imshow(gradcam_visualization)
+    ax2.set_title("GradCAM heatmap (overlaid)\nRed = most influential, Blue = least influential")
+    ax2.axis("off")
+
+    fig = _save_or_show(fig, args.output_path)
+
+    if fig is not None:
+        plt.show()
+        plt.close(fig)
 
 
 if __name__ == "__main__":

@@ -5,14 +5,15 @@ from typing import Callable, Optional, Tuple
 import numpy as np
 import pandas as pd
 import torch
+from PIL import Image
+from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
+
 from .clean import clean_sealake_folder
 from .download import get_dataset_path
 from .label_map import label_map
-from PIL import Image
-from .split import get_train_val_test_splits
-from torch.utils.data import DataLoader, Dataset
-from torchvision import transforms
 from .preprocessors import normalize_MS_img
+from .split import get_train_val_test_splits
 
 
 class EuroSATDataset(Dataset, ABC):

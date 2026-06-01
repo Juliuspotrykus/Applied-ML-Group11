@@ -1,8 +1,7 @@
 from typing import Literal
 
 import torch
-import torch.nn as nn
-
+from torch import nn
 
 class ConvBlockConfig:
     """Configuration for a single convolutional block (Conv2d → BN → activation → MaxPool)."""

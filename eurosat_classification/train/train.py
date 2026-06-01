@@ -1,11 +1,11 @@
-import torch
-import torch.nn as nn
 import matplotlib.pyplot as plt
+import torch
+from torch import nn
 from sklearn.metrics import f1_score
 
-from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
-from ..features.gradcam import visualize_gradcam_ms, visualize_gradcam_rgb
 from ..data.datasets import create_dataloaders
+from ..features.gradcam import visualize_gradcam_ms, visualize_gradcam_rgb
+from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
 
 # Example training script for CNN model.
 
