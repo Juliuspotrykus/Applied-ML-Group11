@@ -19,7 +19,7 @@ from eurosat_classification.features.integrated_gradients import (
 )
 from eurosat_classification.features.retrieve_model import get_model
 from eurosat_classification.models.cnn import CNN
-from fastapi import FastAPI, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from PIL import Image
 from pydantic import BaseModel
@@ -425,7 +425,11 @@ async def root():
         },
     },
 )
-async def predict_rgb(image: UploadFile) -> ClassPredictions:
+async def predict_rgb(
+    image: UploadFile = File(
+        description=("An image file, PNG or JPEG, for example."),
+    ),
+) -> ClassPredictions:
     # For final API version, create something
     # that can handle more than 10x10 meter images. TODO
     try:
@@ -476,7 +480,11 @@ async def predict_rgb(image: UploadFile) -> ClassPredictions:
         },
     },
 )
-async def predict_ms(image: UploadFile) -> ClassPredictions:
+async def predict_ms(
+    image: UploadFile = File(
+        description=("A TIF image file."),
+    ),
+) -> ClassPredictions:
     try:
         tensor_image = process_image(image, "MS")
     except (tifffile.tifffile.TiffFileError, OSError):
@@ -531,7 +539,9 @@ async def predict_ms(image: UploadFile) -> ClassPredictions:
     },
 )
 async def explain_rgb(
-    image: UploadFile,
+    image: UploadFile = File(
+        description=("An image file, PNG or JPEG, for example."),
+    ),
     target_class: int | str | None = None,
     n_steps: int = Query(
         default=50,
@@ -629,7 +639,9 @@ async def explain_rgb(
     },
 )
 async def explain_ms(
-    image: UploadFile,
+    image: UploadFile = File(
+        description=("A TIF image file."),
+    ),
     target_class: int | str | None = None,
     n_steps: int = Query(
         default=50,
