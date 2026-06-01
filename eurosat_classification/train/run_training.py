@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -10,10 +11,10 @@ from .train import train_model
 CHANNELS = {"rgb": 3, "ms": 13}
 
 KERNEL_OPTIONS = {
-    "single_3":      [Kernel(3)],
-    "single_5":      [Kernel(5)],
-    "multi_3_5":     [Kernel(3), Kernel(5)],
-    "multi_3_7":     [Kernel(3), Kernel(7)],
+    "single_3": [Kernel(3)],
+    "single_5": [Kernel(5)],
+    "multi_3_5": [Kernel(3), Kernel(5)],
+    "multi_3_7": [Kernel(3), Kernel(7)],
     "multi_3_5_7_9": [Kernel(3), Kernel(5), Kernel(7), Kernel(9)],
 }
 
@@ -25,13 +26,17 @@ def build_config_from_params(image_type: str, params: dict) -> CNNConfig:
     conv_blocks = []
     for i in range(n_blocks):
         # Support both per-block keys (kernels_block_0, ...) and a single "kernels" key
-        kernel_choice = params.get(f"kernels_block_{i}", params.get("kernels", "single_3"))
-        conv_blocks.append(ConvBlockConfig(
-            out_channels=base * (2**i),
-            kernels=KERNEL_OPTIONS[kernel_choice],
-            batch_norm=True,
-            pool_size=2,
-        ))
+        kernel_choice = params.get(
+            f"kernels_block_{i}", params.get("kernels", "single_3")
+        )
+        conv_blocks.append(
+            ConvBlockConfig(
+                out_channels=base * (2**i),
+                kernels=KERNEL_OPTIONS[kernel_choice],
+                batch_norm=True,
+                pool_size=2,
+            )
+        )
 
     n_fc_layers = params.get("n_fc_layers", 1)
     fc_hidden = params["fc_hidden"]
@@ -82,7 +87,9 @@ def train_from_params(
     train_loader, val_loader, _ = create_dataloaders(image_type, batch_size=batch_size)
 
     model, best_val_f1, history = train_model(
-        config, train_loader, val_loader,
+        config,
+        train_loader,
+        val_loader,
         lr=params["lr"],
         epochs=epochs,
         patience=patience,
@@ -99,17 +106,37 @@ def train_from_params(
     plot_history(history, output.with_suffix(".png"))
 
 
-if __name__ == "__main__":
-    IMAGE_TYPE = "ms"
-    OUTPUT = "models/ms_model_final.pkl"
-
-    PARAMS = {
+BEST_PARAMS = {
+    "ms": {
         "n_conv_blocks": 4,
         "base_channels": 64,
         "fc_hidden": 64,
         "dropout": 0.38217102063179526,
         "activation": "relu",
         "lr": 0.00010200960558027954,
-    }
+    },
+    "rgb": {
+        "n_conv_blocks": 4,
+        "base_channels": 64,
+        "fc_hidden": 128,
+        "dropout": 0.3305840328225389,
+        "activation": "relu",
+        "lr": 0.00014768156340842648,
+    },
+}
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("modality", choices=["rgb", "ms"])
+    args = parser.parse_args()
+
+    if args.modality == "rgb":
+        IMAGE_TYPE = "rgb"
+        OUTPUT = "models/rgb_model_final.pkl"
+        PARAMS = BEST_PARAMS["rgb"]
+    else:
+        IMAGE_TYPE = "ms"
+        OUTPUT = "models/ms_model_final.pkl"
+        PARAMS = BEST_PARAMS["ms"]
 
     train_from_params(IMAGE_TYPE, PARAMS, OUTPUT)
