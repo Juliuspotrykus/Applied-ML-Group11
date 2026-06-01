@@ -7,13 +7,6 @@ import PIL
 import tifffile
 import torch
 import torch.nn.functional as F
-from fastapi import FastAPI, HTTPException, UploadFile
-from fastapi.responses import StreamingResponse
-from PIL import Image
-from pydantic import BaseModel
-from starlette.responses import RedirectResponse
-from torchvision import transforms
-
 from eurosat_classification.data.label_map import label_map, reverse_label_map
 from eurosat_classification.data.preprocessors import normalize_MS_img
 from eurosat_classification.features.gradcam import _scaled_rgb_colour, gradcam
@@ -26,6 +19,12 @@ from eurosat_classification.features.integrated_gradients import (
 )
 from eurosat_classification.features.retrieve_model import get_model
 from eurosat_classification.models.cnn import CNN
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi.responses import StreamingResponse
+from PIL import Image
+from pydantic import BaseModel
+from starlette.responses import RedirectResponse
+from torchvision import transforms
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -148,6 +147,11 @@ def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
         tif_bytes = file.file.read()
         image = tifffile.imread(io.BytesIO(tif_bytes))
         image = torch.from_numpy(image).permute(2, 0, 1)
+        if image.shape[0] != 13:
+            raise HTTPException(
+                status_code=422,
+                detail=("Invalid image shape. Expected a 13-band image. "),
+            )
         image = normalize_MS_img(image).unsqueeze(0)
     return image.to(torch.float32)
 
@@ -248,7 +252,9 @@ def api_show_figures(figure: plt.Figure) -> StreamingResponse:
     return StreamingResponse(buffer, media_type="image/png")
 
 
-def combine_xai_figures(ig_fig: plt.Figure, gradcam_fig: plt.Figure) -> plt.Figure:
+def combine_xai_figures(
+    ig_fig: plt.Figure, gradcam_fig: plt.Figure
+) -> plt.Figure:
     """
     Combines Integrated Gradients and GradCAM XAI figures into one figure in a
     side-by-side layout.
@@ -325,7 +331,9 @@ def ig_explain(
             raw, attrs, predicted_class, target_class, output_path=None
         )
     else:
-        raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
+        raise ValueError(
+            f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'."
+        )
 
     return figure
 
@@ -352,9 +360,13 @@ def gradcam_explain(
         plt.Figure: Visualization of GradCAM explanation.
     """
     if image_type == "RGB":
-        gradcam_visualization = gradcam(model_rgb, img_tensor, img_array, target_class)
+        gradcam_visualization = gradcam(
+            model_rgb, img_tensor, img_array, target_class
+        )
     elif image_type == "MS":
-        gradcam_visualization = gradcam(model_ms, img_tensor, img_array, target_class)
+        gradcam_visualization = gradcam(
+            model_ms, img_tensor, img_array, target_class
+        )
     else:
         raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
 
@@ -406,14 +418,31 @@ async def root():
         - Residential
         - River
         - SeaLake""",
+    responses={
+        415: {
+            "description": "Invalid image extension specified. "
+            "RGB image prediction accepts standard image file "
+            "extensions, such as PNG or JPEG."
+        },
+    },
 )
-async def predict_rgb(image: UploadFile) -> ClassPredictions:
+async def predict_rgb(
+    image: UploadFile = File(
+        description=("An image file, PNG or JPEG, for example."),
+    ),
+) -> ClassPredictions:
     # For final API version, create something
     # that can handle more than 10x10 meter images. TODO
     try:
         tensor_image = process_image(image, "RGB")
     except (PIL.UnidentifiedImageError, OSError):
-        raise HTTPException(status_code=415, detail="Invalid image")
+        raise HTTPException(
+            status_code=415,
+            detail="Invalid image extension specified. "
+            "RGB image prediction accepts standard"
+            "image file extensions, such as PNG "
+            "or JPEG.",
+        )
 
     return model_predict(model_rgb, tensor_image)
 
@@ -444,8 +473,20 @@ async def predict_rgb(image: UploadFile) -> ClassPredictions:
         - Residential
         - River
         - SeaLake""",
+    responses={
+        415: {
+            "description": "Invalid image extension specified. "
+            "Multispectral image prediction accepts "
+            "only TIF files."
+        },
+        422: {"description": "Invalid image shape. Expected a 13-band image."},
+    },
 )
-async def predict_ms(image: UploadFile) -> ClassPredictions:
+async def predict_ms(
+    image: UploadFile = File(
+        description=("A TIF image file."),
+    ),
+) -> ClassPredictions:
     try:
         tensor_image = process_image(image, "MS")
     except (tifffile.tifffile.TiffFileError, OSError):
@@ -493,11 +534,24 @@ async def predict_ms(image: UploadFile) -> ClassPredictions:
         400: {
             "description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."
         },
-        415: {"description": "Invalid file format. Expected an RGB JPEG or PNG."},
+        415: {
+            "description": "Invalid file format. Expected an RGB JPEG or PNG."
+        },
     },
 )
 async def explain_rgb(
-    image: UploadFile, target_class: int | str | None = None, n_steps: int = 50
+    image: UploadFile = File(
+        description=("An image file, PNG or JPEG, for example."),
+    ),
+    target_class: int | str | None = None,
+    n_steps: int = Query(
+        default=50,
+        ge=1,
+        description=(
+            "Number of interpolation steps used by Integrated Gradients. "
+            "Recommended range: 20-300."
+        ),
+    ),
 ) -> StreamingResponse:
     try:
         # GradCam inputs
@@ -527,7 +581,11 @@ async def explain_rgb(
         image_type="RGB",
     )
     gradcam_fig = gradcam_explain(
-        tensor_image, array_image, predicted_class, target_class, image_type="RGB"
+        tensor_image,
+        array_image,
+        predicted_class,
+        target_class,
+        image_type="RGB",
     )
 
     return api_show_figures(combine_xai_figures(ig_fig, gradcam_fig))
@@ -575,11 +633,25 @@ async def explain_rgb(
         400: {
             "description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."
         },
-        415: {"description": "Invalid file format. Expected a 13-band GeoTIFF (.tif)."},
+        415: {
+            "description": "Invalid file format. Expected a 13-band GeoTIFF (.tif)."
+        },
+        422: {"description": "Invalid image shape. Expected a 13-band image."},
     },
 )
 async def explain_ms(
-    image: UploadFile, target_class: int | str | None = None, n_steps: int = 50
+    image: UploadFile = File(
+        description=("A TIF image file."),
+    ),
+    target_class: int | str | None = None,
+    n_steps: int = Query(
+        default=50,
+        ge=1,
+        description=(
+            "Number of interpolation steps used by Integrated Gradients. "
+            "Recommended range: 20-300."
+        ),
+    ),
 ) -> StreamingResponse:
     try:
         tif_bytes = image.file.read()
@@ -613,7 +685,11 @@ async def explain_ms(
         image_type="MS",
     )
     gradcam_fig = gradcam_explain(
-        tensor_image, array_image, predicted_class, target_class, image_type="MS"
+        tensor_image,
+        array_image,
+        predicted_class,
+        target_class,
+        image_type="MS",
     )
 
     return api_show_figures(combine_xai_figures(ig_fig, gradcam_fig))
