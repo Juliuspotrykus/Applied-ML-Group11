@@ -174,6 +174,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "optuna" },
+    { name = "python-multipart" },
     { name = "scikit-learn" },
     { name = "tifffile" },
     { name = "torch" },
@@ -190,6 +191,7 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "numpy", specifier = ">=2.4.4" },
     { name = "optuna", specifier = ">=4.8.0" },
+    { name = "python-multipart", specifier = ">=0.0.29" },
     { name = "scikit-learn", specifier = ">=1.6.0" },
     { name = "tifffile", specifier = ">=2026.5.15" },
     { name = "torch", specifier = ">=2.11.0" },
@@ -669,6 +671,23 @@ http = [
 ]
 
 [[package]]
+name = "grad-cam"
+version = "1.5.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pillow" },
+    { name = "scikit-learn" },
+    { name = "torch" },
+    { name = "torchvision" },
+    { name = "tqdm" },
+    { name = "ttach" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ee/b3/e8b060e69d4de4b4d8a86868762dbc1ecaa58affa538a8af201a38a408ef/grad-cam-1.5.5.tar.gz", hash = "sha256:690c433d226d35c89c9eb170462db204909cb06b39c7381e6880a49b6fc37015", size = 7783293, upload-time = "2025-04-07T05:13:54.984Z" }
+
+[[package]]
 name = "greenlet"
 version = "3.5.1"
 source = { registry = "https://pypi.org/simple" }
@@ -734,23 +753,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/df/4e/750c15c317a41ffb36f0bf40b933e3d744a7dede61889f74443ea69690cf/greenlet-3.5.1-cp315-cp315t-win_amd64.whl", hash = "sha256:e7516cf6ae6b8a582c2770a0caed47b8a48373ed732c33d69a72913ae6ac923e", size = 245225, upload-time = "2026-05-20T13:13:59.366Z" },
     { url = "https://files.pythonhosted.org/packages/4f/fd/d3baea2eeb7b617efd47e87ca06e2ec2c6118d303aa9e918e0ce16eadc10/greenlet-3.5.1-cp315-cp315t-win_arm64.whl", hash = "sha256:5028648bf2253ec4745add746129d3904121fa7fe871a76bed23c5720573ce0a", size = 239590, upload-time = "2026-05-20T13:13:37.382Z" },
 ]
-
-[[package]]
-name = "grad-cam"
-version = "1.5.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "matplotlib" },
-    { name = "numpy" },
-    { name = "opencv-python" },
-    { name = "pillow" },
-    { name = "scikit-learn" },
-    { name = "torch" },
-    { name = "torchvision" },
-    { name = "tqdm" },
-    { name = "ttach" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ee/b3/e8b060e69d4de4b4d8a86868762dbc1ecaa58affa538a8af201a38a408ef/grad-cam-1.5.5.tar.gz", hash = "sha256:690c433d226d35c89c9eb170462db204909cb06b39c7381e6880a49b6fc37015", size = 7783293, upload-time = "2025-04-07T05:13:54.984Z" }
 
 [[package]]
 name = "h11"
@@ -1481,24 +1483,6 @@ wheels = [
 ]
 
 [[package]]
-name = "optuna"
-version = "4.8.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "alembic" },
-    { name = "colorlog" },
-    { name = "numpy" },
-    { name = "packaging" },
-    { name = "pyyaml" },
-    { name = "sqlalchemy" },
-    { name = "tqdm" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/bf/9b/62f120fb2ecbc4338bee70c5a3671c8e561714f3aa1a046b897ff142050e/optuna-4.8.0.tar.gz", hash = "sha256:6f7043e9f8ecb5e607af86a7eb00fb5ec2be26c3b08c201209a73d36aff37a38", size = 482603, upload-time = "2026-03-16T04:59:58.659Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/24/7c731839566d30dc70556d9824ef17692d896c15e3df627bce8c16f753e1/optuna-4.8.0-py3-none-any.whl", hash = "sha256:c57a7682679c36bfc9bca0da430698179e513874074b71bebedb0334964ab930", size = 419456, upload-time = "2026-03-16T04:59:56.977Z" },
-]
-
-[[package]]
 name = "opencv-python"
 version = "4.13.0.92"
 source = { registry = "https://pypi.org/simple" }
@@ -1514,6 +1498,24 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fd/55/b3b49a1b97aabcfbbd6c7326df9cb0b6fa0c0aefa8e89d500939e04aa229/opencv_python-4.13.0.92-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:620d602b8f7d8b8dab5f4b99c6eb353e78d3fb8b0f53db1bd258bb1aa001c1d5", size = 72927042, upload-time = "2026-02-05T06:59:23.389Z" },
     { url = "https://files.pythonhosted.org/packages/fb/17/de5458312bcb07ddf434d7bfcb24bb52c59635ad58c6e7c751b48949b009/opencv_python-4.13.0.92-cp37-abi3-win32.whl", hash = "sha256:372fe164a3148ac1ca51e5f3ad0541a4a276452273f503441d718fab9c5e5f59", size = 30932638, upload-time = "2026-02-05T07:02:14.98Z" },
     { url = "https://files.pythonhosted.org/packages/e9/a5/1be1516390333ff9be3a9cb648c9f33df79d5096e5884b5df71a588af463/opencv_python-4.13.0.92-cp37-abi3-win_amd64.whl", hash = "sha256:423d934c9fafb91aad38edf26efb46da91ffbc05f3f59c4b0c72e699720706f5", size = 40212062, upload-time = "2026-02-05T07:02:12.724Z" },
+]
+
+[[package]]
+name = "optuna"
+version = "4.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "alembic" },
+    { name = "colorlog" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pyyaml" },
+    { name = "sqlalchemy" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bf/9b/62f120fb2ecbc4338bee70c5a3671c8e561714f3aa1a046b897ff142050e/optuna-4.8.0.tar.gz", hash = "sha256:6f7043e9f8ecb5e607af86a7eb00fb5ec2be26c3b08c201209a73d36aff37a38", size = 482603, upload-time = "2026-03-16T04:59:58.659Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ac/24/7c731839566d30dc70556d9824ef17692d896c15e3df627bce8c16f753e1/optuna-4.8.0-py3-none-any.whl", hash = "sha256:c57a7682679c36bfc9bca0da430698179e513874074b71bebedb0334964ab930", size = 419456, upload-time = "2026-03-16T04:59:56.977Z" },
 ]
 
 [[package]]
