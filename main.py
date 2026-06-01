@@ -118,15 +118,16 @@ below for descriptions of the 13 bands. The ground sampling distanceshould be
     version="alpha",
 )
 
-#@ Load models
-model_rgb = get_model("models/model1.pkl")
-model_ms = get_model("models/model2.pkl")
+# @ Load models
+model_rgb = get_model("models/rgb_model_final.pkl")
+model_ms = get_model("models/ms_model_final.pkl")
 model_rgb.eval()
 model_ms.eval()
 
+
 ## Functions for prediction API
 def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
-    """    
+    """
     Pre-processes an image given by a user.
     Resizing (for RGB), normalization, and clipping extreme values (for MS).
 
@@ -166,9 +167,7 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
         confs = model(image).detach()[0]
     confs = F.softmax(confs, dim=0)
     class_confs = [
-        ClassConfidence(
-            class_pred=label_map[i], confidence=round(float(conf), 3)
-        )
+        ClassConfidence(class_pred=label_map[i], confidence=round(float(conf), 3))
         for i, conf in enumerate(confs)
     ]
     class_confs = sorted(class_confs, key=lambda x: x.confidence, reverse=True)
@@ -179,10 +178,10 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
 def parse_target(target_class: int | str | None = None) -> int | None:
     """
     Parse target class for explainability from integer index or string.
-    Default is None, for which explanation will be given for predicted class. 
+    Default is None, for which explanation will be given for predicted class.
 
     Args:
-        target_class (int | str | None, optional): Target class to explain entered by user. 
+        target_class (int | str | None, optional): Target class to explain entered by user.
                                                    Defaults to None.
 
     Raises:
@@ -199,10 +198,10 @@ def parse_target(target_class: int | str | None = None) -> int | None:
         return reverse_label_map[target_class]
 
     raise HTTPException(
-            status_code=400,
-            detail="Invalid target_class. Valid options are integers 0-9 or "\
-            "string representations from documentation."
-        )
+        status_code=400,
+        detail="Invalid target_class. Valid options are integers 0-9 or "
+        "string representations from documentation.",
+    )
 
 
 def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
@@ -223,9 +222,12 @@ def class_to_explain(preprocessed_img: torch.Tensor, image_type: str) -> int:
         elif image_type == "MS":
             predicted_class = int(model_ms(preprocessed_img).argmax(1).item())
         else:
-            raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
+            raise ValueError(
+                f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'."
+            )
 
     return predicted_class
+
 
 def api_show_figures(figure: plt.Figure) -> StreamingResponse:
     """
@@ -281,7 +283,15 @@ def combine_xai_figures(ig_fig: plt.Figure, gradcam_fig: plt.Figure) -> plt.Figu
     return fig
 
 
-def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Tensor, predicted_class: int, target_class: int | None, n_steps: int, image_type: str) -> plt.Figure:
+def ig_explain(
+    raw: torch.Tensor,
+    preprocessed: torch.Tensor,
+    baseline: torch.Tensor,
+    predicted_class: int,
+    target_class: int | None,
+    n_steps: int,
+    image_type: str,
+) -> plt.Figure:
     """
     Performs Integrated Gradients on input image for a requested target class
     and returns visualization.
@@ -301,17 +311,32 @@ def ig_explain(raw: torch.Tensor, preprocessed: torch.Tensor, baseline: torch.Te
     if target_class is None:
         target_class = predicted_class
     if image_type == "RGB":
-        attrs = integrated_gradients(model_rgb, preprocessed, baseline, target_class, n_steps)
-        figure = visualise_rgb(raw, attrs, predicted_class, target_class, output_path=None)
+        attrs = integrated_gradients(
+            model_rgb, preprocessed, baseline, target_class, n_steps
+        )
+        figure = visualise_rgb(
+            raw, attrs, predicted_class, target_class, output_path=None
+        )
     elif image_type == "MS":
-        attrs = integrated_gradients(model_ms, preprocessed, baseline, target_class, n_steps)
-        figure = visualise_ms(raw, attrs, predicted_class, target_class, output_path=None)
+        attrs = integrated_gradients(
+            model_ms, preprocessed, baseline, target_class, n_steps
+        )
+        figure = visualise_ms(
+            raw, attrs, predicted_class, target_class, output_path=None
+        )
     else:
         raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
 
     return figure
 
-def gradcam_explain(img_tensor: torch.Tensor, img_array: np.ndarray, predicted_class: int, target_class: int | None, image_type: str) -> plt.Figure:
+
+def gradcam_explain(
+    img_tensor: torch.Tensor,
+    img_array: np.ndarray,
+    predicted_class: int,
+    target_class: int | None,
+    image_type: str,
+) -> plt.Figure:
     """
     Performs GradCAM on input image for a requested target class and returns
     visualization.
@@ -332,23 +357,29 @@ def gradcam_explain(img_tensor: torch.Tensor, img_array: np.ndarray, predicted_c
         gradcam_visualization = gradcam(model_ms, img_tensor, img_array, target_class)
     else:
         raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
-    
+
     figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-    figure.suptitle(f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}")
+    figure.suptitle(
+        f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}"
+    )
 
     ax1.imshow(img_array)
     ax1.set_title("Original image")
     ax1.axis("off")
     ax2.imshow(gradcam_visualization)
-    ax2.set_title("GradCAM heatmap (overlaid)\nRed = most influential, Blue = least influential")
+    ax2.set_title(
+        "GradCAM heatmap (overlaid)\nRed = most influential, Blue = least influential"
+    )
     ax2.axis("off")
 
     return figure
+
 
 ## API endpoints
 @app.get("/", description="Root endpoint that redirects to API documentation.")
 async def root():
     return RedirectResponse(url="/docs")
+
 
 # Predict for RGB model (i.e. baseline)
 @app.post(
@@ -385,6 +416,7 @@ async def predict_rgb(image: UploadFile) -> ClassPredictions:
         raise HTTPException(status_code=415, detail="Invalid image")
 
     return model_predict(model_rgb, tensor_image)
+
 
 # Predict for MS model
 @app.post(
@@ -426,11 +458,11 @@ async def predict_ms(image: UploadFile) -> ClassPredictions:
 
     return model_predict(model_ms, tensor_image)
 
+
 # Explainability for RGB (i.e. baseline) model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_rgb",
-    summary="Provide explainability for RGB model on input image for desired " 
-    "class.",
+    summary="Provide explainability for RGB model on input image for desired class.",
     description="RGB explainability endpoint to give insight into model "
     "responses for RGB inputs. Requests should be of the format multipart/form-data, "
     "and include an image sent using the applicable 'image' field. The given "
@@ -445,27 +477,31 @@ async def predict_ms(image: UploadFile) -> ClassPredictions:
     "interpolation steps for integrated gradients, and higher numbers "
     "generally create more accurate results. The default value is 50. Returns "
     "a double panel: on the left, the Integrated Gradients explanation is "
-    "shown alongside the original input, where brighter colors indicate more " 
+    "shown alongside the original input, where brighter colors indicate more "
     "influential pixels; on the right, the GradCAM explanation is shown "
     "alongside the original input, and red colors indicate more influential "
     "pixels.",
-    response_description="Returns Integrated Gradients attribution heatmap " 
+    response_description="Returns Integrated Gradients attribution heatmap "
     "and GradCAM heatmap for specified target class.",
-    response_class = StreamingResponse,
-    responses = {
+    response_class=StreamingResponse,
+    responses={
         200: {
             "content": {"image/png": {}},
             "description": "Integrated Gradients and GradCAM visualizations"
             "for RGB input",
         },
-        400: {"description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."},
+        400: {
+            "description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."
+        },
         415: {"description": "Invalid file format. Expected an RGB JPEG or PNG."},
-    }
+    },
 )
-async def explain_rgb(image: UploadFile, target_class: int | str | None = None, n_steps: int = 50) -> StreamingResponse:
+async def explain_rgb(
+    image: UploadFile, target_class: int | str | None = None, n_steps: int = 50
+) -> StreamingResponse:
     try:
         # GradCam inputs
-        tensor_image = process_image(image, "RGB") # dim (1, 3, H, W)
+        tensor_image = process_image(image, "RGB")  # dim (1, 3, H, W)
         array_image = tensor_image[0].permute(1, 2, 0).numpy()
 
         # For RGB, no separate normalisation step — raw pixels == model input
@@ -480,20 +516,27 @@ async def explain_rgb(image: UploadFile, target_class: int | str | None = None, 
     predicted_class = class_to_explain(tensor_image, "RGB")
     if target_class is None:
         target_class = predicted_class
-    
-    ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="RGB")
-    gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="RGB")
+
+    ig_fig = ig_explain(
+        raw,
+        preprocessed,
+        baseline,
+        predicted_class,
+        target_class,
+        n_steps,
+        image_type="RGB",
+    )
+    gradcam_fig = gradcam_explain(
+        tensor_image, array_image, predicted_class, target_class, image_type="RGB"
+    )
 
     return api_show_figures(combine_xai_figures(ig_fig, gradcam_fig))
-
-
 
 
 # Explainability for MS model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_ms",
-    summary="Provide explainability for MS model on input image for desired " 
-    "class.",
+    summary="Provide explainability for MS model on input image for desired class.",
     description="MS explainability endpoint to give insight into model "
     "responses for MS inputs. Requests should be of the format multipart/form-data, "
     "and include an image sent using the applicable 'image' field. The given "
@@ -508,10 +551,10 @@ async def explain_rgb(image: UploadFile, target_class: int | str | None = None, 
     "interpolation steps for integrated gradients, and higher numbers "
     "generally create more accurate results. The default value is 50. Returns "
     "a double panel: on the left, the Integrated Gradients explanation is "
-    "shown (per-band and aggregated) alongside the original input, where " 
+    "shown (per-band and aggregated) alongside the original input, where "
     "brighter colors indicate more influential pixels; on the right, the "
-    "GradCAM explanation is shown alongside the original input, and red colors " 
-    "indicate more influential pixels.",    
+    "GradCAM explanation is shown alongside the original input, and red colors "
+    "indicate more influential pixels.",
     response_description="Returns a side-by-side figure with Integrated Gradients (left) "
     "and GradCAM (right) for the specified target class. "
     "The Integrated Gradients panel contains 15 heatmaps: \n"
@@ -522,24 +565,28 @@ async def explain_rgb(image: UploadFile, target_class: int | str | None = None, 
     " - Cell 14: Aggregate attribution (sum of absolute values across all bands)."
     "The GradCAM panel shows the original image alongside the GradCAM heatmap overlaid: "
     "red = most influential regions, blue = least influential.",
-    response_class = StreamingResponse,
-    responses = {
+    response_class=StreamingResponse,
+    responses={
         200: {
             "content": {"image/png": {}},
             "description": "Integrated Gradients and GradCAM visualizations"
             "for MS input",
         },
-        400: {"description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."},
+        400: {
+            "description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."
+        },
         415: {"description": "Invalid file format. Expected a 13-band GeoTIFF (.tif)."},
-    }
+    },
 )
-async def explain_ms(image: UploadFile, target_class: int | str | None = None, n_steps: int = 50) -> StreamingResponse:
+async def explain_ms(
+    image: UploadFile, target_class: int | str | None = None, n_steps: int = 50
+) -> StreamingResponse:
     try:
         tif_bytes = image.file.read()
 
         raw = tifffile.imread(io.BytesIO(tif_bytes))
         raw = torch.from_numpy(raw).permute(2, 0, 1)
-        tensor_image = normalize_MS_img(raw).unsqueeze(0) # dim: (1, 13, H, W)
+        tensor_image = normalize_MS_img(raw).unsqueeze(0)  # dim: (1, 13, H, W)
         preprocessed = tensor_image[0]
         baseline = torch.zeros_like(preprocessed)
         array_image = _scaled_rgb_colour(raw)
@@ -556,7 +603,17 @@ async def explain_ms(image: UploadFile, target_class: int | str | None = None, n
     if target_class is None:
         target_class = predicted_class
 
-    ig_fig = ig_explain(raw, preprocessed, baseline, predicted_class, target_class, n_steps, image_type="MS")
-    gradcam_fig = gradcam_explain(tensor_image, array_image, predicted_class, target_class, image_type="MS")
+    ig_fig = ig_explain(
+        raw,
+        preprocessed,
+        baseline,
+        predicted_class,
+        target_class,
+        n_steps,
+        image_type="MS",
+    )
+    gradcam_fig = gradcam_explain(
+        tensor_image, array_image, predicted_class, target_class, image_type="MS"
+    )
 
     return api_show_figures(combine_xai_figures(ig_fig, gradcam_fig))
