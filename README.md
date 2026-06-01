@@ -51,6 +51,27 @@ uv sync
 uv run python -m eurosat_classification.train.tune rgb
 ```
 
+## Data
+
+The EuroSAT dataset is pulled automatically
+from Kaggle via `kagglehub` the first time you build
+the dataloaders, you don't need to download it manually. It's cached locally, so
+subsequent runs reuse it.
+
+The multispectral contains a handful of spurious files in the
+`EuroSATallBands/SeaLake` folder. These are removed automatically by
+`clean_sealake_folder()` before the datasets are constructed.
+
+To download and clean the data independently, e.g. to inspect it before training:
+
+```python
+from eurosat_classification.data.download import get_dataset_path
+from eurosat_classification.data.clean import clean_sealake_folder
+
+path = get_dataset_path()   
+clean_sealake_folder()      
+```
+
 ## Usage
 
 ### Hyperparameter tuning
@@ -64,9 +85,9 @@ uv run python -m eurosat_classification.train.tune rgb
 uv run python -m eurosat_classification.train.tune ms
 ```
 
-### Running on a SLURM cluster
+### Running on a SLURM cluster 
 
-[`hyperparameters.sh`](eurosat_classification/train/hyperparameters.sh) submits a single-modality run to a GPU partition. Submit one job per modality so each gets its own wall-time budget and runs in parallel:
+`hyperparameters.sh` (eurosat_classification/train/hyperparameters.sh) submits a single-modality run to a GPU partition. Submit one job per modality so each gets its own wall-time budget and runs in parallel:
 
 ```bash
 sbatch --job-name=tune_rgb eurosat_classification/train/hyperparameters.sh rgb
