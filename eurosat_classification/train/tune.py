@@ -93,7 +93,6 @@ def tune_image_type(image_type, n_trials=30):
         epochs=30,
         patience=5,
     )
-    torch.save(model.state_dict(), f"models/best_{image_type}.pt")
     return study
 
 
