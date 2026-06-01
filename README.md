@@ -49,7 +49,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ## Installation
 
 ```bash
-git clone https://github.com/Juliuspotrykus/Applied-ML-Group11.git Applied-ML-Group11
+git clone https://github.com/Juliuspotrykus/Applied-ML-Group11.git 
 cd Applied-ML-Group11
 uv sync
 source .venv/bin/activate
