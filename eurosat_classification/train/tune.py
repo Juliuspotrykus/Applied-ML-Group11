@@ -12,11 +12,11 @@ CHANNELS = {"rgb": 3, "ms": 13}
 
 
 KERNEL_OPTIONS = {
-    "single_3":   [Kernel(3)],
-    "single_5":   [Kernel(5)],
-    "multi_3_5":  [Kernel(3), Kernel(5)],
-    "multi_3_7":  [Kernel(3), Kernel(7)],
-    "multi_3_5_7_9":[Kernel(3), Kernel(5), Kernel(7), Kernel(9)],
+    "single_3": [Kernel(3)],
+    "single_5": [Kernel(5)],
+    "multi_3_5": [Kernel(3), Kernel(5)],
+    "multi_3_7": [Kernel(3), Kernel(7)],
+    "multi_3_5_7_9": [Kernel(3), Kernel(5), Kernel(7), Kernel(9)],
 }
 
 
@@ -25,7 +25,9 @@ def build_config(trial, image_type):
     base = trial.suggest_categorical("base_channels", [16, 32, 64, 128, 256, 512])
     conv_blocks = []
     for i in range(n_blocks):
-        kernel_choice = trial.suggest_categorical(f"kernels_block_{i}", list(KERNEL_OPTIONS))
+        kernel_choice = trial.suggest_categorical(
+            f"kernels_block_{i}", list(KERNEL_OPTIONS)
+        )
         conv_blocks.append(
             ConvBlockConfig(
                 out_channels=base * (2**i),
@@ -36,7 +38,9 @@ def build_config(trial, image_type):
         )
 
     n_fc_layers = trial.suggest_int("n_fc_layers", 1, 10)
-    fc_hidden_size = trial.suggest_categorical("fc_hidden", [64, 128, 256, 512, 1024, 2048])
+    fc_hidden_size = trial.suggest_categorical(
+        "fc_hidden", [64, 128, 256, 512, 1024, 2048]
+    )
     fc_layers = [fc_hidden_size] * n_fc_layers + [10]
 
     return CNNConfig(
@@ -83,16 +87,6 @@ def tune_image_type(image_type, n_trials=30):
         n_trials=n_trials,
     )
 
-    # Retrain and save the best models for each
-    best_config = build_config(FixedTrial(study.best_params), image_type)
-    model, _ = train_model(
-        best_config,
-        train_loader,
-        val_loader,
-        lr=study.best_params["lr"],
-        epochs=30,
-        patience=5,
-    )
     return study
 
 
