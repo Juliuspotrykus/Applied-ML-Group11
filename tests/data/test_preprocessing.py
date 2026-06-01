@@ -1,6 +1,7 @@
 import unittest
 
 import torch
+
 from eurosat_classification.data.preprocessors import normalize_MS_img
 
 
