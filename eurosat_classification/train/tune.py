@@ -1,8 +1,6 @@
 import argparse
 
 import optuna
-import torch
-from optuna.trial import FixedTrial
 
 from ..data.datasets import create_dataloaders
 from ..models.cnn import CNNConfig, ConvBlockConfig, Kernel
@@ -93,10 +91,11 @@ def tune_image_type(image_type, n_trials=30):
 def main():
     parser = argparse.ArgumentParser(description="Hyperparameter tuning")
     parser.add_argument("image_type", choices=("rgb", "ms"))
+    parser.add_argument("n_trials", type=int)
     args = parser.parse_args()
 
     print(f"\n=== Tuning {args.image_type} ===")
-    study = tune_image_type(args.image_type)
+    study = tune_image_type(args.image_type, args.n_trials)
     print(
         f"{args.image_type}: best F1 = {study.best_value:.4f}, params = {study.best_params}"
     )
