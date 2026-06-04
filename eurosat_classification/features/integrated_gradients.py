@@ -106,6 +106,74 @@ def _aggregate_attribution(attrs: torch.Tensor) -> np.ndarray:
     return (agg - agg.min()) / (agg.max() - agg.min() + 1e-8)
 
 
+def band_attribution_totals(
+    model: torch.nn.Module,
+    dataset,  # torch Dataset yielding (preprocessed_tensor [C, H, W], label)
+    n_steps: int = 50,
+    target_class: int | None = None,
+    max_samples: int | None = None,
+    device: str | torch.device = "cpu",
+    verbose: bool = True,
+) -> dict[str, np.ndarray]:
+    """Accumulate total positive and negative IG attributions per band over a dataset.
+
+    For each image, computes Integrated Gradients and sums pixel-level attributions
+    separately for positive (>0) and negative (<0) values per channel/band.
+    Results are accumulated across all images to give dataset-level band importance.
+
+    Args:
+        model: Trained nn.Module in eval mode.
+        dataset: Dataset yielding (preprocessed_tensor [C, H, W], label) pairs.
+        n_steps: IG interpolation steps per image.
+        target_class: Class to explain. If None, uses each image's true label.
+        max_samples: Cap the number of images processed. None = full dataset.
+        device: Torch device for model and tensors.
+        verbose: Print progress every 100 images.
+
+    Returns:
+        Dict with keys:
+            "positive"  – [C] ndarray, total positive attribution per band.
+            "negative"  – [C] ndarray, total negative attribution per band (≤ 0).
+            "count"     – number of images processed.
+    """
+    device = torch.device(device)
+    model = model.to(device).eval()
+
+    n_samples = len(dataset) if max_samples is None else min(max_samples, len(dataset))
+
+    pos_totals: np.ndarray | None = None
+    neg_totals: np.ndarray | None = None
+
+    for i in range(n_samples):
+        img, label = dataset[i]               # [C, H, W]
+        img = img.to(device)
+        baseline = torch.zeros_like(img)
+
+        tc = target_class if target_class is not None else int(label)
+
+        attrs = integrated_gradients(model, img, baseline, tc, n_steps)  # [C, H, W]
+        attrs_np = attrs.cpu().numpy()
+
+        pos = attrs_np.clip(min=0).sum(axis=(1, 2))  # [C]
+        neg = attrs_np.clip(max=0).sum(axis=(1, 2))  # [C]
+
+        if pos_totals is None:
+            pos_totals = pos
+            neg_totals = neg
+        else:
+            pos_totals += pos
+            neg_totals += neg
+
+        if verbose and (i + 1) % 100 == 0:
+            print(f"  [{i + 1}/{n_samples}] band attribution totals…")
+
+    return {
+        "positive": pos_totals if pos_totals is not None else np.array([]),
+        "negative": neg_totals if neg_totals is not None else np.array([]),
+        "count": n_samples,
+    }
+
+
 def visualise_rgb(
     raw: torch.Tensor,
     attrs: torch.Tensor,
