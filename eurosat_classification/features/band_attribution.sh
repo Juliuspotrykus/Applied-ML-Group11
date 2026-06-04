@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=band_attribution
-#SBATCH --time=2:00:00
+#SBATCH --time=01:0:00
 #SBATCH --mem=32GB
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -33,10 +33,14 @@ source .venv/bin/activate
 echo "=== Python: $(python --version) | venv active ==="
 echo "=== Starting band attribution ==="
 
-python -u -m eurosat_classification.features.band_attribution_runner \
-    --model_path "$MODEL_PATH" \
-    --image_type "$IMAGE_TYPE" \
-    --output_dir results/band_attribution \
-    --device cuda
+for CLASS in 0 1 2 3 4 5 6 7 8 9; do
+    echo "=== Class $CLASS ==="
+    python -u -m eurosat_classification.features.band_attribution_runner \
+        --model_path "$MODEL_PATH" \
+        --image_type "$IMAGE_TYPE" \
+        --output_dir results/band_attribution \
+        --device cuda \
+        --target_class "$CLASS"
+done
 
 echo "=== Job finished: $(date) ==="
