@@ -6,11 +6,11 @@ attributions per band (using each image's true label as the target class),
 saves results to .npz, and writes a bar chart.
 
 Usage (local):
-    uv run -m eurosat_classification.features.band_attribution_runner \
+    python -m eurosat_classification.features.band_attribution_runner \
         --model_path models/ms_model_final.pkl \
         --image_type ms \
         --output_dir results/band_attribution \
-        --max_samples 200
+
     # Use --max_samples 200 to do a quick smoke-test before the full run.
 
 Usage (cluster):
