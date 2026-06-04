@@ -6,11 +6,11 @@ attributions per band (using each image's true label as the target class),
 saves results to .npz, and writes a bar chart.
 
 Usage (local):
-    python -m eurosat_classification.features.band_attribution_runner \
+    uv run -m eurosat_classification.features.band_attribution_runner \
         --model_path models/ms_model_final.pkl \
         --image_type ms \
-        --output_dir results/band_attribution
-
+        --output_dir results/band_attribution \
+        --max_samples 200
     # Use --max_samples 200 to do a quick smoke-test before the full run.
 
 Usage (cluster):
@@ -35,8 +35,6 @@ from .integrated_gradients import band_attribution_totals
 def _auto_device() -> str:
     if torch.cuda.is_available():
         return "cuda"
-    if torch.backends.mps.is_available():
-        return "mps"
     return "cpu"
 
 
@@ -77,6 +75,8 @@ def main():
                         help="Process only this many images (useful for quick smoke-tests).")
     parser.add_argument("--device", default=None,
                         help="Torch device (cuda/mps/cpu). Auto-detected if not set.")
+    parser.add_argument("--target_class", type=int, default=None,
+                        help="If set, only process images with this label and explain that class.")
     args = parser.parse_args()
 
     device = args.device or _auto_device()
@@ -103,11 +103,14 @@ def main():
     print(f"Image type: {args.image_type.upper()}")
     print(f"Split:      train  ({n} images)")
     print(f"n_steps:    {args.n_steps}")
+    if args.target_class is not None:
+        print(f"Target class: {args.target_class} (only images with this label)")
 
     results = band_attribution_totals(
         model=model,
         dataset=dataset,
         n_steps=args.n_steps,
+        target_class=args.target_class,
         max_samples=args.max_samples,
         device=device,
         verbose=True,
@@ -116,7 +119,8 @@ def main():
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    npz_path = out_dir / f"{args.image_type}_train_attribution.npz"
+    class_suffix = f"_class{args.target_class}" if args.target_class is not None else ""
+    npz_path = out_dir / f"{args.image_type}_train_attribution{class_suffix}.npz"
     np.savez(
         npz_path,
         positive=results["positive"],
@@ -126,13 +130,14 @@ def main():
     )
     print(f"Saved data: {npz_path.resolve()}")
 
+    class_label = f" / class {args.target_class}" if args.target_class is not None else ""
     plot_band_attribution(
         positive=results["positive"],
         negative=results["negative"],
         band_names=band_names,
-        output_path=out_dir / f"{args.image_type}_train_attribution.png",
+        output_path=out_dir / f"{args.image_type}_train_attribution{class_suffix}.png",
         title=(
-            f"Band attribution — {args.image_type.upper()} / train "
+            f"Band attribution — {args.image_type.upper()} / train{class_label} "
             f"(n={results['count']}, steps={args.n_steps})"
         ),
     )
