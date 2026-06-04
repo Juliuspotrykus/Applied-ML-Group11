@@ -83,7 +83,7 @@ def integrated_gradients(
     Returns:
         Signed attribution tensor [C, H, W] per pixel and channel.
     """
-    alphas = torch.linspace(0, 1, n_steps + 1)                              # [n_steps+1]
+    alphas = torch.linspace(0, 1, n_steps + 1, device=input_tensor.device)# [n_steps+1]
     path = baseline + alphas.view(-1, 1, 1, 1) * (input_tensor - baseline)  # [n_steps+1, C, H, W]
     path = path.detach().requires_grad_(True) # This tells PyTorch to enable gradient tracking for the path
 
@@ -148,6 +148,10 @@ def band_attribution_totals(
 
     for i in range(n_samples):
         img, label = dataset[i]               # [C, H, W]
+
+        if target_class is not None and int(label) != target_class:
+            continue
+
         img = img.to(device)
         baseline = torch.zeros_like(img)
 
