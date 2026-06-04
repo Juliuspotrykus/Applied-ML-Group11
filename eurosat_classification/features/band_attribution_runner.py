@@ -53,7 +53,7 @@ def plot_band_attribution(
     ax.bar(x, negative, color="steelblue", label="Negative")
     ax.set_xticks(x)
     ax.set_xticklabels(band_names, rotation=45, ha="right", fontsize=8)
-    ax.set_ylabel("Total attribution (summed over all images and pixels)")
+    ax.set_ylabel("Mean attribution per band (class-balanced)")
     ax.set_title(title)
     ax.legend()
     ax.axhline(0, color="black", linewidth=0.8)

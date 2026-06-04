@@ -115,11 +115,12 @@ def band_attribution_totals(
     device: str | torch.device = "cpu",
     verbose: bool = True,
 ) -> dict[str, np.ndarray]:
-    """Accumulate total positive and negative IG attributions per band over a dataset.
+    """Compute class-balanced mean IG attributions per band over a dataset.
 
     For each image, computes Integrated Gradients and sums pixel-level attributions
-    separately for positive (>0) and negative (<0) values per channel/band.
-    Results are accumulated across all images to give dataset-level band importance.
+    separately for positive (>0) and negative (<0) values per channel/band. Sums are
+    accumulated per class, averaged within each class, then macro-averaged across
+    classes so that no class dominates due to having more samples.
 
     Args:
         model: Trained nn.Module in eval mode.
@@ -132,8 +133,8 @@ def band_attribution_totals(
 
     Returns:
         Dict with keys:
-            "positive"  – [C] ndarray, total positive attribution per band.
-            "negative"  – [C] ndarray, total negative attribution per band (≤ 0).
+            "positive"  – [C] ndarray, class-balanced mean positive attribution per band.
+            "negative"  – [C] ndarray, class-balanced mean negative attribution per band (≤ 0).
             "count"     – number of images processed.
     """
     device = torch.device(device)
@@ -141,8 +142,9 @@ def band_attribution_totals(
 
     n_samples = len(dataset) if max_samples is None else min(max_samples, len(dataset))
 
-    pos_totals: np.ndarray | None = None
-    neg_totals: np.ndarray | None = None
+    pos_by_class: dict[int, np.ndarray] = {}
+    neg_by_class: dict[int, np.ndarray] = {}
+    count_by_class: dict[int, int] = {}
 
     for i in range(n_samples):
         img, label = dataset[i]               # [C, H, W]
@@ -157,19 +159,28 @@ def band_attribution_totals(
         pos = attrs_np.clip(min=0).sum(axis=(1, 2))  # [C]
         neg = attrs_np.clip(max=0).sum(axis=(1, 2))  # [C]
 
-        if pos_totals is None:
-            pos_totals = pos
-            neg_totals = neg
+        if tc not in pos_by_class:
+            pos_by_class[tc] = pos
+            neg_by_class[tc] = neg
+            count_by_class[tc] = 1
         else:
-            pos_totals += pos
-            neg_totals += neg
+            pos_by_class[tc] += pos
+            neg_by_class[tc] += neg
+            count_by_class[tc] += 1
 
         if verbose and (i + 1) % 100 == 0:
             print(f"  [{i + 1}/{n_samples}] band attribution totals…")
 
+    if not pos_by_class:
+        return {"positive": np.array([]), "negative": np.array([]), "count": 0}
+
+    classes = sorted(pos_by_class)
+    pos_means = np.stack([pos_by_class[c] / count_by_class[c] for c in classes])  # [n_classes, C]
+    neg_means = np.stack([neg_by_class[c] / count_by_class[c] for c in classes])  # [n_classes, C]
+
     return {
-        "positive": pos_totals if pos_totals is not None else np.array([]),
-        "negative": neg_totals if neg_totals is not None else np.array([]),
+        "positive": pos_means.mean(axis=0),  # [C]
+        "negative": neg_means.mean(axis=0),  # [C]
         "count": n_samples,
     }
 
