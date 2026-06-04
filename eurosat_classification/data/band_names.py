@@ -1,4 +1,10 @@
-"""Sentinel-2 band names for the 13-band EuroSAT MS dataset."""
+"""Sentinel-2 band names for the EuroSAT RGB and MS datasets."""
+
+RGB_BAND_NAMES = [
+    "R (B4)",
+    "G (B3)",
+    "B (B2)",
+]
 
 MS_BAND_NAMES = [
     "B1 - Coastal aerosol",
