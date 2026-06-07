@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+.vscode
+.venv
+.DS_Store
+notebooks/
+logs/
+data/
+*.out
