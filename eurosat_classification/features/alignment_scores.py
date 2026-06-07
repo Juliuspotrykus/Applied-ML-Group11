@@ -166,7 +166,6 @@ def main():
 			dtype=object,
 		),
 		alpha=args.alpha,
-		n_steps=args.n_steps,
 	)
 
 	print("\nAlignment Scores")
