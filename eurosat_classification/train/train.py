@@ -26,13 +26,20 @@ def evaluate(model, loader, loss_fn):
 def train_model(
     config: CNNConfig,
     train_loader,
-    val_loader,
-    lr,
-    epochs: int,
-    patience: int,
+    val_loader=None,
+    lr=1e-3,
+    epochs: int = 30,
+    patience: int = 5,
     check_prune: Callable | None = None,
     track_history: bool = False,
 ):
+    """Train a CNN.
+
+    When val_loader is None, the model is trained for a fixed number of
+    epochs with no validation nor early stopping and the final-epoch model is returned. Otherwise the model is validated
+    each epoch, early stopping is applied, and the best-val-F1 checkpoint is
+    restored before returning.
+    """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = CNN(config).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -56,6 +63,13 @@ def train_model(
             optimizer.step()
             if track_history:
                 train_loss += loss.item()
+
+        if val_loader is None:
+            if track_history:
+                train_loss /= len(train_loader)
+                history["train_loss"].append(train_loss)
+            print(f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}")
+            continue
 
         val_loss, val_f1 = evaluate(model, val_loader, loss_fn)
 
