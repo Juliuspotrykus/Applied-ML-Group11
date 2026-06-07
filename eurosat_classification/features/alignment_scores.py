@@ -97,7 +97,7 @@ def main():
 			description="Alignment of attribution scores with literature.",
 			formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 		)
-	parser.add_argument("--alpha", type=float, default=0.5,
+	parser.add_argument("--alpha", type=float, default=0.75,
 						help="Weighting given to secondary bands.")
 	parser.add_argument("--output_dir", default="results/alignment",
     					help="Directory where alignment scores will be saved.",)
