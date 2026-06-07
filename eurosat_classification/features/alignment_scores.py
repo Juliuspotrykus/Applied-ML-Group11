@@ -1,4 +1,6 @@
 """
+IMPORTANT: band_attribution_runner.py needs to have been run before this!!
+
 Main and secondary bands were chosen based on literature. 
 Main bands were those identified by both sources, secondary bands are those identified by only one of the sources.
 
@@ -85,39 +87,22 @@ def _auto_device() -> str:
     return "cpu"
 
 
+def load_class_attribution(class_idx: int):
+    path = Path("results/band_attribution") / f"ms_train_attribution_class{class_idx}.npz"
+    return np.load(path, allow_pickle=True)
+
+
 def main():
 	parser = argparse.ArgumentParser(
 			description="Alignment of attribution scores with literature.",
 			formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 		)
-	parser.add_argument("--model_path", required=True, help="Path to saved model (.pkl)")
-	parser.add_argument("--n_steps", type=int, default=50,
-						help="IG interpolation steps per image.")
-	parser.add_argument("--max_samples", type=int, default=None,
-						help="Process only this many images (useful for quick smoke-tests).")
-	parser.add_argument("--device", default=None,
-						help="Torch device (cuda/mps/cpu). Auto-detected if not set.")
 	parser.add_argument("--alpha", type=float, default=0.5,
 						help="Weighting given to secondary bands.")
 	parser.add_argument("--output_dir", default="results/alignment",
     					help="Directory where alignment scores will be saved.",)
 	args = parser.parse_args()
 
-
-	device = args.device or _auto_device()
-	print(f"Device:     {device}")
-
-	model = torch.load(args.model_path, map_location=device, weights_only=False)
-	model.eval()
-
-	data_root = Path(get_dataset_path())
-	train_csv, _, _ = get_train_val_test_splits()
-
-	dataset = EuroSATMSDataset(
-            root=data_root / "EuroSATallBands",
-            csv_path=train_csv,
-            transform=normalize_MS_img,
-        )
 	band_names = MS_BAND_NAMES
 
 	expect_main_class_to_band = {
@@ -149,15 +134,7 @@ def main():
 	alignment = {}
 
 	for class_idx, _ in label_map.items():
-		results = band_attribution_totals(
-			model=model,
-			dataset=dataset,
-			n_steps=args.n_steps,
-			target_class=class_idx,
-			max_samples=args.max_samples,
-			device=device,
-			verbose=True,
-		)
+		results = load_class_attribution(class_idx)
 
 		positive = results["positive"]
 		negative = results["negative"]
