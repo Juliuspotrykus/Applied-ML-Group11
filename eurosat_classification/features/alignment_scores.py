@@ -99,6 +99,8 @@ def main():
 						help="Torch device (cuda/mps/cpu). Auto-detected if not set.")
 	parser.add_argument("--alpha", type=float, default=0.5,
 						help="Weighting given to secondary bands.")
+	parser.add_argument("--output_dir", default="results/alignment",
+    					help="Directory where alignment scores will be saved.",)
 	args = parser.parse_args()
 
 
@@ -117,8 +119,6 @@ def main():
             transform=normalize_MS_img,
         )
 	band_names = MS_BAND_NAMES
-
-	n = len(dataset) if args.max_samples is None else min(args.max_samples, len(dataset))
 
 	expect_main_class_to_band = {
 		0: ["B5 - Red Edge 1", "B6 - Red Edge 2", "B7 - Red Edge 3", "B8A - Narrow NIR"],
@@ -176,6 +176,30 @@ def main():
 		attr_secondary = importance[secondary_mask].sum() / total
 
 		alignment[class_idx] = float(attr_main + args.alpha * attr_secondary)
+
+	out_dir = Path(args.output_dir)
+	out_dir.mkdir(parents=True, exist_ok=True)
+	npz_path = out_dir / "ms_alignment_scores.npz"
+	np.savez(
+		npz_path,
+		alignment=np.array([alignment[i] for i in sorted(alignment)]),
+		class_indices=np.array(sorted(alignment)),
+		class_names=np.array(
+			[label_map[i] for i in sorted(alignment)],
+			dtype=object,
+		),
+		alpha=args.alpha,
+		n_steps=args.n_steps,
+	)
+
+	print("\nAlignment Scores")
+	for class_idx in sorted(alignment):
+		print(
+			f"{label_map[class_idx]:<22}"
+			f"{alignment[class_idx]:.3f}"
+		)
+	mean_alignment = np.mean(list(alignment.values()))
+	print(f"{'Mean alignment':<22}{mean_alignment:.3f}")
 
 	return alignment
 
