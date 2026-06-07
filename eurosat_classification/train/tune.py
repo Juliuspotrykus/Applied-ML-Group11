@@ -18,9 +18,12 @@ KERNEL_OPTIONS = {
 }
 
 
+MAX_CHANNELS = 512
+
+
 def build_config(trial, image_type):
-    n_blocks = trial.suggest_int("n_conv_blocks", 2, 15)
-    base = trial.suggest_categorical("base_channels", [16, 32, 64, 128, 256, 512])
+    n_blocks = trial.suggest_int("n_conv_blocks", 2, 6)
+    base = trial.suggest_categorical("base_channels", [16, 32, 64])
     conv_blocks = []
     for i in range(n_blocks):
         kernel_choice = trial.suggest_categorical(
@@ -28,7 +31,7 @@ def build_config(trial, image_type):
         )
         conv_blocks.append(
             ConvBlockConfig(
-                out_channels=base * (2**i),
+                out_channels=min(base * (2**i), MAX_CHANNELS),
                 kernels=KERNEL_OPTIONS[kernel_choice],
                 batch_norm=True,
                 pool_size=2,
