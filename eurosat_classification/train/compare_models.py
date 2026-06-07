@@ -44,6 +44,11 @@ def train_once(
 def run_comparison(
     image_type: str, params: dict, n_runs: int, epochs: int, batch_size: int
 ) -> None:
+    if n_runs <= 1:
+        raise ValueError(
+            "n_runs must be at least 2 to compute a standard error of the mean"
+        )
+
     trainval_loader, test_loader = make_trainval_loader(image_type, batch_size)
 
     scores = []
@@ -54,8 +59,8 @@ def run_comparison(
 
     n = len(scores)
     mean = sum(scores) / n
-    variance = sum((s - mean) ** 2 for s in scores) / (n - 1) if n > 1 else 0.0
-    sem = math.sqrt(variance) / math.sqrt(n) if n > 1 else 0.0
+    variance = sum((s - mean) ** 2 for s in scores) / (n - 1)
+    sem = math.sqrt(variance) / math.sqrt(n)
 
     print(f"\n=== {image_type} over {n} runs ===")
     print(f"Mean test macro F1: {mean:.4f}")
@@ -70,6 +75,11 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=64)
     args = parser.parse_args()
+
+    if args.n_runs <= 1:
+        parser.error(
+            "--n-runs must be at least 2 to compute a standard error of the mean"
+        )
 
     run_comparison(
         "rgb",
