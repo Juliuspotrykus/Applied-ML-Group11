@@ -73,3 +73,33 @@ class APITest(unittest.TestCase):
 
         assert "predictions" in data
         assert len(data["predictions"]) == 10
+
+    def test_ms_error(self):
+        """Tests error cases in MS prediction endpoint"""
+        # Send a string with the image argument
+        response = self.client.post(
+            "/predict_rgb",
+            files={"image": ("string")},
+        )
+
+        # POST request should throw an error.
+        assert response.status_code == 415
+
+        # Generate image with incorrect number of bands
+        img = np.random.randint(
+            low=0,
+            high=10000,
+            size=(64, 64, 3),
+        )
+
+        buf = io.BytesIO()
+        tifffile.imwrite(buf, img)
+
+        response = self.client.post(
+            "/predict_ms",
+            files={"image": ("test.tif", buf)},
+        )
+
+        # POST request should throw an error indicating
+        # that the image has the wrong number of bands.
+        assert response.status_code == 422
