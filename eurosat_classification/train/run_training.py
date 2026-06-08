@@ -3,10 +3,11 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
+import torch.nn as nn
 
 from ..data.datasets import create_dataloaders
 from ..models.cnn import CNNConfig, ConvBlockConfig, Kernel
-from .train import train_model
+from .train import evaluate, train_model
 
 CHANNELS = {"rgb": 3, "ms": 13}
 
@@ -110,6 +111,38 @@ def train_from_params(
     plot_history(history, output.with_suffix(".png"))
 
 
+def train_final_from_params(
+    image_type: str,
+    params: dict,
+    output: str | Path,
+    epochs: int,
+    batch_size: int = 64,
+) -> float:
+    """Final fit: train on train+val and evaluate once on the test set."""
+
+    from .compare_models import make_trainval_loader
+
+    config = build_config_from_params(image_type, params)
+    trainval_loader, test_loader = make_trainval_loader(image_type, batch_size)
+
+    model, _ = train_model(
+        config,
+        trainval_loader,
+        val_loader=None,
+        lr=params["lr"],
+        epochs=epochs,
+    )
+
+    test_loss, test_f1 = evaluate(model, test_loader, nn.CrossEntropyLoss())
+    print(f"Test loss: {test_loss:.4f}, Test macro F1: {test_f1:.4f}")
+
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(model, output)
+    print(f"Saved model: {output.resolve()}")
+    return test_f1
+
+
 BEST_PARAMS = {
     "ms": {
         "n_conv_blocks": 4,
@@ -143,15 +176,34 @@ BEST_PARAMS = {
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("modality", choices=["rgb", "ms"])
+    parser.add_argument(
+        "--final",
+        action="store_true",
+    )  # final run -> trains on train+val
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=30,
+        help="Number of training epochs. For --final, this should be set to -> rgb: 25, ms: 22; which is when the validation F1's peaked",
+    )
+    parser.add_argument("--batch-size", type=int, default=64)
     args = parser.parse_args()
 
-    if args.modality == "rgb":
-        IMAGE_TYPE = "rgb"
-        OUTPUT = "models/rgb_model_final.pkl"
-        PARAMS = BEST_PARAMS["rgb"]
-    else:
-        IMAGE_TYPE = "ms"
-        OUTPUT = "models/ms_model_final.pkl"
-        PARAMS = BEST_PARAMS["ms"]
+    params = BEST_PARAMS[args.modality]
 
-    train_from_params(IMAGE_TYPE, PARAMS, OUTPUT)
+    if args.final:
+        train_final_from_params(
+            args.modality,
+            params,
+            f"models/{args.modality}_model_final.pkl",
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+        )
+    else:
+        train_from_params(
+            args.modality,
+            params,
+            f"models/{args.modality}_model_val.pkl",
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+        )
