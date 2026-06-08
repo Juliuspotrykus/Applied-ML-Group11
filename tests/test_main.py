@@ -20,6 +20,16 @@ class APITest(unittest.TestCase):
         img.save(buf, format="JPEG")
         self.rgb_buf = buf
 
+        # Create a dummy TIF image.
+        img = np.random.randint(
+            low=0,
+            high=10000,
+            size=(64, 64, 13),
+        )
+        buf = io.BytesIO()
+        tifffile.imwrite(buf, img)
+        self.ms_buf = buf
+
     def test_predict_rgb(self):
         """Test for RGB prediction endpoint"""
         response = self.client.post(
@@ -48,20 +58,9 @@ class APITest(unittest.TestCase):
 
     def test_predict_ms(self):
         """Test for MS prediction endpoint"""
-        img = np.random.randint(
-            low=0,
-            high=10000,
-            size=(64, 64, 13),
-        )
-
-        # Convert image to correct format for POST request,
-        # necessary when not loading a specific image from path
-        buf = io.BytesIO()
-        tifffile.imwrite(buf, img)
-
         response = self.client.post(
             "/predict_ms",
-            files={"image": ("test.tif", buf)},
+            files={"image": ("test.tif", self.ms_buf)},
         )
 
         assert response.status_code == 200
