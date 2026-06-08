@@ -109,3 +109,21 @@ class APITest(unittest.TestCase):
         # Check for correct response and look for image output
         assert response.status_code == 200
         assert response.headers["content-type"] == "image/png"
+
+    def test_rgb_explainability_error(self):
+        """Tests error cases in RGB explainability endpoint"""
+        # Send string instead of image to endpoint.
+        response = self.client.post(
+            "/explain_rgb",
+            files={"image": ("test.jpg", "string")},
+        )
+
+        assert response.status_code == 415
+
+        # Send incorrect target class to endpoint.
+        response = self.client.post(
+            "/explain_rgb",
+            files={"target_class": 14, "image": ("test.jpg", "string")},
+        )
+
+        assert response.status_code == 400
