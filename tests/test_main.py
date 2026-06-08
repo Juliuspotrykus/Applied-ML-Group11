@@ -2,6 +2,8 @@ import io
 import random
 import unittest
 
+import numpy as np
+import tifffile
 from fastapi.testclient import TestClient
 from main import app
 from PIL import Image
@@ -46,3 +48,28 @@ class APITest(unittest.TestCase):
 
         # POST request should throw an error.
         assert response.status_code == 415
+
+    def test_predict_ms(self):
+        """Test for MS prediction endpoint"""
+        img = np.random.randint(
+            low=0,
+            high=10000,
+            size=(64, 64, 13),
+        )
+
+        # Convert image to correct format for POST request,
+        # necessary when not loading a specific image from path
+        buf = io.BytesIO()
+        tifffile.imwrite(buf, img)
+
+        response = self.client.post(
+            "/predict_ms",
+            files={"image": ("test.tif", buf)},
+        )
+
+        assert response.status_code == 200
+
+        data = response.json()
+
+        assert "predictions" in data
+        assert len(data["predictions"]) == 10
