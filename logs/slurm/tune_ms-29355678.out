@@ -1,0 +1,1166 @@
+=== Job started: Sun Jun  7 22:18:08 CEST 2026 ===
+Node:       rtx6000gpu2
+Image type: ms
+N trials:   100
+=== Python: Python 3.12.13 | venv active ===
+=== Starting hyperparameter tuning (ms) ===
+
+=== Tuning ms ===
+Removed 0 bombay files and 0 jakarta files from SeaLake
+[I 2026-06-07 22:18:14,200] A new study created in memory with name: ms
+Epoch 1, Val loss: 0.9816, Val F1: 0.6492
+Epoch 2, Val loss: 0.5875, Val F1: 0.7932
+Epoch 3, Val loss: 0.5472, Val F1: 0.8251
+Epoch 4, Val loss: 0.3499, Val F1: 0.8900
+Epoch 5, Val loss: 0.2993, Val F1: 0.9044
+Epoch 6, Val loss: 0.2826, Val F1: 0.9129
+Epoch 7, Val loss: 0.2093, Val F1: 0.9315
+Epoch 8, Val loss: 0.2305, Val F1: 0.9314
+Epoch 9, Val loss: 0.2121, Val F1: 0.9323
+Epoch 10, Val loss: 0.2287, Val F1: 0.9303
+Epoch 11, Val loss: 0.2014, Val F1: 0.9408
+Epoch 12, Val loss: 0.1935, Val F1: 0.9396
+Epoch 13, Val loss: 0.1852, Val F1: 0.9464
+Epoch 14, Val loss: 0.1870, Val F1: 0.9434
+Epoch 15, Val loss: 0.1886, Val F1: 0.9444
+Epoch 16, Val loss: 0.1646, Val F1: 0.9458
+Epoch 17, Val loss: 0.1541, Val F1: 0.9579
+Epoch 18, Val loss: 0.1728, Val F1: 0.9539
+Epoch 19, Val loss: 0.1697, Val F1: 0.9511
+Epoch 20, Val loss: 0.1688, Val F1: 0.9539
+Epoch 21, Val loss: 0.1780, Val F1: 0.9493
+Epoch 22, Val loss: 0.8233, Val F1: 0.7987
+[I 2026-06-07 22:19:22,593] Trial 0 finished with value: 0.9579150667666149 and parameters: {'n_conv_blocks': 4, 'base_channels': 16, 'kernels_block_0': 'multi_3_5_7_9', 'kernels_block_1': 'multi_3_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_5_7_9', 'n_fc_layers': 1, 'fc_hidden': 64, 'dropout': 0.3779199834391057, 'activation': 'relu', 'lr': 0.0074562447093472544}. Best is trial 0 with value: 0.9579150667666149.
+Epoch 1, Val loss: 0.9804, Val F1: 0.5720
+Epoch 2, Val loss: 0.6012, Val F1: 0.7800
+Epoch 3, Val loss: 0.4053, Val F1: 0.8619
+Epoch 4, Val loss: 0.2910, Val F1: 0.9027
+Epoch 5, Val loss: 0.2686, Val F1: 0.9131
+Epoch 6, Val loss: 0.2199, Val F1: 0.9286
+Epoch 7, Val loss: 0.4016, Val F1: 0.8918
+Epoch 8, Val loss: 0.2541, Val F1: 0.9163
+Epoch 9, Val loss: 0.1650, Val F1: 0.9483
+Epoch 10, Val loss: 0.1586, Val F1: 0.9434
+Epoch 11, Val loss: 0.1640, Val F1: 0.9486
+Epoch 12, Val loss: 0.1455, Val F1: 0.9511
+Epoch 13, Val loss: 0.1717, Val F1: 0.9490
+Epoch 14, Val loss: 0.1235, Val F1: 0.9599
+Epoch 15, Val loss: 0.2101, Val F1: 0.9328
+Epoch 16, Val loss: 0.1685, Val F1: 0.9487
+Epoch 17, Val loss: 0.1782, Val F1: 0.9520
+Epoch 18, Val loss: 0.1995, Val F1: 0.9413
+Epoch 19, Val loss: 0.1413, Val F1: 0.9542
+[I 2026-06-07 22:20:21,012] Trial 1 finished with value: 0.9599232681444235 and parameters: {'n_conv_blocks': 6, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'single_3', 'kernels_block_4': 'single_3', 'kernels_block_5': 'single_5', 'n_fc_layers': 1, 'fc_hidden': 1024, 'dropout': 0.2867476363761896, 'activation': 'silu', 'lr': 0.00649061979931565}. Best is trial 1 with value: 0.9599232681444235.
+Epoch 1, Val loss: 1.1287, Val F1: 0.5280
+Epoch 2, Val loss: 1.0352, Val F1: 0.5753
+Epoch 3, Val loss: 0.8439, Val F1: 0.6601
+Epoch 4, Val loss: 0.7461, Val F1: 0.7093
+Epoch 5, Val loss: 0.6141, Val F1: 0.7826
+Epoch 6, Val loss: 0.5048, Val F1: 0.8593
+Epoch 7, Val loss: 0.3787, Val F1: 0.8924
+Epoch 8, Val loss: 0.4216, Val F1: 0.8814
+Epoch 9, Val loss: 0.4654, Val F1: 0.8730
+Epoch 10, Val loss: 0.3182, Val F1: 0.9093
+Epoch 11, Val loss: 0.2443, Val F1: 0.9337
+Epoch 12, Val loss: 0.3810, Val F1: 0.9011
+Epoch 13, Val loss: 0.3642, Val F1: 0.9053
+Epoch 14, Val loss: 0.2519, Val F1: 0.9286
+Epoch 15, Val loss: 0.2429, Val F1: 0.9305
+Epoch 16, Val loss: 0.2855, Val F1: 0.9183
+[I 2026-06-07 22:21:10,251] Trial 2 finished with value: 0.9337199754400846 and parameters: {'n_conv_blocks': 6, 'base_channels': 16, 'kernels_block_0': 'multi_3_7', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5', 'kernels_block_3': 'multi_3_5', 'kernels_block_4': 'single_3', 'kernels_block_5': 'multi_3_5', 'n_fc_layers': 9, 'fc_hidden': 256, 'dropout': 0.2589337913201598, 'activation': 'gelu', 'lr': 0.0013704613859902692}. Best is trial 1 with value: 0.9599232681444235.
+Epoch 1, Val loss: 0.8283, Val F1: 0.7011
+Epoch 2, Val loss: 0.5122, Val F1: 0.8229
+Epoch 3, Val loss: 0.4018, Val F1: 0.8574
+Epoch 4, Val loss: 0.3321, Val F1: 0.8919
+Epoch 5, Val loss: 0.2354, Val F1: 0.9231
+Epoch 6, Val loss: 0.2958, Val F1: 0.8973
+Epoch 7, Val loss: 0.1760, Val F1: 0.9440
+Epoch 8, Val loss: 0.2741, Val F1: 0.9189
+Epoch 9, Val loss: 0.2226, Val F1: 0.9226
+Epoch 10, Val loss: 0.2559, Val F1: 0.9222
+Epoch 11, Val loss: 0.2190, Val F1: 0.9355
+Epoch 12, Val loss: 0.2104, Val F1: 0.9312
+[I 2026-06-07 22:21:49,598] Trial 3 finished with value: 0.9440118798925481 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'multi_3_5', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'multi_3_5', 'kernels_block_4': 'multi_3_5_7_9', 'n_fc_layers': 2, 'fc_hidden': 2048, 'dropout': 0.41322072067292526, 'activation': 'gelu', 'lr': 0.001714525899421766}. Best is trial 1 with value: 0.9599232681444235.
+Epoch 1, Val loss: 1.3313, Val F1: 0.2719
+Epoch 2, Val loss: 0.8901, Val F1: 0.6315
+Epoch 3, Val loss: 0.7739, Val F1: 0.6566
+Epoch 4, Val loss: 0.6738, Val F1: 0.6760
+Epoch 5, Val loss: 0.6073, Val F1: 0.7530
+Epoch 6, Val loss: 0.5017, Val F1: 0.7837
+Epoch 7, Val loss: 0.4579, Val F1: 0.8322
+Epoch 8, Val loss: 0.3234, Val F1: 0.9062
+Epoch 9, Val loss: 0.3052, Val F1: 0.9146
+Epoch 10, Val loss: 0.2547, Val F1: 0.9331
+Epoch 11, Val loss: 0.3476, Val F1: 0.9057
+Epoch 12, Val loss: 0.2220, Val F1: 0.9405
+Epoch 13, Val loss: 0.2601, Val F1: 0.9279
+Epoch 14, Val loss: 0.2294, Val F1: 0.9391
+Epoch 15, Val loss: 0.2086, Val F1: 0.9512
+Epoch 16, Val loss: 0.2208, Val F1: 0.9456
+Epoch 17, Val loss: 0.2066, Val F1: 0.9532
+Epoch 18, Val loss: 0.1527, Val F1: 0.9607
+Epoch 19, Val loss: 0.1801, Val F1: 0.9502
+Epoch 20, Val loss: 0.1580, Val F1: 0.9573
+Epoch 21, Val loss: 0.1602, Val F1: 0.9540
+Epoch 22, Val loss: 0.1773, Val F1: 0.9491
+Epoch 23, Val loss: 0.1683, Val F1: 0.9551
+[I 2026-06-07 22:22:59,503] Trial 4 finished with value: 0.9606539522880088 and parameters: {'n_conv_blocks': 5, 'base_channels': 32, 'kernels_block_0': 'single_5', 'kernels_block_1': 'multi_3_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'single_5', 'kernels_block_4': 'single_3', 'n_fc_layers': 8, 'fc_hidden': 512, 'dropout': 0.47166706953348286, 'activation': 'relu', 'lr': 0.0003255564119681836}. Best is trial 4 with value: 0.9606539522880088.
+Epoch 1, Val loss: 1.8432, Val F1: 0.2329
+[I 2026-06-07 22:23:02,758] Trial 5 pruned. 
+Epoch 1, Val loss: 2.0399, Val F1: 0.2131
+[I 2026-06-07 22:23:06,626] Trial 6 pruned. 
+Epoch 1, Val loss: 0.7694, Val F1: 0.7437
+Epoch 2, Val loss: 0.3857, Val F1: 0.8706
+Epoch 3, Val loss: 0.3988, Val F1: 0.8708
+Epoch 4, Val loss: 0.4122, Val F1: 0.8654
+[I 2026-06-07 22:23:18,672] Trial 7 pruned. 
+Epoch 1, Val loss: 1.3583, Val F1: 0.4259
+[I 2026-06-07 22:23:21,787] Trial 8 pruned. 
+Epoch 1, Val loss: 2.3021, Val F1: 0.0200
+[I 2026-06-07 22:23:24,795] Trial 9 pruned. 
+Epoch 1, Val loss: 1.4045, Val F1: 0.3389
+[I 2026-06-07 22:23:27,801] Trial 10 pruned. 
+Epoch 1, Val loss: 0.7776, Val F1: 0.6766
+Epoch 2, Val loss: 0.3992, Val F1: 0.8706
+Epoch 3, Val loss: 0.3489, Val F1: 0.8960
+Epoch 4, Val loss: 0.2622, Val F1: 0.9173
+Epoch 5, Val loss: 0.2154, Val F1: 0.9349
+Epoch 6, Val loss: 0.2517, Val F1: 0.9254
+Epoch 7, Val loss: 0.2357, Val F1: 0.9271
+Epoch 8, Val loss: 0.1798, Val F1: 0.9440
+Epoch 9, Val loss: 0.1939, Val F1: 0.9399
+Epoch 10, Val loss: 0.1565, Val F1: 0.9492
+Epoch 11, Val loss: 0.2183, Val F1: 0.9359
+Epoch 12, Val loss: 0.1496, Val F1: 0.9495
+Epoch 13, Val loss: 0.1460, Val F1: 0.9559
+Epoch 14, Val loss: 0.1391, Val F1: 0.9566
+Epoch 15, Val loss: 0.2150, Val F1: 0.9367
+Epoch 16, Val loss: 0.1332, Val F1: 0.9592
+Epoch 17, Val loss: 0.2549, Val F1: 0.9278
+Epoch 18, Val loss: 0.1513, Val F1: 0.9518
+Epoch 19, Val loss: 0.1456, Val F1: 0.9593
+Epoch 20, Val loss: 0.1300, Val F1: 0.9610
+Epoch 21, Val loss: 0.1557, Val F1: 0.9570
+Epoch 22, Val loss: 0.1209, Val F1: 0.9669
+Epoch 23, Val loss: 0.1922, Val F1: 0.9477
+Epoch 24, Val loss: 0.1422, Val F1: 0.9564
+Epoch 25, Val loss: 0.0934, Val F1: 0.9724
+Epoch 26, Val loss: 0.1264, Val F1: 0.9632
+Epoch 27, Val loss: 0.1870, Val F1: 0.9497
+Epoch 28, Val loss: 0.1264, Val F1: 0.9649
+Epoch 29, Val loss: 0.1545, Val F1: 0.9599
+Epoch 30, Val loss: 0.1360, Val F1: 0.9608
+[I 2026-06-07 22:25:00,841] Trial 11 finished with value: 0.9724024050639436 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'single_3', 'kernels_block_4': 'single_5', 'n_fc_layers': 6, 'fc_hidden': 512, 'dropout': 0.31462705995600426, 'activation': 'silu', 'lr': 0.0002765745371109243}. Best is trial 11 with value: 0.9724024050639436.
+Epoch 1, Val loss: 0.6593, Val F1: 0.7401
+Epoch 2, Val loss: 0.4078, Val F1: 0.8733
+Epoch 3, Val loss: 0.3341, Val F1: 0.8913
+Epoch 4, Val loss: 0.3476, Val F1: 0.8914
+Epoch 5, Val loss: 0.2580, Val F1: 0.9205
+Epoch 6, Val loss: 0.1918, Val F1: 0.9463
+Epoch 7, Val loss: 0.2029, Val F1: 0.9436
+Epoch 8, Val loss: 0.2160, Val F1: 0.9340
+Epoch 9, Val loss: 0.1960, Val F1: 0.9414
+Epoch 10, Val loss: 0.1583, Val F1: 0.9501
+Epoch 11, Val loss: 0.1522, Val F1: 0.9540
+Epoch 12, Val loss: 0.1492, Val F1: 0.9579
+Epoch 13, Val loss: 0.1238, Val F1: 0.9656
+Epoch 14, Val loss: 0.1212, Val F1: 0.9638
+Epoch 15, Val loss: 0.1389, Val F1: 0.9601
+Epoch 16, Val loss: 0.1377, Val F1: 0.9605
+Epoch 17, Val loss: 0.1541, Val F1: 0.9569
+Epoch 18, Val loss: 0.1437, Val F1: 0.9588
+[I 2026-06-07 22:25:57,465] Trial 12 finished with value: 0.9655829845371182 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'single_3', 'kernels_block_4': 'single_5', 'n_fc_layers': 6, 'fc_hidden': 512, 'dropout': 0.345579302785144, 'activation': 'silu', 'lr': 0.00028049109589380506}. Best is trial 11 with value: 0.9724024050639436.
+Epoch 1, Val loss: 1.2245, Val F1: 0.4466
+[I 2026-06-07 22:26:00,608] Trial 13 pruned. 
+Epoch 1, Val loss: 0.7580, Val F1: 0.6918
+Epoch 2, Val loss: 0.3770, Val F1: 0.8835
+Epoch 3, Val loss: 0.3032, Val F1: 0.9031
+Epoch 4, Val loss: 0.2896, Val F1: 0.9056
+Epoch 5, Val loss: 0.2370, Val F1: 0.9282
+Epoch 6, Val loss: 0.2431, Val F1: 0.9219
+Epoch 7, Val loss: 0.1710, Val F1: 0.9450
+Epoch 8, Val loss: 0.2106, Val F1: 0.9319
+Epoch 9, Val loss: 0.2331, Val F1: 0.9265
+Epoch 10, Val loss: 0.1694, Val F1: 0.9476
+Epoch 11, Val loss: 0.2568, Val F1: 0.9224
+Epoch 12, Val loss: 0.1436, Val F1: 0.9587
+Epoch 13, Val loss: 0.1479, Val F1: 0.9565
+Epoch 14, Val loss: 0.1285, Val F1: 0.9644
+Epoch 15, Val loss: 0.1728, Val F1: 0.9494
+Epoch 16, Val loss: 0.1875, Val F1: 0.9409
+Epoch 17, Val loss: 0.1366, Val F1: 0.9574
+Epoch 18, Val loss: 0.1587, Val F1: 0.9497
+Epoch 19, Val loss: 0.1664, Val F1: 0.9526
+[I 2026-06-07 22:26:59,121] Trial 14 finished with value: 0.9644260217730019 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_5', 'kernels_block_2': 'multi_3_7', 'kernels_block_3': 'single_3', 'kernels_block_4': 'single_5', 'n_fc_layers': 5, 'fc_hidden': 512, 'dropout': 0.3439643994799622, 'activation': 'silu', 'lr': 0.0005450733535680804}. Best is trial 11 with value: 0.9724024050639436.
+Epoch 1, Val loss: 0.6141, Val F1: 0.7978
+Epoch 2, Val loss: 0.3847, Val F1: 0.8809
+Epoch 3, Val loss: 0.2886, Val F1: 0.9090
+Epoch 4, Val loss: 0.3227, Val F1: 0.8990
+Epoch 5, Val loss: 0.2080, Val F1: 0.9365
+Epoch 6, Val loss: 0.1896, Val F1: 0.9484
+Epoch 7, Val loss: 0.1724, Val F1: 0.9465
+Epoch 8, Val loss: 0.1843, Val F1: 0.9464
+Epoch 9, Val loss: 0.1517, Val F1: 0.9532
+Epoch 10, Val loss: 0.1668, Val F1: 0.9433
+Epoch 11, Val loss: 0.1720, Val F1: 0.9511
+Epoch 12, Val loss: 0.1480, Val F1: 0.9536
+Epoch 13, Val loss: 0.1713, Val F1: 0.9460
+Epoch 14, Val loss: 0.1533, Val F1: 0.9583
+Epoch 15, Val loss: 0.1950, Val F1: 0.9484
+Epoch 16, Val loss: 0.1658, Val F1: 0.9479
+Epoch 17, Val loss: 0.2021, Val F1: 0.9423
+Epoch 18, Val loss: 0.1532, Val F1: 0.9552
+Epoch 19, Val loss: 0.1212, Val F1: 0.9656
+Epoch 20, Val loss: 0.1161, Val F1: 0.9686
+Epoch 21, Val loss: 0.1218, Val F1: 0.9649
+Epoch 22, Val loss: 0.1079, Val F1: 0.9676
+Epoch 23, Val loss: 0.1241, Val F1: 0.9643
+Epoch 24, Val loss: 0.1266, Val F1: 0.9647
+Epoch 25, Val loss: 0.1177, Val F1: 0.9692
+[I 2026-06-07 22:28:15,108] Trial 15 pruned. 
+Epoch 1, Val loss: 0.3940, Val F1: 0.8643
+Epoch 2, Val loss: 0.2298, Val F1: 0.9264
+Epoch 3, Val loss: 0.1850, Val F1: 0.9371
+Epoch 4, Val loss: 0.1603, Val F1: 0.9476
+Epoch 5, Val loss: 0.1708, Val F1: 0.9447
+Epoch 6, Val loss: 0.2082, Val F1: 0.9377
+Epoch 7, Val loss: 0.1482, Val F1: 0.9513
+Epoch 8, Val loss: 0.1666, Val F1: 0.9451
+Epoch 9, Val loss: 0.1281, Val F1: 0.9564
+Epoch 10, Val loss: 0.1358, Val F1: 0.9550
+Epoch 11, Val loss: 0.1160, Val F1: 0.9602
+Epoch 12, Val loss: 0.1087, Val F1: 0.9657
+Epoch 13, Val loss: 0.1102, Val F1: 0.9646
+Epoch 14, Val loss: 0.1390, Val F1: 0.9581
+Epoch 15, Val loss: 0.1166, Val F1: 0.9631
+Epoch 16, Val loss: 0.1113, Val F1: 0.9650
+Epoch 17, Val loss: 0.1323, Val F1: 0.9571
+[I 2026-06-07 22:29:08,394] Trial 16 finished with value: 0.965655110312816 and parameters: {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'single_3', 'n_fc_layers': 4, 'fc_hidden': 512, 'dropout': 0.20859013361951675, 'activation': 'silu', 'lr': 0.00010317190494502504}. Best is trial 11 with value: 0.9724024050639436.
+Epoch 1, Val loss: 0.5189, Val F1: 0.8216
+Epoch 2, Val loss: 0.3472, Val F1: 0.8825
+Epoch 3, Val loss: 0.2614, Val F1: 0.9182
+Epoch 4, Val loss: 0.2679, Val F1: 0.9108
+Epoch 5, Val loss: 0.2294, Val F1: 0.9304
+Epoch 6, Val loss: 0.1983, Val F1: 0.9388
+Epoch 7, Val loss: 0.1531, Val F1: 0.9559
+Epoch 8, Val loss: 0.1734, Val F1: 0.9447
+Epoch 9, Val loss: 0.1463, Val F1: 0.9563
+Epoch 10, Val loss: 0.1390, Val F1: 0.9583
+Epoch 11, Val loss: 0.1897, Val F1: 0.9448
+Epoch 12, Val loss: 0.1576, Val F1: 0.9523
+Epoch 13, Val loss: 0.1282, Val F1: 0.9662
+Epoch 14, Val loss: 0.1530, Val F1: 0.9600
+Epoch 15, Val loss: 0.1383, Val F1: 0.9629
+Epoch 16, Val loss: 0.1100, Val F1: 0.9683
+Epoch 17, Val loss: 0.1489, Val F1: 0.9581
+Epoch 18, Val loss: 0.1335, Val F1: 0.9643
+Epoch 19, Val loss: 0.1239, Val F1: 0.9669
+Epoch 20, Val loss: 0.1620, Val F1: 0.9558
+Epoch 21, Val loss: 0.1138, Val F1: 0.9700
+Epoch 22, Val loss: 0.1845, Val F1: 0.9545
+Epoch 23, Val loss: 0.1519, Val F1: 0.9617
+Epoch 24, Val loss: 0.1302, Val F1: 0.9670
+Epoch 25, Val loss: 0.1086, Val F1: 0.9736
+Epoch 26, Val loss: 0.1051, Val F1: 0.9741
+Epoch 27, Val loss: 0.1252, Val F1: 0.9677
+Epoch 28, Val loss: 0.1332, Val F1: 0.9677
+Epoch 29, Val loss: 0.1279, Val F1: 0.9702
+Epoch 30, Val loss: 0.1158, Val F1: 0.9699
+[I 2026-06-07 22:30:39,499] Trial 17 finished with value: 0.9741023329598113 and parameters: {'n_conv_blocks': 3, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_3', 'kernels_block_2': 'multi_3_5_7_9', 'n_fc_layers': 4, 'fc_hidden': 64, 'dropout': 0.2093958283413755, 'activation': 'silu', 'lr': 0.00010753639139646193}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.6592, Val F1: 0.7408
+Epoch 2, Val loss: 0.4529, Val F1: 0.8523
+Epoch 3, Val loss: 0.3445, Val F1: 0.8909
+Epoch 4, Val loss: 0.3575, Val F1: 0.8837
+[I 2026-06-07 22:30:51,900] Trial 18 pruned. 
+Epoch 1, Val loss: 0.5621, Val F1: 0.7952
+Epoch 2, Val loss: 0.3130, Val F1: 0.9039
+Epoch 3, Val loss: 0.3000, Val F1: 0.9065
+Epoch 4, Val loss: 0.2806, Val F1: 0.9084
+Epoch 5, Val loss: 0.2304, Val F1: 0.9237
+Epoch 6, Val loss: 0.2224, Val F1: 0.9261
+Epoch 7, Val loss: 0.1646, Val F1: 0.9510
+Epoch 8, Val loss: 0.1902, Val F1: 0.9444
+Epoch 9, Val loss: 0.2056, Val F1: 0.9358
+Epoch 10, Val loss: 0.1842, Val F1: 0.9471
+Epoch 11, Val loss: 0.1451, Val F1: 0.9545
+Epoch 12, Val loss: 0.1299, Val F1: 0.9591
+Epoch 13, Val loss: 0.2083, Val F1: 0.9399
+Epoch 14, Val loss: 0.1812, Val F1: 0.9496
+Epoch 15, Val loss: 0.1294, Val F1: 0.9631
+Epoch 16, Val loss: 0.1481, Val F1: 0.9543
+Epoch 17, Val loss: 0.1494, Val F1: 0.9598
+Epoch 18, Val loss: 0.1742, Val F1: 0.9526
+Epoch 19, Val loss: 0.1633, Val F1: 0.9505
+Epoch 20, Val loss: 0.1293, Val F1: 0.9600
+[I 2026-06-07 22:31:53,046] Trial 19 finished with value: 0.9631415238496593 and parameters: {'n_conv_blocks': 3, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'single_3', 'kernels_block_2': 'multi_3_5_7_9', 'n_fc_layers': 4, 'fc_hidden': 64, 'dropout': 0.24435978001742584, 'activation': 'silu', 'lr': 0.0005089386187063704}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.7652, Val F1: 0.6942
+Epoch 2, Val loss: 0.4749, Val F1: 0.8551
+[I 2026-06-07 22:31:59,280] Trial 20 pruned. 
+Epoch 1, Val loss: 0.4243, Val F1: 0.8651
+Epoch 2, Val loss: 0.3145, Val F1: 0.9038
+Epoch 3, Val loss: 0.2267, Val F1: 0.9244
+Epoch 4, Val loss: 0.2278, Val F1: 0.9268
+Epoch 5, Val loss: 0.1583, Val F1: 0.9487
+Epoch 6, Val loss: 0.1491, Val F1: 0.9494
+Epoch 7, Val loss: 0.1163, Val F1: 0.9636
+Epoch 8, Val loss: 0.1069, Val F1: 0.9662
+Epoch 9, Val loss: 0.1546, Val F1: 0.9521
+Epoch 10, Val loss: 0.3148, Val F1: 0.9100
+Epoch 11, Val loss: 0.1338, Val F1: 0.9574
+Epoch 12, Val loss: 0.1065, Val F1: 0.9687
+Epoch 13, Val loss: 0.0936, Val F1: 0.9727
+Epoch 14, Val loss: 0.0996, Val F1: 0.9716
+Epoch 15, Val loss: 0.1016, Val F1: 0.9685
+Epoch 16, Val loss: 0.1189, Val F1: 0.9654
+Epoch 17, Val loss: 0.0953, Val F1: 0.9723
+Epoch 18, Val loss: 0.1205, Val F1: 0.9655
+[I 2026-06-07 22:32:54,051] Trial 21 finished with value: 0.9727255759069404 and parameters: {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'n_fc_layers': 3, 'fc_hidden': 128, 'dropout': 0.21265111674081053, 'activation': 'silu', 'lr': 0.0001072582122869823}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.3499, Val F1: 0.8812
+Epoch 2, Val loss: 0.2468, Val F1: 0.9179
+Epoch 3, Val loss: 0.2423, Val F1: 0.9202
+Epoch 4, Val loss: 0.1842, Val F1: 0.9374
+Epoch 5, Val loss: 0.1733, Val F1: 0.9438
+Epoch 6, Val loss: 0.1271, Val F1: 0.9607
+Epoch 7, Val loss: 0.1344, Val F1: 0.9573
+Epoch 8, Val loss: 0.1201, Val F1: 0.9621
+Epoch 9, Val loss: 0.1132, Val F1: 0.9661
+Epoch 10, Val loss: 0.1094, Val F1: 0.9674
+Epoch 11, Val loss: 0.1129, Val F1: 0.9637
+Epoch 12, Val loss: 0.1132, Val F1: 0.9618
+Epoch 13, Val loss: 0.1223, Val F1: 0.9623
+Epoch 14, Val loss: 0.1376, Val F1: 0.9588
+Epoch 15, Val loss: 0.1059, Val F1: 0.9671
+[I 2026-06-07 22:33:40,327] Trial 22 finished with value: 0.9673836172594973 and parameters: {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_5', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'n_fc_layers': 3, 'fc_hidden': 128, 'dropout': 0.2043733604911227, 'activation': 'silu', 'lr': 0.00013910884949373332}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.3205, Val F1: 0.8817
+Epoch 2, Val loss: 0.2518, Val F1: 0.9122
+Epoch 3, Val loss: 0.4118, Val F1: 0.8783
+Epoch 4, Val loss: 0.2729, Val F1: 0.9030
+Epoch 5, Val loss: 0.1432, Val F1: 0.9547
+Epoch 6, Val loss: 0.1447, Val F1: 0.9482
+Epoch 7, Val loss: 0.1575, Val F1: 0.9477
+Epoch 8, Val loss: 0.1727, Val F1: 0.9429
+Epoch 9, Val loss: 0.1616, Val F1: 0.9460
+Epoch 10, Val loss: 0.1251, Val F1: 0.9594
+Epoch 11, Val loss: 0.1444, Val F1: 0.9557
+Epoch 12, Val loss: 0.1339, Val F1: 0.9614
+Epoch 13, Val loss: 0.1402, Val F1: 0.9605
+Epoch 14, Val loss: 0.1285, Val F1: 0.9618
+Epoch 15, Val loss: 0.1554, Val F1: 0.9520
+Epoch 16, Val loss: 0.1291, Val F1: 0.9618
+Epoch 17, Val loss: 0.1351, Val F1: 0.9621
+Epoch 18, Val loss: 0.1131, Val F1: 0.9687
+Epoch 19, Val loss: 0.1273, Val F1: 0.9610
+Epoch 20, Val loss: 0.1640, Val F1: 0.9594
+Epoch 21, Val loss: 0.1507, Val F1: 0.9601
+Epoch 22, Val loss: 0.1177, Val F1: 0.9660
+Epoch 23, Val loss: 0.1376, Val F1: 0.9605
+[I 2026-06-07 22:34:49,558] Trial 23 finished with value: 0.9686883726412109 and parameters: {'n_conv_blocks': 3, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_3', 'kernels_block_2': 'multi_3_5_7_9', 'n_fc_layers': 2, 'fc_hidden': 128, 'dropout': 0.241094123187949, 'activation': 'silu', 'lr': 0.0002306940374915291}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.8116, Val F1: 0.7173
+[I 2026-06-07 22:34:52,641] Trial 24 pruned. 
+Epoch 1, Val loss: 1.9285, Val F1: 0.1793
+[I 2026-06-07 22:34:55,870] Trial 25 pruned. 
+Epoch 1, Val loss: 0.4901, Val F1: 0.8311
+Epoch 2, Val loss: 0.3971, Val F1: 0.8625
+[I 2026-06-07 22:35:01,998] Trial 26 pruned. 
+Epoch 1, Val loss: 0.3370, Val F1: 0.8893
+Epoch 2, Val loss: 0.2604, Val F1: 0.9182
+Epoch 3, Val loss: 0.2125, Val F1: 0.9321
+Epoch 4, Val loss: 0.2447, Val F1: 0.9229
+Epoch 5, Val loss: 0.1882, Val F1: 0.9425
+Epoch 6, Val loss: 0.1511, Val F1: 0.9562
+Epoch 7, Val loss: 0.2164, Val F1: 0.9367
+Epoch 8, Val loss: 0.1918, Val F1: 0.9392
+Epoch 9, Val loss: 0.1164, Val F1: 0.9630
+Epoch 10, Val loss: 0.1612, Val F1: 0.9483
+Epoch 11, Val loss: 0.1245, Val F1: 0.9588
+Epoch 12, Val loss: 0.1262, Val F1: 0.9582
+Epoch 13, Val loss: 0.1194, Val F1: 0.9633
+Epoch 14, Val loss: 0.1392, Val F1: 0.9578
+Epoch 15, Val loss: 0.1198, Val F1: 0.9627
+Epoch 16, Val loss: 0.1090, Val F1: 0.9650
+Epoch 17, Val loss: 0.1416, Val F1: 0.9570
+Epoch 18, Val loss: 0.1056, Val F1: 0.9680
+Epoch 19, Val loss: 0.1757, Val F1: 0.9548
+Epoch 20, Val loss: 0.1231, Val F1: 0.9670
+Epoch 21, Val loss: 0.1264, Val F1: 0.9630
+Epoch 22, Val loss: 0.1119, Val F1: 0.9699
+Epoch 23, Val loss: 0.1051, Val F1: 0.9723
+Epoch 24, Val loss: 0.1354, Val F1: 0.9629
+Epoch 25, Val loss: 0.1294, Val F1: 0.9677
+[I 2026-06-07 22:36:18,517] Trial 27 pruned. 
+Epoch 1, Val loss: 1.0013, Val F1: 0.5618
+[I 2026-06-07 22:36:21,214] Trial 28 pruned. 
+Epoch 1, Val loss: 0.3738, Val F1: 0.8748
+Epoch 2, Val loss: 0.3141, Val F1: 0.8986
+Epoch 3, Val loss: 0.2488, Val F1: 0.9174
+Epoch 4, Val loss: 0.1784, Val F1: 0.9407
+Epoch 5, Val loss: 0.1551, Val F1: 0.9472
+Epoch 6, Val loss: 0.1378, Val F1: 0.9512
+Epoch 7, Val loss: 0.1721, Val F1: 0.9428
+Epoch 8, Val loss: 0.1332, Val F1: 0.9554
+Epoch 9, Val loss: 0.1506, Val F1: 0.9478
+Epoch 10, Val loss: 0.1432, Val F1: 0.9538
+Epoch 11, Val loss: 0.1564, Val F1: 0.9458
+Epoch 12, Val loss: 0.1685, Val F1: 0.9440
+Epoch 13, Val loss: 0.1417, Val F1: 0.9529
+[I 2026-06-07 22:36:58,007] Trial 29 pruned. 
+Epoch 1, Val loss: 0.5576, Val F1: 0.7678
+Epoch 2, Val loss: 0.3527, Val F1: 0.8765
+[I 2026-06-07 22:37:03,793] Trial 30 pruned. 
+Epoch 1, Val loss: 0.3414, Val F1: 0.8842
+Epoch 2, Val loss: 0.2215, Val F1: 0.9246
+Epoch 3, Val loss: 0.1995, Val F1: 0.9309
+Epoch 4, Val loss: 0.2480, Val F1: 0.9180
+Epoch 5, Val loss: 0.1761, Val F1: 0.9391
+Epoch 6, Val loss: 0.1420, Val F1: 0.9546
+Epoch 7, Val loss: 0.1704, Val F1: 0.9460
+Epoch 8, Val loss: 0.1251, Val F1: 0.9610
+Epoch 9, Val loss: 0.1157, Val F1: 0.9643
+Epoch 10, Val loss: 0.1415, Val F1: 0.9552
+Epoch 11, Val loss: 0.1221, Val F1: 0.9617
+Epoch 12, Val loss: 0.1457, Val F1: 0.9592
+Epoch 13, Val loss: 0.1443, Val F1: 0.9531
+Epoch 14, Val loss: 0.1349, Val F1: 0.9588
+[I 2026-06-07 22:37:41,982] Trial 31 finished with value: 0.9642808363970847 and parameters: {'n_conv_blocks': 3, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_3', 'kernels_block_2': 'multi_3_5_7_9', 'n_fc_layers': 2, 'fc_hidden': 128, 'dropout': 0.24690265373990472, 'activation': 'silu', 'lr': 0.00020461045864193992}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.3007, Val F1: 0.9043
+Epoch 2, Val loss: 0.2113, Val F1: 0.9277
+Epoch 3, Val loss: 0.2053, Val F1: 0.9291
+Epoch 4, Val loss: 0.2210, Val F1: 0.9201
+Epoch 5, Val loss: 0.1409, Val F1: 0.9515
+Epoch 6, Val loss: 0.1636, Val F1: 0.9480
+Epoch 7, Val loss: 0.1338, Val F1: 0.9557
+Epoch 8, Val loss: 0.1680, Val F1: 0.9424
+Epoch 9, Val loss: 0.2359, Val F1: 0.9299
+Epoch 10, Val loss: 0.1428, Val F1: 0.9562
+Epoch 11, Val loss: 0.1229, Val F1: 0.9601
+Epoch 12, Val loss: 0.1303, Val F1: 0.9589
+Epoch 13, Val loss: 0.1325, Val F1: 0.9593
+Epoch 14, Val loss: 0.1484, Val F1: 0.9540
+Epoch 15, Val loss: 0.1673, Val F1: 0.9532
+Epoch 16, Val loss: 0.1205, Val F1: 0.9660
+Epoch 17, Val loss: 0.1506, Val F1: 0.9553
+Epoch 18, Val loss: 0.1299, Val F1: 0.9628
+Epoch 19, Val loss: 0.1507, Val F1: 0.9600
+Epoch 20, Val loss: 0.1519, Val F1: 0.9611
+Epoch 21, Val loss: 0.1356, Val F1: 0.9626
+[I 2026-06-07 22:38:36,839] Trial 32 finished with value: 0.9660431202504972 and parameters: {'n_conv_blocks': 3, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'single_3', 'kernels_block_2': 'multi_3_5_7_9', 'n_fc_layers': 1, 'fc_hidden': 128, 'dropout': 0.23874966267525208, 'activation': 'silu', 'lr': 0.0002489825522944346}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.4120, Val F1: 0.8667
+Epoch 2, Val loss: 0.3170, Val F1: 0.9007
+Epoch 3, Val loss: 0.3674, Val F1: 0.8928
+Epoch 4, Val loss: 0.3410, Val F1: 0.8896
+[I 2026-06-07 22:38:47,021] Trial 33 pruned. 
+Epoch 1, Val loss: 1.1814, Val F1: 0.5389
+[I 2026-06-07 22:38:49,746] Trial 34 pruned. 
+Epoch 1, Val loss: 0.4559, Val F1: 0.8460
+Epoch 2, Val loss: 0.3926, Val F1: 0.8688
+[I 2026-06-07 22:38:57,752] Trial 35 pruned. 
+Epoch 1, Val loss: 0.3028, Val F1: 0.8980
+Epoch 2, Val loss: 0.2011, Val F1: 0.9378
+Epoch 3, Val loss: 0.1752, Val F1: 0.9427
+Epoch 4, Val loss: 0.1930, Val F1: 0.9340
+Epoch 5, Val loss: 0.1342, Val F1: 0.9561
+Epoch 6, Val loss: 0.1344, Val F1: 0.9559
+Epoch 7, Val loss: 0.1735, Val F1: 0.9432
+Epoch 8, Val loss: 0.1054, Val F1: 0.9687
+Epoch 9, Val loss: 0.1169, Val F1: 0.9639
+Epoch 10, Val loss: 0.1941, Val F1: 0.9397
+Epoch 11, Val loss: 0.1067, Val F1: 0.9700
+Epoch 12, Val loss: 0.1181, Val F1: 0.9636
+Epoch 13, Val loss: 0.1052, Val F1: 0.9684
+Epoch 14, Val loss: 0.1510, Val F1: 0.9557
+Epoch 15, Val loss: 0.1309, Val F1: 0.9588
+Epoch 16, Val loss: 0.1059, Val F1: 0.9700
+Epoch 17, Val loss: 0.1141, Val F1: 0.9681
+Epoch 18, Val loss: 0.0935, Val F1: 0.9721
+Epoch 19, Val loss: 0.1218, Val F1: 0.9634
+Epoch 20, Val loss: 0.1124, Val F1: 0.9667
+Epoch 21, Val loss: 0.1042, Val F1: 0.9704
+Epoch 22, Val loss: 0.1063, Val F1: 0.9736
+Epoch 23, Val loss: 0.1081, Val F1: 0.9662
+Epoch 24, Val loss: 0.1241, Val F1: 0.9662
+Epoch 25, Val loss: 0.0983, Val F1: 0.9710
+Epoch 26, Val loss: 0.1265, Val F1: 0.9676
+Epoch 27, Val loss: 0.1129, Val F1: 0.9696
+[I 2026-06-07 22:40:19,212] Trial 36 finished with value: 0.9735595924077861 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_5', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'n_fc_layers': 4, 'fc_hidden': 1024, 'dropout': 0.2293858163102907, 'activation': 'gelu', 'lr': 0.00012429304568926288}. Best is trial 17 with value: 0.9741023329598113.
+Epoch 1, Val loss: 0.3871, Val F1: 0.8668
+Epoch 2, Val loss: 0.2788, Val F1: 0.9052
+Epoch 3, Val loss: 0.3030, Val F1: 0.8996
+Epoch 4, Val loss: 0.2360, Val F1: 0.9201
+Epoch 5, Val loss: 0.1510, Val F1: 0.9513
+Epoch 6, Val loss: 0.1640, Val F1: 0.9446
+Epoch 7, Val loss: 0.1963, Val F1: 0.9364
+Epoch 8, Val loss: 0.1406, Val F1: 0.9515
+Epoch 9, Val loss: 0.1531, Val F1: 0.9496
+Epoch 10, Val loss: 0.1637, Val F1: 0.9472
+Epoch 11, Val loss: 0.1605, Val F1: 0.9509
+[I 2026-06-07 22:40:48,944] Trial 37 pruned. 
+Epoch 1, Val loss: 0.3857, Val F1: 0.8681
+Epoch 2, Val loss: 0.2252, Val F1: 0.9234
+Epoch 3, Val loss: 0.2285, Val F1: 0.9295
+Epoch 4, Val loss: 0.1556, Val F1: 0.9499
+Epoch 5, Val loss: 0.1516, Val F1: 0.9475
+Epoch 6, Val loss: 0.1346, Val F1: 0.9609
+Epoch 7, Val loss: 0.1442, Val F1: 0.9549
+Epoch 8, Val loss: 0.1462, Val F1: 0.9550
+Epoch 9, Val loss: 0.1026, Val F1: 0.9678
+Epoch 10, Val loss: 0.0936, Val F1: 0.9732
+Epoch 11, Val loss: 0.0906, Val F1: 0.9735
+Epoch 12, Val loss: 0.0908, Val F1: 0.9736
+Epoch 13, Val loss: 0.1154, Val F1: 0.9654
+Epoch 14, Val loss: 0.0879, Val F1: 0.9748
+Epoch 15, Val loss: 0.1137, Val F1: 0.9650
+Epoch 16, Val loss: 0.1272, Val F1: 0.9697
+Epoch 17, Val loss: 0.1132, Val F1: 0.9685
+Epoch 18, Val loss: 0.0991, Val F1: 0.9705
+Epoch 19, Val loss: 0.1228, Val F1: 0.9688
+[I 2026-06-07 22:41:45,809] Trial 38 finished with value: 0.9748413660282665 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'n_fc_layers': 4, 'fc_hidden': 1024, 'dropout': 0.2525801527665145, 'activation': 'gelu', 'lr': 0.0001693191220456875}. Best is trial 38 with value: 0.9748413660282665.
+Epoch 1, Val loss: 0.3665, Val F1: 0.8750
+Epoch 2, Val loss: 0.2685, Val F1: 0.9145
+Epoch 3, Val loss: 0.2923, Val F1: 0.9069
+Epoch 4, Val loss: 0.2052, Val F1: 0.9349
+Epoch 5, Val loss: 0.2557, Val F1: 0.9237
+Epoch 6, Val loss: 0.1463, Val F1: 0.9517
+Epoch 7, Val loss: 0.1372, Val F1: 0.9527
+Epoch 8, Val loss: 0.1110, Val F1: 0.9641
+Epoch 9, Val loss: 0.1589, Val F1: 0.9540
+Epoch 10, Val loss: 0.1290, Val F1: 0.9583
+Epoch 11, Val loss: 0.2343, Val F1: 0.9283
+Epoch 12, Val loss: 0.1221, Val F1: 0.9663
+Epoch 13, Val loss: 0.1134, Val F1: 0.9639
+Epoch 14, Val loss: 0.1286, Val F1: 0.9642
+Epoch 15, Val loss: 0.1171, Val F1: 0.9649
+Epoch 16, Val loss: 0.1442, Val F1: 0.9534
+Epoch 17, Val loss: 0.1646, Val F1: 0.9551
+[I 2026-06-07 22:42:30,405] Trial 39 finished with value: 0.9662717774070236 and parameters: {'n_conv_blocks': 6, 'base_channels': 32, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'kernels_block_5': 'single_3', 'n_fc_layers': 4, 'fc_hidden': 1024, 'dropout': 0.25938046134327614, 'activation': 'gelu', 'lr': 0.00017207070409549382}. Best is trial 38 with value: 0.9748413660282665.
+Epoch 1, Val loss: 1.4129, Val F1: 0.4495
+[I 2026-06-07 22:42:33,399] Trial 40 pruned. 
+Epoch 1, Val loss: 0.3285, Val F1: 0.9000
+Epoch 2, Val loss: 0.2734, Val F1: 0.9069
+Epoch 3, Val loss: 0.1943, Val F1: 0.9399
+Epoch 4, Val loss: 0.2017, Val F1: 0.9332
+Epoch 5, Val loss: 0.1572, Val F1: 0.9479
+Epoch 6, Val loss: 0.1496, Val F1: 0.9528
+Epoch 7, Val loss: 0.1457, Val F1: 0.9534
+Epoch 8, Val loss: 0.1089, Val F1: 0.9690
+Epoch 9, Val loss: 0.0957, Val F1: 0.9694
+Epoch 10, Val loss: 0.1143, Val F1: 0.9647
+Epoch 11, Val loss: 0.1352, Val F1: 0.9578
+Epoch 12, Val loss: 0.1955, Val F1: 0.9445
+Epoch 13, Val loss: 0.0852, Val F1: 0.9741
+Epoch 14, Val loss: 0.1238, Val F1: 0.9647
+Epoch 15, Val loss: 0.1182, Val F1: 0.9664
+Epoch 16, Val loss: 0.0783, Val F1: 0.9790
+Epoch 17, Val loss: 0.0945, Val F1: 0.9727
+Epoch 18, Val loss: 0.1066, Val F1: 0.9712
+Epoch 19, Val loss: 0.1332, Val F1: 0.9619
+Epoch 20, Val loss: 0.0883, Val F1: 0.9748
+Epoch 21, Val loss: 0.1033, Val F1: 0.9734
+[I 2026-06-07 22:43:36,959] Trial 41 finished with value: 0.9789598456857348 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'n_fc_layers': 4, 'fc_hidden': 1024, 'dropout': 0.21784499486732195, 'activation': 'gelu', 'lr': 0.00013681405439998308}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.3268, Val F1: 0.8902
+Epoch 2, Val loss: 0.2995, Val F1: 0.9072
+Epoch 3, Val loss: 0.1972, Val F1: 0.9395
+Epoch 4, Val loss: 0.2005, Val F1: 0.9316
+Epoch 5, Val loss: 0.2086, Val F1: 0.9329
+Epoch 6, Val loss: 0.1374, Val F1: 0.9552
+Epoch 7, Val loss: 0.1122, Val F1: 0.9651
+Epoch 8, Val loss: 0.1207, Val F1: 0.9611
+Epoch 9, Val loss: 0.1438, Val F1: 0.9578
+Epoch 10, Val loss: 0.0956, Val F1: 0.9720
+Epoch 11, Val loss: 0.1228, Val F1: 0.9632
+Epoch 12, Val loss: 0.1102, Val F1: 0.9657
+Epoch 13, Val loss: 0.0960, Val F1: 0.9734
+Epoch 14, Val loss: 0.0895, Val F1: 0.9732
+Epoch 15, Val loss: 0.0808, Val F1: 0.9747
+Epoch 16, Val loss: 0.1101, Val F1: 0.9688
+Epoch 17, Val loss: 0.0817, Val F1: 0.9735
+Epoch 18, Val loss: 0.1143, Val F1: 0.9672
+Epoch 19, Val loss: 0.1121, Val F1: 0.9715
+Epoch 20, Val loss: 0.1052, Val F1: 0.9696
+[I 2026-06-07 22:44:37,754] Trial 42 finished with value: 0.9746630106421309 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'n_fc_layers': 4, 'fc_hidden': 1024, 'dropout': 0.22141961163184912, 'activation': 'gelu', 'lr': 0.0001291838805480619}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.3495, Val F1: 0.8860
+Epoch 2, Val loss: 0.2357, Val F1: 0.9246
+Epoch 3, Val loss: 0.1975, Val F1: 0.9359
+Epoch 4, Val loss: 0.1702, Val F1: 0.9423
+Epoch 5, Val loss: 0.1435, Val F1: 0.9512
+Epoch 6, Val loss: 0.1552, Val F1: 0.9486
+Epoch 7, Val loss: 0.1162, Val F1: 0.9653
+Epoch 8, Val loss: 0.1296, Val F1: 0.9573
+Epoch 9, Val loss: 0.1164, Val F1: 0.9639
+Epoch 10, Val loss: 0.1012, Val F1: 0.9674
+Epoch 11, Val loss: 0.1050, Val F1: 0.9659
+Epoch 12, Val loss: 0.1105, Val F1: 0.9669
+Epoch 13, Val loss: 0.0895, Val F1: 0.9764
+Epoch 14, Val loss: 0.0980, Val F1: 0.9726
+Epoch 15, Val loss: 0.1031, Val F1: 0.9694
+Epoch 16, Val loss: 0.0920, Val F1: 0.9768
+Epoch 17, Val loss: 0.0938, Val F1: 0.9749
+Epoch 18, Val loss: 0.1033, Val F1: 0.9716
+Epoch 19, Val loss: 0.1239, Val F1: 0.9661
+Epoch 20, Val loss: 0.0893, Val F1: 0.9745
+Epoch 21, Val loss: 0.0934, Val F1: 0.9721
+[I 2026-06-07 22:45:40,805] Trial 43 finished with value: 0.9768418119719289 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'n_fc_layers': 4, 'fc_hidden': 1024, 'dropout': 0.23204340473985802, 'activation': 'gelu', 'lr': 0.0001384276865828555}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 1.0319, Val F1: 0.5971
+[I 2026-06-07 22:45:43,941] Trial 44 pruned. 
+Epoch 1, Val loss: 0.3537, Val F1: 0.8755
+Epoch 2, Val loss: 0.3258, Val F1: 0.8884
+[I 2026-06-07 22:45:49,163] Trial 45 pruned. 
+Epoch 1, Val loss: 0.3913, Val F1: 0.8695
+Epoch 2, Val loss: 0.2819, Val F1: 0.9139
+Epoch 3, Val loss: 0.2351, Val F1: 0.9244
+Epoch 4, Val loss: 0.1914, Val F1: 0.9350
+Epoch 5, Val loss: 0.1601, Val F1: 0.9476
+Epoch 6, Val loss: 0.1279, Val F1: 0.9590
+Epoch 7, Val loss: 0.1638, Val F1: 0.9471
+Epoch 8, Val loss: 0.1605, Val F1: 0.9517
+Epoch 9, Val loss: 0.1203, Val F1: 0.9625
+Epoch 10, Val loss: 0.1343, Val F1: 0.9577
+Epoch 11, Val loss: 0.1586, Val F1: 0.9478
+Epoch 12, Val loss: 0.1995, Val F1: 0.9470
+Epoch 13, Val loss: 0.1287, Val F1: 0.9629
+Epoch 14, Val loss: 0.1965, Val F1: 0.9398
+Epoch 15, Val loss: 0.0980, Val F1: 0.9717
+Epoch 16, Val loss: 0.1361, Val F1: 0.9584
+Epoch 17, Val loss: 0.1349, Val F1: 0.9591
+Epoch 18, Val loss: 0.1422, Val F1: 0.9634
+Epoch 19, Val loss: 0.1183, Val F1: 0.9705
+Epoch 20, Val loss: 0.1027, Val F1: 0.9714
+[I 2026-06-07 22:46:44,524] Trial 46 finished with value: 0.9717044335947795 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'n_fc_layers': 5, 'fc_hidden': 1024, 'dropout': 0.24747186531474363, 'activation': 'gelu', 'lr': 0.0001960399742963853}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.4087, Val F1: 0.8638
+[I 2026-06-07 22:46:47,886] Trial 47 pruned. 
+Epoch 1, Val loss: 0.4735, Val F1: 0.8470
+[I 2026-06-07 22:46:50,637] Trial 48 pruned. 
+Epoch 1, Val loss: 0.3015, Val F1: 0.9022
+Epoch 2, Val loss: 0.2059, Val F1: 0.9307
+Epoch 3, Val loss: 0.1662, Val F1: 0.9451
+Epoch 4, Val loss: 0.1294, Val F1: 0.9599
+Epoch 5, Val loss: 0.1570, Val F1: 0.9490
+Epoch 6, Val loss: 0.1217, Val F1: 0.9609
+Epoch 7, Val loss: 0.1143, Val F1: 0.9627
+Epoch 8, Val loss: 0.1051, Val F1: 0.9683
+Epoch 9, Val loss: 0.1208, Val F1: 0.9652
+Epoch 10, Val loss: 0.1082, Val F1: 0.9671
+Epoch 11, Val loss: 0.1306, Val F1: 0.9597
+Epoch 12, Val loss: 0.1070, Val F1: 0.9695
+Epoch 13, Val loss: 0.1019, Val F1: 0.9674
+Epoch 14, Val loss: 0.0943, Val F1: 0.9734
+Epoch 15, Val loss: 0.0814, Val F1: 0.9746
+Epoch 16, Val loss: 0.0994, Val F1: 0.9695
+Epoch 17, Val loss: 0.1051, Val F1: 0.9690
+Epoch 18, Val loss: 0.0815, Val F1: 0.9788
+Epoch 19, Val loss: 0.0850, Val F1: 0.9756
+Epoch 20, Val loss: 0.1075, Val F1: 0.9716
+Epoch 21, Val loss: 0.1045, Val F1: 0.9750
+Epoch 22, Val loss: 0.0984, Val F1: 0.9748
+Epoch 23, Val loss: 0.0940, Val F1: 0.9784
+[I 2026-06-07 22:48:02,220] Trial 49 finished with value: 0.9787747811398919 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 3, 'fc_hidden': 1024, 'dropout': 0.271793188412676, 'activation': 'gelu', 'lr': 0.00015207418181844797}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.3094, Val F1: 0.8970
+Epoch 2, Val loss: 0.2594, Val F1: 0.9095
+Epoch 3, Val loss: 0.1961, Val F1: 0.9380
+Epoch 4, Val loss: 0.1843, Val F1: 0.9393
+Epoch 5, Val loss: 0.1506, Val F1: 0.9550
+Epoch 6, Val loss: 0.1640, Val F1: 0.9447
+Epoch 7, Val loss: 0.1201, Val F1: 0.9614
+Epoch 8, Val loss: 0.1421, Val F1: 0.9557
+Epoch 9, Val loss: 0.1339, Val F1: 0.9609
+Epoch 10, Val loss: 0.1480, Val F1: 0.9557
+Epoch 11, Val loss: 0.1340, Val F1: 0.9539
+Epoch 12, Val loss: 0.1294, Val F1: 0.9603
+[I 2026-06-07 22:48:40,369] Trial 50 finished with value: 0.9614099279169912 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 3, 'fc_hidden': 1024, 'dropout': 0.29558551081236806, 'activation': 'gelu', 'lr': 0.00028020511155223745}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.4024, Val F1: 0.8569
+[I 2026-06-07 22:48:43,494] Trial 51 pruned. 
+Epoch 1, Val loss: 0.2982, Val F1: 0.8987
+Epoch 2, Val loss: 0.2325, Val F1: 0.9233
+Epoch 3, Val loss: 0.1561, Val F1: 0.9468
+Epoch 4, Val loss: 0.1730, Val F1: 0.9425
+Epoch 5, Val loss: 0.1377, Val F1: 0.9558
+Epoch 6, Val loss: 0.1079, Val F1: 0.9628
+Epoch 7, Val loss: 0.1195, Val F1: 0.9604
+Epoch 8, Val loss: 0.1209, Val F1: 0.9587
+Epoch 9, Val loss: 0.1527, Val F1: 0.9489
+Epoch 10, Val loss: 0.1197, Val F1: 0.9646
+Epoch 11, Val loss: 0.1488, Val F1: 0.9579
+Epoch 12, Val loss: 0.1065, Val F1: 0.9664
+Epoch 13, Val loss: 0.0998, Val F1: 0.9711
+Epoch 14, Val loss: 0.0933, Val F1: 0.9717
+Epoch 15, Val loss: 0.1099, Val F1: 0.9689
+Epoch 16, Val loss: 0.1036, Val F1: 0.9674
+Epoch 17, Val loss: 0.1369, Val F1: 0.9631
+Epoch 18, Val loss: 0.1250, Val F1: 0.9673
+Epoch 19, Val loss: 0.1511, Val F1: 0.9626
+[I 2026-06-07 22:49:46,370] Trial 52 finished with value: 0.9716953120425703 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 3, 'fc_hidden': 2048, 'dropout': 0.2539449234091361, 'activation': 'gelu', 'lr': 0.00012238408525419716}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.3217, Val F1: 0.8983
+Epoch 2, Val loss: 0.2902, Val F1: 0.9080
+[I 2026-06-07 22:49:52,423] Trial 53 pruned. 
+Epoch 1, Val loss: 0.6312, Val F1: 0.7898
+[I 2026-06-07 22:49:56,215] Trial 54 pruned. 
+Epoch 1, Val loss: 0.5313, Val F1: 0.8348
+[I 2026-06-07 22:49:59,326] Trial 55 pruned. 
+Epoch 1, Val loss: 0.5990, Val F1: 0.7911
+[I 2026-06-07 22:50:01,928] Trial 56 pruned. 
+Epoch 1, Val loss: 0.3288, Val F1: 0.8909
+Epoch 2, Val loss: 0.2992, Val F1: 0.8985
+[I 2026-06-07 22:50:07,601] Trial 57 pruned. 
+Epoch 1, Val loss: 0.3775, Val F1: 0.8696
+Epoch 2, Val loss: 0.2854, Val F1: 0.9054
+[I 2026-06-07 22:50:17,229] Trial 58 pruned. 
+Epoch 1, Val loss: 0.4154, Val F1: 0.8718
+Epoch 2, Val loss: 0.2362, Val F1: 0.9284
+Epoch 3, Val loss: 0.2116, Val F1: 0.9371
+Epoch 4, Val loss: 0.2857, Val F1: 0.9046
+Epoch 5, Val loss: 0.2369, Val F1: 0.9243
+[I 2026-06-07 22:50:32,623] Trial 59 pruned. 
+Epoch 1, Val loss: 1.2614, Val F1: 0.3879
+[I 2026-06-07 22:50:35,224] Trial 60 pruned. 
+Epoch 1, Val loss: 0.3252, Val F1: 0.8911
+Epoch 2, Val loss: 0.3359, Val F1: 0.8923
+[I 2026-06-07 22:50:41,602] Trial 61 pruned. 
+Epoch 1, Val loss: 0.3074, Val F1: 0.8915
+Epoch 2, Val loss: 0.2229, Val F1: 0.9253
+Epoch 3, Val loss: 0.2348, Val F1: 0.9191
+Epoch 4, Val loss: 0.1984, Val F1: 0.9280
+Epoch 5, Val loss: 0.1472, Val F1: 0.9513
+Epoch 6, Val loss: 0.1695, Val F1: 0.9480
+Epoch 7, Val loss: 0.1476, Val F1: 0.9509
+Epoch 8, Val loss: 0.1268, Val F1: 0.9584
+Epoch 9, Val loss: 0.1314, Val F1: 0.9552
+Epoch 10, Val loss: 0.1102, Val F1: 0.9676
+Epoch 11, Val loss: 0.1179, Val F1: 0.9647
+Epoch 12, Val loss: 0.1136, Val F1: 0.9665
+Epoch 13, Val loss: 0.1298, Val F1: 0.9615
+Epoch 14, Val loss: 0.1123, Val F1: 0.9648
+Epoch 15, Val loss: 0.1055, Val F1: 0.9683
+Epoch 16, Val loss: 0.1214, Val F1: 0.9661
+Epoch 17, Val loss: 0.1202, Val F1: 0.9661
+Epoch 18, Val loss: 0.0982, Val F1: 0.9709
+Epoch 19, Val loss: 0.1092, Val F1: 0.9691
+Epoch 20, Val loss: 0.1336, Val F1: 0.9641
+Epoch 21, Val loss: 0.1162, Val F1: 0.9654
+Epoch 22, Val loss: 0.1621, Val F1: 0.9608
+Epoch 23, Val loss: 0.1051, Val F1: 0.9679
+[I 2026-06-07 22:51:50,349] Trial 62 finished with value: 0.9708705458456489 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'multi_3_5_7_9', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_5', 'n_fc_layers': 4, 'fc_hidden': 1024, 'dropout': 0.25424581969488574, 'activation': 'gelu', 'lr': 0.00010129248192211871}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.3402, Val F1: 0.8852
+Epoch 2, Val loss: 0.2841, Val F1: 0.9078
+[I 2026-06-07 22:51:55,940] Trial 63 pruned. 
+Epoch 1, Val loss: 0.3038, Val F1: 0.9005
+Epoch 2, Val loss: 0.3496, Val F1: 0.8862
+[I 2026-06-07 22:52:01,925] Trial 64 pruned. 
+Epoch 1, Val loss: 0.4153, Val F1: 0.8711
+Epoch 2, Val loss: 0.2780, Val F1: 0.9115
+Epoch 3, Val loss: 0.2800, Val F1: 0.9142
+[I 2026-06-07 22:52:12,443] Trial 65 pruned. 
+Epoch 1, Val loss: 0.4209, Val F1: 0.8532
+[I 2026-06-07 22:52:15,016] Trial 66 pruned. 
+Epoch 1, Val loss: 0.3823, Val F1: 0.8815
+Epoch 2, Val loss: 0.2666, Val F1: 0.9191
+Epoch 3, Val loss: 0.2056, Val F1: 0.9340
+Epoch 4, Val loss: 0.1827, Val F1: 0.9435
+Epoch 5, Val loss: 0.1691, Val F1: 0.9472
+Epoch 6, Val loss: 0.1560, Val F1: 0.9510
+Epoch 7, Val loss: 0.1414, Val F1: 0.9552
+Epoch 8, Val loss: 0.1119, Val F1: 0.9656
+Epoch 9, Val loss: 0.1112, Val F1: 0.9632
+Epoch 10, Val loss: 0.1029, Val F1: 0.9661
+Epoch 11, Val loss: 0.1058, Val F1: 0.9679
+Epoch 12, Val loss: 0.1256, Val F1: 0.9626
+Epoch 13, Val loss: 0.1015, Val F1: 0.9701
+Epoch 14, Val loss: 0.0879, Val F1: 0.9759
+Epoch 15, Val loss: 0.1048, Val F1: 0.9693
+Epoch 16, Val loss: 0.1628, Val F1: 0.9514
+Epoch 17, Val loss: 0.1475, Val F1: 0.9590
+Epoch 18, Val loss: 0.0941, Val F1: 0.9749
+Epoch 19, Val loss: 0.1225, Val F1: 0.9685
+[I 2026-06-07 22:53:05,750] Trial 67 finished with value: 0.9758522398006406 and parameters: {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'multi_3_7', 'n_fc_layers': 3, 'fc_hidden': 64, 'dropout': 0.25282501225889653, 'activation': 'gelu', 'lr': 0.0001488511304222561}. Best is trial 41 with value: 0.9789598456857348.
+Epoch 1, Val loss: 0.2871, Val F1: 0.9085
+Epoch 2, Val loss: 0.2052, Val F1: 0.9337
+Epoch 3, Val loss: 0.2328, Val F1: 0.9328
+Epoch 4, Val loss: 0.1533, Val F1: 0.9535
+Epoch 5, Val loss: 0.1249, Val F1: 0.9566
+Epoch 6, Val loss: 0.1261, Val F1: 0.9578
+Epoch 7, Val loss: 0.1233, Val F1: 0.9591
+Epoch 8, Val loss: 0.1203, Val F1: 0.9612
+Epoch 9, Val loss: 0.1450, Val F1: 0.9518
+Epoch 10, Val loss: 0.0983, Val F1: 0.9671
+Epoch 11, Val loss: 0.1248, Val F1: 0.9614
+Epoch 12, Val loss: 0.0930, Val F1: 0.9721
+Epoch 13, Val loss: 0.0903, Val F1: 0.9714
+Epoch 14, Val loss: 0.1089, Val F1: 0.9678
+Epoch 15, Val loss: 0.1192, Val F1: 0.9689
+Epoch 16, Val loss: 0.0922, Val F1: 0.9731
+Epoch 17, Val loss: 0.1272, Val F1: 0.9638
+Epoch 18, Val loss: 0.1008, Val F1: 0.9707
+Epoch 19, Val loss: 0.1551, Val F1: 0.9608
+Epoch 20, Val loss: 0.0887, Val F1: 0.9734
+Epoch 21, Val loss: 0.1024, Val F1: 0.9739
+Epoch 22, Val loss: 0.0698, Val F1: 0.9817
+Epoch 23, Val loss: 0.1036, Val F1: 0.9719
+Epoch 24, Val loss: 0.0938, Val F1: 0.9765
+Epoch 25, Val loss: 0.0928, Val F1: 0.9723
+Epoch 26, Val loss: 0.0982, Val F1: 0.9755
+Epoch 27, Val loss: 0.0970, Val F1: 0.9755
+[I 2026-06-07 22:54:17,301] Trial 68 finished with value: 0.9817170591732995 and parameters: {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'single_3', 'n_fc_layers': 2, 'fc_hidden': 64, 'dropout': 0.28939638652358357, 'activation': 'gelu', 'lr': 0.00029190915346677794}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.3614, Val F1: 0.8817
+Epoch 2, Val loss: 0.2555, Val F1: 0.9131
+Epoch 3, Val loss: 0.2106, Val F1: 0.9344
+Epoch 4, Val loss: 0.2074, Val F1: 0.9330
+Epoch 5, Val loss: 0.1740, Val F1: 0.9457
+Epoch 6, Val loss: 0.1538, Val F1: 0.9495
+Epoch 7, Val loss: 0.1569, Val F1: 0.9514
+Epoch 8, Val loss: 0.1245, Val F1: 0.9575
+Epoch 9, Val loss: 0.1155, Val F1: 0.9641
+Epoch 10, Val loss: 0.1151, Val F1: 0.9633
+Epoch 11, Val loss: 0.1019, Val F1: 0.9698
+Epoch 12, Val loss: 0.1087, Val F1: 0.9669
+Epoch 13, Val loss: 0.1020, Val F1: 0.9722
+Epoch 14, Val loss: 0.1063, Val F1: 0.9750
+Epoch 15, Val loss: 0.0910, Val F1: 0.9744
+Epoch 16, Val loss: 0.1037, Val F1: 0.9663
+Epoch 17, Val loss: 0.0836, Val F1: 0.9734
+Epoch 18, Val loss: 0.0984, Val F1: 0.9731
+Epoch 19, Val loss: 0.0872, Val F1: 0.9700
+[I 2026-06-07 22:55:07,094] Trial 69 finished with value: 0.9750002774807693 and parameters: {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'single_3', 'n_fc_layers': 2, 'fc_hidden': 64, 'dropout': 0.28871645363857756, 'activation': 'gelu', 'lr': 0.0002827040831762811}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.2753, Val F1: 0.9071
+Epoch 2, Val loss: 0.1779, Val F1: 0.9408
+Epoch 3, Val loss: 0.1791, Val F1: 0.9403
+Epoch 4, Val loss: 0.2441, Val F1: 0.9152
+Epoch 5, Val loss: 0.1290, Val F1: 0.9576
+Epoch 6, Val loss: 0.1132, Val F1: 0.9657
+Epoch 7, Val loss: 0.1216, Val F1: 0.9575
+Epoch 8, Val loss: 0.1211, Val F1: 0.9635
+Epoch 9, Val loss: 0.1503, Val F1: 0.9530
+Epoch 10, Val loss: 0.1257, Val F1: 0.9614
+Epoch 11, Val loss: 0.1208, Val F1: 0.9617
+[I 2026-06-07 22:55:35,567] Trial 70 finished with value: 0.9657448493416048 and parameters: {'n_conv_blocks': 4, 'base_channels': 32, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'single_3', 'n_fc_layers': 1, 'fc_hidden': 64, 'dropout': 0.30393180347420556, 'activation': 'gelu', 'lr': 0.0003090251634720973}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.4484, Val F1: 0.8540
+[I 2026-06-07 22:55:38,318] Trial 71 pruned. 
+Epoch 1, Val loss: 0.3797, Val F1: 0.8721
+[I 2026-06-07 22:55:41,230] Trial 72 pruned. 
+Epoch 1, Val loss: 0.3367, Val F1: 0.8867
+Epoch 2, Val loss: 0.2550, Val F1: 0.9156
+Epoch 3, Val loss: 0.2208, Val F1: 0.9268
+Epoch 4, Val loss: 0.2416, Val F1: 0.9243
+[I 2026-06-07 22:55:52,275] Trial 73 pruned. 
+Epoch 1, Val loss: 0.4340, Val F1: 0.8640
+[I 2026-06-07 22:55:54,942] Trial 74 pruned. 
+Epoch 1, Val loss: 0.5337, Val F1: 0.8047
+[I 2026-06-07 22:55:57,529] Trial 75 pruned. 
+Epoch 1, Val loss: 0.3224, Val F1: 0.8960
+Epoch 2, Val loss: 0.2019, Val F1: 0.9326
+Epoch 3, Val loss: 0.1619, Val F1: 0.9474
+Epoch 4, Val loss: 0.1611, Val F1: 0.9466
+Epoch 5, Val loss: 0.1734, Val F1: 0.9401
+Epoch 6, Val loss: 0.1712, Val F1: 0.9431
+[I 2026-06-07 22:56:13,239] Trial 76 pruned. 
+Epoch 1, Val loss: 0.5576, Val F1: 0.8177
+[I 2026-06-07 22:56:15,872] Trial 77 pruned. 
+Epoch 1, Val loss: 0.3327, Val F1: 0.8894
+Epoch 2, Val loss: 0.2311, Val F1: 0.9208
+Epoch 3, Val loss: 0.2134, Val F1: 0.9314
+Epoch 4, Val loss: 0.1564, Val F1: 0.9471
+Epoch 5, Val loss: 0.2316, Val F1: 0.9206
+Epoch 6, Val loss: 0.1548, Val F1: 0.9470
+[I 2026-06-07 22:56:31,400] Trial 78 pruned. 
+Epoch 1, Val loss: 0.3540, Val F1: 0.8892
+Epoch 2, Val loss: 0.2040, Val F1: 0.9345
+Epoch 3, Val loss: 0.2156, Val F1: 0.9308
+Epoch 4, Val loss: 0.1914, Val F1: 0.9418
+Epoch 5, Val loss: 0.1274, Val F1: 0.9615
+Epoch 6, Val loss: 0.1368, Val F1: 0.9553
+Epoch 7, Val loss: 0.2018, Val F1: 0.9408
+Epoch 8, Val loss: 0.1461, Val F1: 0.9548
+Epoch 9, Val loss: 0.1498, Val F1: 0.9560
+Epoch 10, Val loss: 0.1055, Val F1: 0.9676
+Epoch 11, Val loss: 0.1091, Val F1: 0.9644
+Epoch 12, Val loss: 0.1455, Val F1: 0.9540
+Epoch 13, Val loss: 0.1358, Val F1: 0.9620
+Epoch 14, Val loss: 0.1450, Val F1: 0.9569
+Epoch 15, Val loss: 0.1136, Val F1: 0.9659
+[I 2026-06-07 22:57:14,076] Trial 79 finished with value: 0.9675766830928172 and parameters: {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'multi_3_5_7_9', 'n_fc_layers': 2, 'fc_hidden': 64, 'dropout': 0.2424401175701785, 'activation': 'relu', 'lr': 0.00013874314494305458}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.3954, Val F1: 0.8678
+[I 2026-06-07 22:57:17,550] Trial 80 pruned. 
+Epoch 1, Val loss: 0.4573, Val F1: 0.8378
+[I 2026-06-07 22:57:20,085] Trial 81 pruned. 
+Epoch 1, Val loss: 0.6597, Val F1: 0.7642
+[I 2026-06-07 22:57:22,715] Trial 82 pruned. 
+Epoch 1, Val loss: 0.4358, Val F1: 0.8502
+[I 2026-06-07 22:57:25,495] Trial 83 pruned. 
+Epoch 1, Val loss: 0.2752, Val F1: 0.9045
+Epoch 2, Val loss: 0.1840, Val F1: 0.9349
+Epoch 3, Val loss: 0.1689, Val F1: 0.9421
+Epoch 4, Val loss: 0.1372, Val F1: 0.9535
+Epoch 5, Val loss: 0.1365, Val F1: 0.9523
+Epoch 6, Val loss: 0.1765, Val F1: 0.9411
+Epoch 7, Val loss: 0.1217, Val F1: 0.9596
+Epoch 8, Val loss: 0.1053, Val F1: 0.9656
+Epoch 9, Val loss: 0.1134, Val F1: 0.9627
+Epoch 10, Val loss: 0.1331, Val F1: 0.9582
+Epoch 11, Val loss: 0.1549, Val F1: 0.9492
+Epoch 12, Val loss: 0.0961, Val F1: 0.9711
+Epoch 13, Val loss: 0.1215, Val F1: 0.9611
+Epoch 14, Val loss: 0.0852, Val F1: 0.9745
+Epoch 15, Val loss: 0.0909, Val F1: 0.9706
+Epoch 16, Val loss: 0.1290, Val F1: 0.9614
+Epoch 17, Val loss: 0.0837, Val F1: 0.9739
+Epoch 18, Val loss: 0.1552, Val F1: 0.9607
+Epoch 19, Val loss: 0.0956, Val F1: 0.9716
+[I 2026-06-07 22:58:18,257] Trial 84 finished with value: 0.9744572080576435 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 2, 'fc_hidden': 512, 'dropout': 0.21029580845521353, 'activation': 'gelu', 'lr': 0.0001491821107281629}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.4451, Val F1: 0.8292
+[I 2026-06-07 22:58:21,200] Trial 85 pruned. 
+Epoch 1, Val loss: 0.2525, Val F1: 0.9214
+Epoch 2, Val loss: 0.1782, Val F1: 0.9377
+Epoch 3, Val loss: 0.1683, Val F1: 0.9440
+Epoch 4, Val loss: 0.1522, Val F1: 0.9466
+Epoch 5, Val loss: 0.1412, Val F1: 0.9565
+Epoch 6, Val loss: 0.1304, Val F1: 0.9574
+Epoch 7, Val loss: 0.1284, Val F1: 0.9586
+Epoch 8, Val loss: 0.1690, Val F1: 0.9382
+Epoch 9, Val loss: 0.1048, Val F1: 0.9653
+Epoch 10, Val loss: 0.1288, Val F1: 0.9583
+Epoch 11, Val loss: 0.1593, Val F1: 0.9509
+Epoch 12, Val loss: 0.1019, Val F1: 0.9676
+Epoch 13, Val loss: 0.1046, Val F1: 0.9666
+Epoch 14, Val loss: 0.0976, Val F1: 0.9684
+Epoch 15, Val loss: 0.1077, Val F1: 0.9664
+Epoch 16, Val loss: 0.0952, Val F1: 0.9720
+Epoch 17, Val loss: 0.1096, Val F1: 0.9639
+Epoch 18, Val loss: 0.1071, Val F1: 0.9693
+Epoch 19, Val loss: 0.0816, Val F1: 0.9776
+Epoch 20, Val loss: 0.1721, Val F1: 0.9519
+Epoch 21, Val loss: 0.1065, Val F1: 0.9693
+Epoch 22, Val loss: 0.1121, Val F1: 0.9706
+Epoch 23, Val loss: 0.1022, Val F1: 0.9739
+Epoch 24, Val loss: 0.1129, Val F1: 0.9660
+[I 2026-06-07 22:59:28,705] Trial 86 finished with value: 0.9775903811518353 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 2, 'fc_hidden': 512, 'dropout': 0.39575391015955785, 'activation': 'gelu', 'lr': 0.0001831051919959064}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.2561, Val F1: 0.9136
+Epoch 2, Val loss: 0.1787, Val F1: 0.9403
+Epoch 3, Val loss: 0.1710, Val F1: 0.9439
+Epoch 4, Val loss: 0.1796, Val F1: 0.9397
+Epoch 5, Val loss: 0.1492, Val F1: 0.9488
+Epoch 6, Val loss: 0.1180, Val F1: 0.9594
+Epoch 7, Val loss: 0.1213, Val F1: 0.9599
+Epoch 8, Val loss: 0.1148, Val F1: 0.9605
+Epoch 9, Val loss: 0.1407, Val F1: 0.9589
+Epoch 10, Val loss: 0.1589, Val F1: 0.9499
+Epoch 11, Val loss: 0.1128, Val F1: 0.9659
+Epoch 12, Val loss: 0.0841, Val F1: 0.9740
+Epoch 13, Val loss: 0.1008, Val F1: 0.9685
+Epoch 14, Val loss: 0.1129, Val F1: 0.9696
+Epoch 15, Val loss: 0.0886, Val F1: 0.9742
+Epoch 16, Val loss: 0.1097, Val F1: 0.9667
+Epoch 17, Val loss: 0.1101, Val F1: 0.9664
+Epoch 18, Val loss: 0.0814, Val F1: 0.9759
+Epoch 19, Val loss: 0.1009, Val F1: 0.9700
+Epoch 20, Val loss: 0.1783, Val F1: 0.9519
+Epoch 21, Val loss: 0.1019, Val F1: 0.9701
+Epoch 22, Val loss: 0.0954, Val F1: 0.9728
+Epoch 23, Val loss: 0.0886, Val F1: 0.9763
+Epoch 24, Val loss: 0.0955, Val F1: 0.9704
+Epoch 25, Val loss: 0.1069, Val F1: 0.9738
+Epoch 26, Val loss: 0.0953, Val F1: 0.9726
+Epoch 27, Val loss: 0.1146, Val F1: 0.9681
+Epoch 28, Val loss: 0.0907, Val F1: 0.9739
+[I 2026-06-07 23:00:45,681] Trial 87 finished with value: 0.9762971064413744 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 1, 'fc_hidden': 512, 'dropout': 0.5743404927437945, 'activation': 'gelu', 'lr': 0.00018596812144795524}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.4855, Val F1: 0.8497
+[I 2026-06-07 23:00:48,494] Trial 88 pruned. 
+Epoch 1, Val loss: 0.2980, Val F1: 0.8931
+Epoch 2, Val loss: 0.2452, Val F1: 0.9143
+[I 2026-06-07 23:00:53,770] Trial 89 pruned. 
+Epoch 1, Val loss: 0.2392, Val F1: 0.9189
+Epoch 2, Val loss: 0.1964, Val F1: 0.9351
+Epoch 3, Val loss: 0.1401, Val F1: 0.9545
+Epoch 4, Val loss: 0.1619, Val F1: 0.9423
+Epoch 5, Val loss: 0.1265, Val F1: 0.9595
+Epoch 6, Val loss: 0.1316, Val F1: 0.9542
+Epoch 7, Val loss: 0.1116, Val F1: 0.9664
+Epoch 8, Val loss: 0.1053, Val F1: 0.9682
+Epoch 9, Val loss: 0.1040, Val F1: 0.9660
+Epoch 10, Val loss: 0.0947, Val F1: 0.9700
+Epoch 11, Val loss: 0.1120, Val F1: 0.9685
+Epoch 12, Val loss: 0.1003, Val F1: 0.9678
+Epoch 13, Val loss: 0.1253, Val F1: 0.9602
+Epoch 14, Val loss: 0.1212, Val F1: 0.9651
+Epoch 15, Val loss: 0.1103, Val F1: 0.9694
+[I 2026-06-07 23:01:33,426] Trial 90 finished with value: 0.9699526321434562 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5', 'kernels_block_2': 'single_3', 'kernels_block_3': 'single_5', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 1, 'fc_hidden': 512, 'dropout': 0.5444457026584216, 'activation': 'gelu', 'lr': 0.00020881482450263897}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.2913, Val F1: 0.8998
+Epoch 2, Val loss: 0.2208, Val F1: 0.9264
+Epoch 3, Val loss: 0.1784, Val F1: 0.9394
+Epoch 4, Val loss: 0.1910, Val F1: 0.9330
+Epoch 5, Val loss: 0.1278, Val F1: 0.9568
+Epoch 6, Val loss: 0.1361, Val F1: 0.9541
+Epoch 7, Val loss: 0.1260, Val F1: 0.9605
+Epoch 8, Val loss: 0.1238, Val F1: 0.9554
+Epoch 9, Val loss: 0.1277, Val F1: 0.9575
+Epoch 10, Val loss: 0.0960, Val F1: 0.9671
+Epoch 11, Val loss: 0.1140, Val F1: 0.9608
+Epoch 12, Val loss: 0.0993, Val F1: 0.9709
+Epoch 13, Val loss: 0.1225, Val F1: 0.9596
+Epoch 14, Val loss: 0.1288, Val F1: 0.9599
+Epoch 15, Val loss: 0.1240, Val F1: 0.9616
+Epoch 16, Val loss: 0.0861, Val F1: 0.9737
+Epoch 17, Val loss: 0.0858, Val F1: 0.9708
+Epoch 18, Val loss: 0.1001, Val F1: 0.9700
+Epoch 19, Val loss: 0.0971, Val F1: 0.9733
+Epoch 20, Val loss: 0.1013, Val F1: 0.9756
+Epoch 21, Val loss: 0.1119, Val F1: 0.9673
+Epoch 22, Val loss: 0.1006, Val F1: 0.9704
+Epoch 23, Val loss: 0.0960, Val F1: 0.9730
+Epoch 24, Val loss: 0.1036, Val F1: 0.9750
+Epoch 25, Val loss: 0.1175, Val F1: 0.9678
+[I 2026-06-07 23:02:42,554] Trial 91 finished with value: 0.9755734680930095 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 2, 'fc_hidden': 512, 'dropout': 0.401964259962006, 'activation': 'gelu', 'lr': 0.0002321833796792359}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.2532, Val F1: 0.9143
+Epoch 2, Val loss: 0.2239, Val F1: 0.9284
+Epoch 3, Val loss: 0.1595, Val F1: 0.9454
+Epoch 4, Val loss: 0.1825, Val F1: 0.9374
+Epoch 5, Val loss: 0.1295, Val F1: 0.9544
+Epoch 6, Val loss: 0.1153, Val F1: 0.9626
+Epoch 7, Val loss: 0.1682, Val F1: 0.9458
+Epoch 8, Val loss: 0.1359, Val F1: 0.9573
+Epoch 9, Val loss: 0.1021, Val F1: 0.9680
+Epoch 10, Val loss: 0.1056, Val F1: 0.9639
+Epoch 11, Val loss: 0.1123, Val F1: 0.9613
+Epoch 12, Val loss: 0.1026, Val F1: 0.9697
+Epoch 13, Val loss: 0.0973, Val F1: 0.9695
+Epoch 14, Val loss: 0.1123, Val F1: 0.9663
+Epoch 15, Val loss: 0.1031, Val F1: 0.9685
+Epoch 16, Val loss: 0.0752, Val F1: 0.9793
+Epoch 17, Val loss: 0.1564, Val F1: 0.9578
+Epoch 18, Val loss: 0.1167, Val F1: 0.9683
+Epoch 19, Val loss: 0.0939, Val F1: 0.9720
+Epoch 20, Val loss: 0.0831, Val F1: 0.9749
+Epoch 21, Val loss: 0.1258, Val F1: 0.9675
+[I 2026-06-07 23:03:41,593] Trial 92 finished with value: 0.9792511668942628 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 2, 'fc_hidden': 512, 'dropout': 0.38097803511673145, 'activation': 'gelu', 'lr': 0.00024054919656029758}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.2936, Val F1: 0.9045
+Epoch 2, Val loss: 0.1677, Val F1: 0.9458
+Epoch 3, Val loss: 0.1668, Val F1: 0.9405
+Epoch 4, Val loss: 0.1535, Val F1: 0.9449
+Epoch 5, Val loss: 0.1249, Val F1: 0.9610
+Epoch 6, Val loss: 0.1379, Val F1: 0.9542
+Epoch 7, Val loss: 0.1161, Val F1: 0.9583
+Epoch 8, Val loss: 0.1185, Val F1: 0.9569
+Epoch 9, Val loss: 0.0939, Val F1: 0.9713
+Epoch 10, Val loss: 0.1033, Val F1: 0.9659
+Epoch 11, Val loss: 0.1154, Val F1: 0.9661
+Epoch 12, Val loss: 0.0983, Val F1: 0.9678
+Epoch 13, Val loss: 0.0945, Val F1: 0.9720
+Epoch 14, Val loss: 0.1071, Val F1: 0.9634
+Epoch 15, Val loss: 0.0912, Val F1: 0.9707
+Epoch 16, Val loss: 0.0910, Val F1: 0.9726
+Epoch 17, Val loss: 0.0944, Val F1: 0.9739
+Epoch 18, Val loss: 0.0946, Val F1: 0.9701
+Epoch 19, Val loss: 0.0984, Val F1: 0.9731
+Epoch 20, Val loss: 0.1039, Val F1: 0.9719
+Epoch 21, Val loss: 0.1422, Val F1: 0.9562
+Epoch 22, Val loss: 0.1116, Val F1: 0.9673
+[I 2026-06-07 23:04:42,244] Trial 93 finished with value: 0.9739084897657142 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 2, 'fc_hidden': 512, 'dropout': 0.37794395570448175, 'activation': 'gelu', 'lr': 0.0003302082237940429}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.2943, Val F1: 0.9032
+Epoch 2, Val loss: 0.2301, Val F1: 0.9194
+Epoch 3, Val loss: 0.1586, Val F1: 0.9485
+Epoch 4, Val loss: 0.1305, Val F1: 0.9597
+Epoch 5, Val loss: 0.1399, Val F1: 0.9552
+Epoch 6, Val loss: 0.1347, Val F1: 0.9567
+Epoch 7, Val loss: 0.1135, Val F1: 0.9629
+Epoch 8, Val loss: 0.1320, Val F1: 0.9574
+Epoch 9, Val loss: 0.0896, Val F1: 0.9738
+Epoch 10, Val loss: 0.1180, Val F1: 0.9627
+Epoch 11, Val loss: 0.1341, Val F1: 0.9599
+Epoch 12, Val loss: 0.1931, Val F1: 0.9391
+Epoch 13, Val loss: 0.1174, Val F1: 0.9682
+Epoch 14, Val loss: 0.1119, Val F1: 0.9643
+[I 2026-06-07 23:05:21,217] Trial 94 finished with value: 0.9737713724981111 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 2, 'fc_hidden': 512, 'dropout': 0.3913856275305761, 'activation': 'gelu', 'lr': 0.00025146423117753514}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.2874, Val F1: 0.8890
+Epoch 2, Val loss: 0.3059, Val F1: 0.8982
+[I 2026-06-07 23:05:26,863] Trial 95 pruned. 
+Epoch 1, Val loss: 0.3176, Val F1: 0.8912
+Epoch 2, Val loss: 0.1978, Val F1: 0.9325
+Epoch 3, Val loss: 0.1813, Val F1: 0.9348
+Epoch 4, Val loss: 0.1468, Val F1: 0.9468
+Epoch 5, Val loss: 0.1353, Val F1: 0.9538
+Epoch 6, Val loss: 0.1320, Val F1: 0.9555
+Epoch 7, Val loss: 0.1175, Val F1: 0.9614
+Epoch 8, Val loss: 0.1182, Val F1: 0.9611
+Epoch 9, Val loss: 0.1097, Val F1: 0.9653
+Epoch 10, Val loss: 0.1218, Val F1: 0.9647
+Epoch 11, Val loss: 0.1250, Val F1: 0.9622
+Epoch 12, Val loss: 0.1042, Val F1: 0.9664
+Epoch 13, Val loss: 0.1062, Val F1: 0.9688
+Epoch 14, Val loss: 0.0964, Val F1: 0.9715
+Epoch 15, Val loss: 0.0890, Val F1: 0.9746
+Epoch 16, Val loss: 0.1147, Val F1: 0.9644
+Epoch 17, Val loss: 0.1157, Val F1: 0.9661
+Epoch 18, Val loss: 0.1007, Val F1: 0.9687
+Epoch 19, Val loss: 0.1158, Val F1: 0.9655
+Epoch 20, Val loss: 0.1040, Val F1: 0.9726
+[I 2026-06-07 23:06:20,736] Trial 96 finished with value: 0.9745523409942889 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'multi_3_5', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_3', 'kernels_block_3': 'multi_3_7', 'kernels_block_4': 'single_5', 'n_fc_layers': 1, 'fc_hidden': 512, 'dropout': 0.36504190957583976, 'activation': 'gelu', 'lr': 0.00023605794730714223}. Best is trial 68 with value: 0.9817170591732995.
+Epoch 1, Val loss: 0.4753, Val F1: 0.8393
+[I 2026-06-07 23:06:23,566] Trial 97 pruned. 
+Epoch 1, Val loss: 1.1435, Val F1: 0.3550
+[I 2026-06-07 23:06:27,472] Trial 98 pruned. 
+Epoch 1, Val loss: 0.2989, Val F1: 0.8956
+Epoch 2, Val loss: 0.2216, Val F1: 0.9214
+Epoch 3, Val loss: 0.1530, Val F1: 0.9462
+Epoch 4, Val loss: 0.1650, Val F1: 0.9463
+Epoch 5, Val loss: 0.1390, Val F1: 0.9492
+Epoch 6, Val loss: 0.1297, Val F1: 0.9581
+Epoch 7, Val loss: 0.1039, Val F1: 0.9648
+Epoch 8, Val loss: 0.1135, Val F1: 0.9620
+Epoch 9, Val loss: 0.1249, Val F1: 0.9632
+Epoch 10, Val loss: 0.1068, Val F1: 0.9676
+Epoch 11, Val loss: 0.1338, Val F1: 0.9566
+Epoch 12, Val loss: 0.0981, Val F1: 0.9682
+Epoch 13, Val loss: 0.1072, Val F1: 0.9662
+Epoch 14, Val loss: 0.0989, Val F1: 0.9680
+Epoch 15, Val loss: 0.0931, Val F1: 0.9739
+Epoch 16, Val loss: 0.1160, Val F1: 0.9665
+Epoch 17, Val loss: 0.1322, Val F1: 0.9619
+Epoch 18, Val loss: 0.0818, Val F1: 0.9748
+Epoch 19, Val loss: 0.1087, Val F1: 0.9656
+Epoch 20, Val loss: 0.0950, Val F1: 0.9715
+Epoch 21, Val loss: 0.0823, Val F1: 0.9803
+Epoch 22, Val loss: 0.1170, Val F1: 0.9664
+Epoch 23, Val loss: 0.1060, Val F1: 0.9701
+Epoch 24, Val loss: 0.1204, Val F1: 0.9661
+Epoch 25, Val loss: 0.1173, Val F1: 0.9745
+Epoch 26, Val loss: 0.0887, Val F1: 0.9757
+[I 2026-06-07 23:07:35,833] Trial 99 finished with value: 0.9803017995535941 and parameters: {'n_conv_blocks': 5, 'base_channels': 64, 'kernels_block_0': 'multi_3_7', 'kernels_block_1': 'multi_3_7', 'kernels_block_2': 'single_3', 'kernels_block_3': 'single_3', 'kernels_block_4': 'multi_3_7', 'n_fc_layers': 1, 'fc_hidden': 512, 'dropout': 0.40130275136937094, 'activation': 'gelu', 'lr': 0.00018456561146351974}. Best is trial 68 with value: 0.9817170591732995.
+ms: best F1 = 0.9817, params = {'n_conv_blocks': 4, 'base_channels': 64, 'kernels_block_0': 'single_3', 'kernels_block_1': 'multi_3_5_7_9', 'kernels_block_2': 'single_5', 'kernels_block_3': 'single_3', 'n_fc_layers': 2, 'fc_hidden': 64, 'dropout': 0.28939638652358357, 'activation': 'gelu', 'lr': 0.00029190915346677794}
+=== Job finished: Sun Jun  7 23:07:36 CEST 2026 ===
+
+###############################################################################
+Hábrók Cluster
+Job 29355678 for user s5964733
+Finished at: Sun Jun  7 23:07:40 CEST 2026
+
+Job details:
+============
+
+Job ID                         : 29355678
+Name                           : tune_ms
+User                           : s5964733
+Partition                      : gpushort
+Nodes                          : rtx6000gpu2
+Number of Nodes                : 1
+Cores                          : 8
+Number of Tasks                : 1
+State                          : COMPLETED  
+Submit                         : 2026-06-07T22:08:03
+Start                          : 2026-06-07T22:18:06
+End                            : 2026-06-07T23:07:36
+Reserved walltime              : 04:00:00
+Used walltime                  : 00:49:30
+Used CPU time                  : 03:21:04 (Efficiency: 50.77%)
+% User (Computation)           : 75.22%
+% System (I/O)                 : 24.79%
+Total memory reserved          : 32G
+Maximum memory used            : 4.54G
+Requested GPUs                 : rtx_pro_6000=1
+Allocated GPUs                 : rtx_pro_6000=1
+Max GPU utilization            : 82%
+Max GPU memory used            : 2.79G
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################
