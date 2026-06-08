@@ -18,6 +18,10 @@ KERNEL_OPTIONS = {
     "multi_3_5_7_9": [Kernel(3), Kernel(5), Kernel(7), Kernel(9)],
 }
 
+# Keep in sync with tune.py: channel counts are capped during tuning, so the
+# final config must apply the same cap to reproduce the tuned architecture.
+MAX_CHANNELS = 512
+
 
 def build_config_from_params(image_type: str, params: dict) -> CNNConfig:
     n_blocks = params["n_conv_blocks"]
@@ -31,7 +35,7 @@ def build_config_from_params(image_type: str, params: dict) -> CNNConfig:
         )
         conv_blocks.append(
             ConvBlockConfig(
-                out_channels=base * (2**i),
+                out_channels=min(base * (2**i), MAX_CHANNELS),
                 kernels=KERNEL_OPTIONS[kernel_choice],
                 batch_norm=True,
                 pool_size=2,
@@ -110,18 +114,29 @@ BEST_PARAMS = {
     "ms": {
         "n_conv_blocks": 4,
         "base_channels": 64,
+        "kernels_block_0": "single_3",
+        "kernels_block_1": "multi_3_5_7_9",
+        "kernels_block_2": "single_5",
+        "kernels_block_3": "single_3",
+        "n_fc_layers": 2,
         "fc_hidden": 64,
-        "dropout": 0.38217102063179526,
-        "activation": "relu",
-        "lr": 0.00010200960558027954,
+        "dropout": 0.28939638652358357,
+        "activation": "gelu",
+        "lr": 0.00029190915346677794,
     },
     "rgb": {
-        "n_conv_blocks": 4,
+        "n_conv_blocks": 5,
         "base_channels": 64,
-        "fc_hidden": 128,
-        "dropout": 0.3305840328225389,
+        "kernels_block_0": "single_3",
+        "kernels_block_1": "single_5",
+        "kernels_block_2": "single_3",
+        "kernels_block_3": "single_3",
+        "kernels_block_4": "multi_3_5",
+        "n_fc_layers": 2,
+        "fc_hidden": 256,
+        "dropout": 0.4378661192801057,
         "activation": "relu",
-        "lr": 0.00014768156340842648,
+        "lr": 0.00015605712150871704,
     },
 }
 
