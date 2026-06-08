@@ -1,86 +1,104 @@
+import copy
+from typing import Callable
+
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
 from sklearn.metrics import f1_score
 
-from ..models.cnn import CNN, CNNConfig, ConvBlockConfig
-from ..data.datasets import create_dataloaders
+from ..models.cnn import CNN, CNNConfig
 
-# Example training script for CNN model.
 
-# Config
-config = CNNConfig(
-    in_channels=3, # 3 Channels for RGB images
-    input_height=64, 
-    input_width=64,
-    conv_blocks=[
-        ConvBlockConfig(out_channels=32, kernel_size=3, stride=1, padding=1, batch_norm=True, pool_size=2),
-        ConvBlockConfig(out_channels=64, kernel_size=3, stride=1, padding=1, batch_norm=True, pool_size=2),
-        ConvBlockConfig(out_channels=128, kernel_size=3, stride=1, padding=1, batch_norm=True, pool_size=2),
-    ],
-    fc_layers=[128, 10], # 128 units in hidden layer, 10 output classes --> You can also specify this as [128, 64, 10] for an additional hidden layer
-    dropout=0.5,
-    activation="relu"
-)
-
-model = CNN(config)
-train_loader, val_loader, test_loader = create_dataloaders(image_type="rgb", batch_size=64)
-
-# Training setup 
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-loss_fn = nn.CrossEntropyLoss()
-
-# Training loop
-train_losses = []
-val_losses = []
-
-print("Starting training...")
-
-for epoch in range(10):
-    model.train()
-    total_loss_train = 0
-    for images, labels in train_loader:
-        optimizer.zero_grad()
-        loss = loss_fn(model(images), labels)
-        loss.backward()
-        optimizer.step()
-        total_loss_train += loss.item()
-
+def evaluate(model, loader, loss_fn):
     model.eval()
-    total_loss_val = 0
+    device = next(model.parameters()).device
+    total_loss = 0
     all_preds, all_labels = [], []
     with torch.no_grad():
-        for images, labels in val_loader:
+        for images, labels in loader:
+            images, labels = images.to(device), labels.to(device)
             outputs = model(images)
-            total_loss_val += loss_fn(outputs, labels).item()
+            total_loss += loss_fn(outputs, labels).item()
             all_preds.extend(outputs.argmax(dim=1).tolist())
             all_labels.extend(labels.tolist())
+    return total_loss / len(loader), f1_score(all_labels, all_preds, average="macro")
 
-    avg_train_loss = total_loss_train / len(train_loader)
-    avg_val_loss = total_loss_val / len(val_loader)
-    val_f1 = f1_score(all_labels, all_preds, average="macro")
-    train_losses.append(avg_train_loss)
-    val_losses.append(avg_val_loss)
-    print(f"Epoch {epoch+1}, Train loss: {avg_train_loss:.4f}, Val loss: {avg_val_loss:.4f}, Val F1: {val_f1:.4f}")
 
-torch.save(model, "models/model1.pkl")
+def train_model(
+    config: CNNConfig,
+    train_loader,
+    val_loader=None,
+    lr=1e-3,
+    epochs: int = 30,
+    patience: int = 5,
+    check_prune: Callable | None = None,
+    track_history: bool = False,
+):
+    """Train a CNN.
 
-# Test evaluation (after training)
-model.eval()
-total_loss_test = 0
-all_preds, all_labels = [], []
-with torch.no_grad():
-    for images, labels in test_loader:
-        outputs = model(images)
-        total_loss_test += loss_fn(outputs, labels).item()
-        all_preds.extend(outputs.argmax(dim=1).tolist())
-        all_labels.extend(labels.tolist())
-test_f1 = f1_score(all_labels, all_preds, average="macro")
-print(f"Test loss: {total_loss_test / len(test_loader):.4f}, Test F1: {test_f1:.4f}")
+    When val_loader is None, the model is trained for a fixed number of
+    epochs with no validation nor early stopping and the final-epoch model is returned. Otherwise the model is validated
+    each epoch, early stopping is applied, and the best-val-F1 checkpoint is
+    restored before returning.
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = CNN(config).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    loss_fn = nn.CrossEntropyLoss()
 
-plt.plot(train_losses, label="Train")
-plt.plot(val_losses, label="Val")
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.legend()
-plt.show()
+    best_val_f1 = 0.0
+    best_state = None
+    epochs_no_improve = 0
+    history: dict = (
+        {"train_loss": [], "val_loss": [], "val_f1": []} if track_history else {}
+    )
+
+    for epoch in range(epochs):
+        model.train()
+        train_loss = 0.0
+        for images, labels in train_loader:
+            images, labels = images.to(device), labels.to(device)
+            optimizer.zero_grad()
+            loss = loss_fn(model(images), labels)
+            loss.backward()
+            optimizer.step()
+            if track_history:
+                train_loss += loss.item()
+
+        if val_loader is None:
+            if track_history:
+                train_loss /= len(train_loader)
+                history["train_loss"].append(train_loss)
+            print(f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}")
+            continue
+
+        val_loss, val_f1 = evaluate(model, val_loader, loss_fn)
+
+        if track_history:
+            train_loss /= len(train_loader)
+            history["train_loss"].append(train_loss)
+            history["val_loss"].append(val_loss)
+            history["val_f1"].append(val_f1)
+            print(
+                f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}"
+            )
+        else:
+            print(f"Epoch {epoch + 1}, Val loss: {val_loss:.4f}, Val F1: {val_f1:.4f}")
+
+        if check_prune is not None:
+            check_prune(epoch, val_f1)
+
+        if val_f1 > best_val_f1:
+            best_val_f1 = val_f1
+            best_state = copy.deepcopy(model.state_dict())
+            epochs_no_improve = 0
+        else:
+            epochs_no_improve += 1
+            if epochs_no_improve >= patience:
+                break
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
+
+    if track_history:
+        return model, best_val_f1, history
+    return model, best_val_f1

@@ -6,10 +6,17 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "datasets>=4.8.5",
+    "fastapi>=0.136.3",
+    "grad-cam>=1.5.5",
     "kagglehub>=1.0.1",
     "matplotlib>=3.10.9",
     "numpy>=2.4.4",
+    "optuna>=4.8.0",
+    "python-multipart>=0.0.29",
     "scikit-learn>=1.6.0",
+    "tifffile>=2026.5.15",
     "torch>=2.11.0",
     "torchvision>=0.26.0",
+    "uvicorn>=0.48.0",
+    "opencv-python-headless",
 ]

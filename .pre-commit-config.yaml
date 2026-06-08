@@ -13,5 +13,9 @@ repos:
       additional_dependencies:
         - torch
         - torchvision
+        - fastapi
+        - httpx
+        - tifffile
+        - python-multipart
       language: python
       pass_filenames: false

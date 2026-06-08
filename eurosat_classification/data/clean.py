@@ -19,5 +19,6 @@ def clean_sealake_folder() -> None:
         os.remove(os.path.join(ms_sealake_path, f))
 
     print(
-        f"Removed {len(bombay_files)} bombay files and {len(jakarta_files)} jakarta files from SeaLake"
+        f"Removed {len(bombay_files)} bombay files and {len(jakarta_files)} "
+        f"jakarta files from SeaLake"
     )
