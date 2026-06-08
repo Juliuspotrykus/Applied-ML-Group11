@@ -1,3 +1,20 @@
+"""This script trains the final CNN model for a given modality (rgb or ms) using the best
+hyperparameters from tuning (stored in BEST_PARAMS). It also holds the shared
+config builder (build_config_from_params) reused by the other training scripts.
+
+It has two modes. The default mode trains on the train set, evaluates on the
+val set, and saves the model plus loss/F1 curves. The --final mode trains on
+the combined train+val set, evaluates on the test set, and saves
+a confusion matrix.
+
+Usage:
+    # Train on train, evaluate on val:
+    python -m eurosat_classification.train.run_training ms --epochs 30
+
+    # Train on train+val, evaluate on test (epochs from early stopping during tuning are rgb: 25 and ms: 22):
+    python -m eurosat_classification.train.run_training ms --final --epochs 22
+"""
+
 import argparse
 from pathlib import Path
 
@@ -21,18 +38,24 @@ KERNEL_OPTIONS = {
     "multi_3_5_7_9": [Kernel(3), Kernel(5), Kernel(7), Kernel(9)],
 }
 
-# Keep in sync with tune.py: channel counts are capped during tuning, so the
-# final config must apply the same cap to reproduce the tuned architecture.
 MAX_CHANNELS = 512
 
 
 def build_config_from_params(image_type: str, params: dict) -> CNNConfig:
+    """Builds a CNNConfig from the given parameters.
+
+    Args:
+        image_type (str): The type of image -> "rgb" or "ms".
+        params (dict): The parameters for configuring the CNN.
+
+    Returns:
+        CNNConfig: The configured CNN model.
+    """
     n_blocks = params["n_conv_blocks"]
     base = params["base_channels"]
 
     conv_blocks = []
     for i in range(n_blocks):
-        # Support both per-block keys (kernels_block_0, ...) and a single "kernels" key
         kernel_choice = params.get(
             f"kernels_block_{i}", params.get("kernels", "single_3")
         )
@@ -60,9 +83,14 @@ def build_config_from_params(image_type: str, params: dict) -> CNNConfig:
 
 
 def plot_history(history: dict, output_path: Path) -> None:
+    """Plots the training history and saves it to a file. If validation F1 is available, it plots train loss, val loss, and val F1.
+        Otherwise it plots train loss and test loss.
+
+    Args:
+        history (dict): A dictionary containing the training history.
+        output_path (Path): The path where the plot will be saved.
+    """
     epochs = range(1, len(history["train_loss"]) + 1)
-    # The val run tracks val loss + per-epoch val F1; the final run tracks test
-    # loss only (its F1 is computed once at the end, not per epoch).
     other_loss = "val_loss" if history["val_loss"] else "test_loss"
     has_val_f1 = bool(history["val_f1"])
 
@@ -101,6 +129,17 @@ def train_from_params(
     patience: int = 5,
     batch_size: int = 64,
 ) -> None:
+    """Trains a CNN on the train set and evaluates on the val set, using the specified hyperparameters,
+       and saves the model and training history plot to files.""
+
+    Args:
+        image_type (str): The type of image -> "rgb" or "ms".
+        params (dict): The parameters for configuring the CNN.
+        output (str | Path): The path where the model and plot will be saved.
+        epochs (int, optional): The number of epochs to train for. Defaults to 30.
+        patience (int, optional): The number of epochs to wait for improvement before stopping. Defaults to 5.
+        batch_size (int, optional): The batch size for training. Defaults to 64.
+    """
     config = build_config_from_params(image_type, params)
     train_loader, val_loader, _ = create_dataloaders(image_type, batch_size=batch_size)
 
@@ -125,8 +164,13 @@ def train_from_params(
 
 
 def plot_confusion_matrix(labels: list, preds: list, output_path: Path) -> None:
-    # normalize=None -> raw counts. values_format="d" prints them as integers
-    # (the default uses scientific notation for large cells).
+    """Plots the confusion matrix and saves it to a file.
+
+    Args:
+        labels (list): The true labels.
+        preds (list): The predicted labels.
+        output_path (Path): The path where the plot will be saved.
+    """
     fig, ax = plt.subplots(figsize=(12, 10))
     ConfusionMatrixDisplay.from_predictions(
         labels,
@@ -150,7 +194,18 @@ def train_final_from_params(
     epochs: int,
     batch_size: int = 64,
 ) -> float:
-    """Final fit: train on train+val and evaluate once on the test set."""
+    """Trains on the combined train+val set and evaluates on the test set, using the specified hyperparameters,
+
+    Args:
+        image_type (str): The type of image -> "rgb" or "ms".
+        params (dict): The parameters for configuring the CNN.
+        output (str | Path): The path where the model and plot will be saved.
+        epochs (int): The number of epochs to train for.
+        batch_size (int, optional): The batch size for training. Defaults to 64.
+
+    Returns:
+        float: The test macro F1 score.
+    """
 
     from .compare_models import make_trainval_loader
 
@@ -183,6 +238,7 @@ def train_final_from_params(
     return test_f1
 
 
+# Best parameters taken from the tuning results
 BEST_PARAMS = {
     "ms": {
         "n_conv_blocks": 4,

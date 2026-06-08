@@ -1,3 +1,19 @@
+"""This script implements ablation studies for the different bands in the ms dataset. 
+For each requested band combination it drops those bands from the input, 
+retrains the model from scratch on the combined train+val set, evaluates
+on the test set, and reports the mean and standard error of the test macro F1
+across several runs.
+
+Usage:
+    # All bands:
+    python -m eurosat_classification.train.ablation
+
+    # Drop a single band (B01) and a pair of bands (B09, B10) as separate experiments, 
+    # with 5 runs of 30 epochs each:
+    python -m eurosat_classification.train.ablation \\
+        --drop B01 --drop B09 B10 --n-runs 5 --epochs 30 --batch-size 64
+"""
+
 import argparse
 import math
 

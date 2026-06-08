@@ -1,3 +1,13 @@
+"""This script compares the RGB and MS models over repeated training runs.
+For each image type it retrains the model from scratch on the combined
+train+val set, evaluates on the test set, and prints the mean and standard
+error of the test macro F1 across several runs.
+
+Usage:
+    python -m eurosat_classification.train.compare_models \\
+        --n-runs 10 --epochs 30 --batch-size 64
+"""
+
 import argparse
 import math
 
