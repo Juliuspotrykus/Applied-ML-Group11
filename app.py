@@ -17,38 +17,50 @@ def main():
     submit  = st.button("Submit image", disabled=image is None)
 
     if submit:
-        file = {'image': (image.name, image, image.type)}
+        st.session_state.image_name = image.name
+        st.session_state.image = image
+        st.session_state.image_type = image.type
+
+        file = {'image': (st.session_state.image_name, st.session_state.image, st.session_state.image_type)}
         
         try:
-            prediction_response = requests.post(f"{API_ENDPOINT}/predict_{endpoint}", files=file).json()
+            prediction_response = requests.post(f"{API_ENDPOINT}predict_{endpoint}", files=file).json()
             top_pred = prediction_response["predictions"][0]
 
-            st.success(f"Predicted class: {top_pred["class_pred"]}\n, Confidence in prediction: {top_pred["confidence"]:.1%}")
-            
+            st.session_state.top_pred = top_pred["class_pred"]
+            st.session_state.top_pred_conf = top_pred["confidence"]
         except requests.exceptions.HTTPError as e:
-            prediction = None
             st.error(e)
 
-        st.write("Explainability of prediction with GradCAM & Integrated Gradients")
+    if "top_pred" in st.session_state:
+        st.success(f"**Predicted class**: {st.session_state.top_pred} | **Confidence in prediction**: {st.session_state.top_pred_conf:.1%}")
+        st.markdown("**Explainability of prediction with GradCAM & Integrated Gradients**")
 
-        target_class = st.text_input("Target class (optional, e.g. 'Forest' or '1')")
-        n_steps = st.slider("Integrated Gradients interpolation steps (optional)", 20, 300, 10)
+        target_class = st.text_input("Target class (optional, e.g. 'Forest' or '1')", value=st.session_state.top_pred)
+        n_steps = st.slider("Integrated Gradients interpolation steps (optional)", min_value=20, max_value=300, value=50)
 
-        target = int(target_class) if target_class.isdigit() else target_class
 
-        xai_parameters = {
-            "n_steps": n_steps,
-            "target": target,
-        }
+        if st.button("Explain the prediction!"):
+            target = int(target_class) if target_class.isdigit() else target_class
 
-        submit.seek(0)
+            xai_parameters = {
+                "n_steps": n_steps,
+                "target_class": target,
+            }
 
-        xai_response = requests.post(f"{API_ENDPOINT}/explain_{endpoint}", files=file, params=xai_parameters)
+            # submit.seek(0)
+            if image_type == "RGB" :
+                file = {'image': (st.session_state.image_name, st.session_state.image.getvalue(), st.session_state.image_type)}
+            elif image_type == "Multispectral (13-channel)":
+                file = {'image': (st.session_state.image_name, st.session_state.image.getvalue(), "image/tiff")} 
 
-        if xai_response.ok:
-            st.image(Image.open(io.BytesIO(xai_response.content)))
-        else:
-            st.error(xai_response.json().get("detail", "Explanation failed"))
+            xai_response = requests.post(f"{API_ENDPOINT}explain_{endpoint}", files=file, params=xai_parameters)
+
+            if xai_response.ok:
+                st.image(Image.open(io.BytesIO(xai_response.content)))
+            else:
+                st.write("XAI response:", xai_response.text)  # use .text not .json() on failure
+                st.error(xai_response.text)
 
 
 
