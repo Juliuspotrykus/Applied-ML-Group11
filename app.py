@@ -7,6 +7,16 @@ API_ENDPOINT = 'http://localhost:8000/'
 
 
 def main():
+    """
+    Sets up Streamlit demo for using our final model and explainability modules
+    through API in a user-friendly UI.
+
+    User chooses between RGB and MS and then submits an image.
+    Streamlit shows the top prediction and its associated confidence.
+
+    User can enter a target class for explanation and n_steps for integrated
+    gradients, and explainability images for entered image are shown.
+    """
     st.title("Satellite Image Classification")
 
     image_type = st.radio("Image Type", ["RGB", "Multispectral (13-channel)"])
