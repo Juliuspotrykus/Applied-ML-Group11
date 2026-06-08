@@ -4,8 +4,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
+from sklearn.metrics import ConfusionMatrixDisplay
 
 from ..data.datasets import create_dataloaders
+from ..data.label_map import label_map
 from ..models.cnn import CNNConfig, ConvBlockConfig, Kernel
 from .train import evaluate, train_model
 
@@ -59,20 +61,31 @@ def build_config_from_params(image_type: str, params: dict) -> CNNConfig:
 
 def plot_history(history: dict, output_path: Path) -> None:
     epochs = range(1, len(history["train_loss"]) + 1)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+    # The val run tracks val loss + per-epoch val F1; the final run tracks test
+    # loss only (its F1 is computed once at the end, not per epoch).
+    other_loss = "val_loss" if history["val_loss"] else "test_loss"
+    has_val_f1 = bool(history["val_f1"])
+
+    fig, axes = plt.subplots(
+        1, 2 if has_val_f1 else 1, figsize=(12 if has_val_f1 else 6, 4)
+    )
+    ax1 = axes[0] if has_val_f1 else axes
 
     ax1.plot(epochs, history["train_loss"], label="Train loss")
-    ax1.plot(epochs, history["val_loss"], label="Val loss")
+    ax1.plot(
+        epochs, history[other_loss], label=other_loss.replace("_", " ").capitalize()
+    )
     ax1.set_xlabel("Epoch")
     ax1.set_ylabel("Loss")
     ax1.set_title("Loss curves")
     ax1.legend()
 
-    ax2.plot(epochs, history["val_f1"], color="tab:green", label="Val F1")
-    ax2.set_xlabel("Epoch")
-    ax2.set_ylabel("Macro F1")
-    ax2.set_title("Validation F1")
-    ax2.legend()
+    if has_val_f1:
+        axes[1].plot(epochs, history["val_f1"], color="tab:green", label="Val F1")
+        axes[1].set_xlabel("Epoch")
+        axes[1].set_ylabel("Macro F1")
+        axes[1].set_title("Validation F1")
+        axes[1].legend()
 
     plt.tight_layout()
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -111,6 +124,22 @@ def train_from_params(
     plot_history(history, output.with_suffix(".png"))
 
 
+def plot_confusion_matrix(labels: list, preds: list, output_path: Path) -> None:
+    # normalize="true" -> each row sums to 1, so the diagonal is per-class
+    # recall. Use normalize=None for raw counts instead.
+    ConfusionMatrixDisplay.from_predictions(
+        labels,
+        preds,
+        display_labels=list(label_map.values()),
+        xticks_rotation=45,
+        normalize="true",
+    )
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Saved plot: {output_path.resolve()}")
+
+
 def train_final_from_params(
     image_type: str,
     params: dict,
@@ -125,21 +154,29 @@ def train_final_from_params(
     config = build_config_from_params(image_type, params)
     trainval_loader, test_loader = make_trainval_loader(image_type, batch_size)
 
-    model, _ = train_model(
+    model, _, history = train_model(
         config,
         trainval_loader,
         val_loader=None,
         lr=params["lr"],
         epochs=epochs,
+        track_history=True,
+        eval_loader=test_loader,
     )
 
-    test_loss, test_f1 = evaluate(model, test_loader, nn.CrossEntropyLoss())
+    test_loss, test_f1, test_labels, test_preds = evaluate(
+        model, test_loader, nn.CrossEntropyLoss(), return_preds=True
+    )
     print(f"Test loss: {test_loss:.4f}, Test macro F1: {test_f1:.4f}")
 
     output = Path(output)
-    output.parent.mkdir(parents=True, exist_ok=True)
     torch.save(model, output)
     print(f"Saved model: {output.resolve()}")
+
+    plot_history(history, output.with_suffix(".png"))
+    plot_confusion_matrix(
+        test_labels, test_preds, output.with_name(f"{output.stem}_confusion.png")
+    )
     return test_f1
 
 

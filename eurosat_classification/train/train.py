@@ -8,7 +8,7 @@ from sklearn.metrics import f1_score
 from ..models.cnn import CNN, CNNConfig
 
 
-def evaluate(model, loader, loss_fn):
+def evaluate(model, loader, loss_fn, return_preds=False):
     model.eval()
     device = next(model.parameters()).device
     total_loss = 0
@@ -20,7 +20,11 @@ def evaluate(model, loader, loss_fn):
             total_loss += loss_fn(outputs, labels).item()
             all_preds.extend(outputs.argmax(dim=1).tolist())
             all_labels.extend(labels.tolist())
-    return total_loss / len(loader), f1_score(all_labels, all_preds, average="macro")
+    loss = total_loss / len(loader)
+    f1 = f1_score(all_labels, all_preds, average="macro")
+    if return_preds:
+        return loss, f1, all_labels, all_preds
+    return loss, f1
 
 
 def train_model(
@@ -32,6 +36,7 @@ def train_model(
     patience: int = 5,
     check_prune: Callable | None = None,
     track_history: bool = False,
+    eval_loader=None,
 ):
     """Train a CNN.
 
@@ -49,7 +54,9 @@ def train_model(
     best_state = None
     epochs_no_improve = 0
     history: dict = (
-        {"train_loss": [], "val_loss": [], "val_f1": []} if track_history else {}
+        {"train_loss": [], "val_loss": [], "val_f1": [], "test_loss": []}
+        if track_history
+        else {}
     )
 
     for epoch in range(epochs):
@@ -66,9 +73,15 @@ def train_model(
         train_loss /= len(train_loader)
 
         if val_loader is None:
+            msg = f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}"
             if track_history:
                 history["train_loss"].append(train_loss)
-            print(f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}")
+                # eval_loader is just for history and plotting only
+                if eval_loader is not None:
+                    test_loss, _ = evaluate(model, eval_loader, loss_fn)
+                    history["test_loss"].append(test_loss)
+                    msg += f", Test loss: {test_loss:.4f}"
+            print(msg)
             continue
 
         val_loss, val_f1 = evaluate(model, val_loader, loss_fn)
