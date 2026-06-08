@@ -3,9 +3,8 @@ import random
 import unittest
 
 from fastapi.testclient import TestClient
-from PIL import Image
-
 from main import app
+from PIL import Image
 
 
 class APITest(unittest.TestCase):
@@ -36,3 +35,14 @@ class APITest(unittest.TestCase):
         # Response should have a predictions field containing
         # 10 confidence values, one for each possible class
         assert len(data["predictions"]) == 10
+
+    def test_rgb_error(self):
+        """Tests error cases in RGB prediction endpoint"""
+        # Send a string with the image argument
+        response = self.client.post(
+            "/predict_rgb",
+            files={"image": ("string")},
+        )
+
+        # POST request should throw an error.
+        assert response.status_code == 415
