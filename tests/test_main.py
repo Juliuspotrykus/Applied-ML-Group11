@@ -70,15 +70,13 @@ class APITest(unittest.TestCase):
         assert response.status_code == 200
 
         data = response.json()
-
-        assert "predictions" in data
         assert len(data["predictions"]) == 10
 
     def test_ms_error(self):
         """Tests error cases in MS prediction endpoint"""
         # Send a string with the image argument
         response = self.client.post(
-            "/predict_rgb",
+            "/predict_ms",
             files={"image": ("string")},
         )
 
@@ -103,3 +101,21 @@ class APITest(unittest.TestCase):
         # POST request should throw an error indicating
         # that the image has the wrong number of bands.
         assert response.status_code == 422
+
+    def test_rgb_explainability(self):
+        """Tests for RGB explainability endpoint"""
+        # Create a dummy RGB image
+        color = tuple(random.randint(0, 255) for _ in range(3))
+        img = Image.new("RGB", (64, 64), color=color)
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG")
+
+        # Response should throw no errors.
+        response = self.client.post(
+            "/explain_rgb",
+            files={"image": ("test.jpg", buf)},
+        )
+
+        # Check for correct response and look for image output
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "image/png"
