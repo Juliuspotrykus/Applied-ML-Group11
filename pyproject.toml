@@ -19,4 +19,5 @@ dependencies = [
     "torchvision>=0.26.0",
     "uvicorn>=0.48.0",
     "opencv-python-headless",
+    "streamlit>=1.58.0",
 ]
