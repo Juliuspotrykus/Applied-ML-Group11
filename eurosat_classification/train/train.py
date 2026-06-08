@@ -61,12 +61,12 @@ def train_model(
             loss = loss_fn(model(images), labels)
             loss.backward()
             optimizer.step()
-            if track_history:
-                train_loss += loss.item()
+            train_loss += loss.item()
+
+        train_loss /= len(train_loader)
 
         if val_loader is None:
             if track_history:
-                train_loss /= len(train_loader)
                 history["train_loss"].append(train_loss)
             print(f"Epoch {epoch + 1}, Train loss: {train_loss:.4f}")
             continue
@@ -74,7 +74,6 @@ def train_model(
         val_loss, val_f1 = evaluate(model, val_loader, loss_fn)
 
         if track_history:
-            train_loss /= len(train_loader)
             history["train_loss"].append(train_loss)
             history["val_loss"].append(val_loss)
             history["val_f1"].append(val_f1)
