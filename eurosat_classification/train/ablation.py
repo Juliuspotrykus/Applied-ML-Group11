@@ -14,22 +14,48 @@ BAND_INDEX = {name.split()[0]: i for i, name in enumerate(MS_BAND_NAMES)}
 
 
 class BandSubset(Dataset):
-    """Wraps a dataset and keeps only the given channel indices of each image."""
+    """Dataset wrapper that keeps only a subset of the input channels (bands) used for the ablation studies."""
 
     def __init__(self, base: Dataset, keep_idx: list[int]) -> None:
+        """Initializes the BandSubset dataset.
+        Args:
+            base (Dataset): The base dataset class.
+            keep_idx (list[int]): The indices of the channels to keep.
+        """
         self.base = base
         self.keep_idx = keep_idx
 
     def __len__(self) -> int:
+        """Returns the length of the dataset.
+
+        Returns:
+            int: The number of samples in the dataset.
+        """
         return len(self.base)
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        """Returns the item at the specified index.
+
+        Args:
+            idx (int): The index of the item to retrieve.
+
+        Returns:
+            tuple[torch.Tensor, int]: The image and label at the specified index.
+        """
         img, label = self.base[idx]
         return img[self.keep_idx], label
 
 
-def make_loaders(keep_idx: list[int], batch_size: int):
-    """Build train+val and test loaders that give only the kept bands."""
+def make_loaders(keep_idx: list[int], batch_size: int) -> tuple[DataLoader, DataLoader]:
+    """Creates DataLoaders for the combined train+val dataset and the test set, keeping only the specified channels.
+
+    Args:
+        keep_idx (list[int]): The indices of the channels to keep.
+        batch_size (int): The batch size for the data loaders.
+
+    Returns:
+        tuple[DataLoader, DataLoader]: The train+val and test data loaders.
+    """
     train_loader, val_loader, test_loader = create_dataloaders("ms", batch_size)
     trainval_ds = BandSubset(
         ConcatDataset([train_loader.dataset, val_loader.dataset]), keep_idx
@@ -48,7 +74,18 @@ def make_loaders(keep_idx: list[int], batch_size: int):
 def run(
     keep_idx: list[int], n_runs: int, epochs: int, batch_size: int
 ) -> tuple[float, float]:
-    """Train n_runs times on the kept bands, return (mean test F1, sem)."""
+    """Runs the training and evaluation for the specified channel subset, number of runs, epochs, and batch size,
+        and returns the mean and standard error of the mean of the test F1 scores.
+
+    Args:
+        keep_idx (list[int]): The indices of the channels to keep.
+        n_runs (int): The number of runs to perform.
+        epochs (int): The number of epochs to train for each run.
+        batch_size (int): The batch size for the data loaders.
+
+    Returns:
+        tuple[float, float]: The mean and standard error of the mean of the test F1 scores.
+    """
     params = BEST_PARAMS["ms"]
     trainval_loader, test_loader = make_loaders(keep_idx, batch_size)
 
@@ -70,12 +107,15 @@ def run(
 
 
 def main() -> None:
+    """Main function to run the MS band ablation study. Parses command-line arguments for the bands to drop, number of runs,
+    epochs, and batch size. When --drop is not added it trains on all bands, otherwise it runs each specified combination of dropped bands. In both cases it reports the mean and
+    standard error of the mean of the test F1 scores.
+    """
     parser = argparse.ArgumentParser(description="MS band ablation")
     parser.add_argument(
         "--drop",
         action="append",
         nargs="+",
-        required=True,
     )
     parser.add_argument("--n-runs", type=int, default=5)
     parser.add_argument("--epochs", type=int, default=30)
@@ -87,14 +127,18 @@ def main() -> None:
             "--n-runs must be at least 2 to compute a standard error of the mean"
         )
 
+    if not args.drop:
+        print("=== all bands ===")
+        mean, sem = run(
+            list(BAND_INDEX.values()), args.n_runs, args.epochs, args.batch_size
+        )
+        print("\n=== results (test macro F1) ===")
+        print(f"all bands: {mean:.4f} +/- {sem:.4f}")
+        return
+
     unknown = [b for combo in args.drop for b in combo if b not in BAND_INDEX]
     if unknown:
         parser.error(f"Unknown bands: {unknown}")
-
-    print("=== all bands ===")
-    all_mean, all_sem = run(
-        list(BAND_INDEX.values()), args.n_runs, args.epochs, args.batch_size
-    )
 
     results = []
     for combo in args.drop:
@@ -104,9 +148,8 @@ def main() -> None:
         results.append((combo, mean, sem))
 
     print("\n=== results (test macro F1) ===")
-    print(f"all bands: {all_mean:.4f} +/- {all_sem:.4f}")
     for combo, mean, sem in results:
-        print(f"drop {combo}: {mean:.4f} +/- {sem:.4f}  (diff {mean - all_mean:+.4f})")
+        print(f"drop {combo}: {mean:.4f} +/- {sem:.4f}")
 
 
 if __name__ == "__main__":

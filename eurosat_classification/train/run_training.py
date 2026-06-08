@@ -125,18 +125,21 @@ def train_from_params(
 
 
 def plot_confusion_matrix(labels: list, preds: list, output_path: Path) -> None:
-    # normalize="true" -> each row sums to 1, so the diagonal is per-class
-    # recall. Use normalize=None for raw counts instead.
+    # normalize=None -> raw counts. values_format="d" prints them as integers
+    # (the default uses scientific notation for large cells).
+    fig, ax = plt.subplots(figsize=(12, 10))
     ConfusionMatrixDisplay.from_predictions(
         labels,
         preds,
         display_labels=list(label_map.values()),
         xticks_rotation=45,
-        normalize="true",
+        normalize=None,
+        values_format="d",
+        ax=ax,
     )
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches="tight")
-    plt.close()
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
     print(f"Saved plot: {output_path.resolve()}")
 
 
