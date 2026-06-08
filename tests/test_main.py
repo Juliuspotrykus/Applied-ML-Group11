@@ -30,6 +30,17 @@ class APITest(unittest.TestCase):
         tifffile.imwrite(buf, img)
         self.ms_buf = buf
 
+        # Create dummy TIF image with wrong number of bands
+        # Generate image with incorrect number of bands
+        img = np.random.randint(
+            low=0,
+            high=10000,
+            size=(64, 64, 3),
+        )
+        buf = io.BytesIO()
+        tifffile.imwrite(buf, img)
+        self.ms_buf_incorrect = buf
+
     def test_predict_rgb(self):
         """Test for RGB prediction endpoint"""
         response = self.client.post(
@@ -79,19 +90,9 @@ class APITest(unittest.TestCase):
         # POST request should throw an error.
         assert response.status_code == 415
 
-        # Generate image with incorrect number of bands
-        img = np.random.randint(
-            low=0,
-            high=10000,
-            size=(64, 64, 3),
-        )
-
-        buf = io.BytesIO()
-        tifffile.imwrite(buf, img)
-
         response = self.client.post(
             "/predict_ms",
-            files={"image": ("test.tif", buf)},
+            files={"image": ("test.tif", self.ms_buf_incorrect)},
         )
 
         # POST request should throw an error indicating
@@ -127,3 +128,38 @@ class APITest(unittest.TestCase):
         )
 
         assert response.status_code == 400
+
+    def test_ms_explainability(self):
+        """Tests for MS explainability endpoint"""
+        # Response should throw no errors.
+        response = self.client.post(
+            "/explain_ms",
+            files={"image": ("test.jpg", self.ms_buf)},
+        )
+
+        # Check for correct response and look for image output
+        assert response.status_code == 200
+        assert response.headers["content-type"] == "image/png"
+
+    def test_ms_explainability_errors(self):
+        """Test errors for MS explainability endpoint"""
+        # Send incorrect target class to endpoint.
+        response = self.client.post(
+            "/explain_ms",
+            files={"target_class": 14, "image": ("test.jpg", "string")},
+        )
+        assert response.status_code == 400
+
+        # Send string instead of image to endpoint.
+        response = self.client.post(
+            "/explain_ms",
+            files={"image": ("test.jpg", "string")},
+        )
+        assert response.status_code == 415
+
+        # Send non-TIFF image to endpoint:
+        response = self.client.post(
+            "/explain_ms",
+            files={"image": ("test.jpg", self.rgb_buf)}
+        )
+        assert response.status_code == 415

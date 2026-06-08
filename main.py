@@ -679,7 +679,7 @@ async def explain_ms(
         baseline = torch.zeros_like(preprocessed)
         array_image = _scaled_rgb_colour(raw)
 
-    except (tifffile.tifffile.TiffFileError, OSError):
+    except (tifffile.tifffile.TiffFileError, OSError, RuntimeError):
         raise HTTPException(
             status_code=415,
             detail="Invalid image extension specified. "
