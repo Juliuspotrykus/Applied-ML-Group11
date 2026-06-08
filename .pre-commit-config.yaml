@@ -17,5 +17,7 @@ repos:
         - httpx
         - tifffile
         - python-multipart
+        - matplotlib
+        - grad-cam
       language: python
       pass_filenames: false

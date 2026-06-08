@@ -2,6 +2,7 @@ import io
 from typing import List
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import PIL
 import tifffile
@@ -12,8 +13,6 @@ from eurosat_classification.data.preprocessors import normalize_MS_img
 from eurosat_classification.features.gradcam import _scaled_rgb_colour, gradcam
 from eurosat_classification.features.integrated_gradients import (
     integrated_gradients,
-    load_ms_ig,
-    load_rgb_ig,
     visualise_ms,
     visualise_rgb,
 )
@@ -27,10 +26,9 @@ from starlette.responses import RedirectResponse
 from torchvision import transforms
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
 
-## Classes for prediction API
+# Classes for prediction API
 class ClassConfidence(BaseModel):
     class_pred: str
     confidence: float
@@ -61,15 +59,15 @@ class ClassPredictions(BaseModel):
     }
 
 
-## Define API app
+# Define API app
 app = FastAPI(
     title="Satellite Image Classifier",
     summary="""An API endpoint to classify satellite images into one of ten
             classes using a CNN. Trained using the EuroSAT dataset.""",
     description="""
 # An API endpoint to access CNN classifiers trained on the EuroSAT dataset.
-Two models are accessible; a baseline one trained on RGB images (3-dimensional),
-and one trained on multispectral images (13-dimensional).
+Two models are accessible; a baseline one trained on RGB images
+(3-dimensional) and one trained on multispectral images (13-dimensional).
 
 Ten classes into which satellite images can be classified and their index:
 | Index | Class Name |
@@ -85,16 +83,16 @@ Ten classes into which satellite images can be classified and their index:
 | 8 | River |
 | 9 | SeaLake |
 
-## Model Usage - RGB
+# Model Usage - RGB
 This model is trained on 64x64 RGB images of Sentinel-2 satellite data.
 Expected input is a three-channel RGB satellite image, preferably 64 by 64
 pixels, although other formats are supported. The ground sampling distance
 should be 10 meters.
 
-## Model Usage - Multi-spectral (MS)
+# Model Usage - Multi-spectral (MS)
 This model is trained on 64x64 multispectral images of Sentinel-2 satellite
 data. Expected input is a 13-channel multispectral satellite image. See table
-below for descriptions of the 13 bands. The ground sampling distanceshould be 
+below for descriptions of the 13 bands. The ground sampling distanceshould be
 10 meters.
 
 | Index | Band | Name |
@@ -124,7 +122,7 @@ model_rgb.eval()
 model_ms.eval()
 
 
-## Functions for prediction API
+# Functions for prediction API
 def process_image(file: UploadFile, image_type: str) -> torch.Tensor:
     """
     Pre-processes an image given by a user.
@@ -171,21 +169,24 @@ def model_predict(model: CNN, image: torch.Tensor) -> ClassPredictions:
         confs = model(image).detach()[0]
     confs = F.softmax(confs, dim=0)
     class_confs = [
-        ClassConfidence(class_pred=label_map[i], confidence=round(float(conf), 3))
+        ClassConfidence(
+            class_pred=label_map[i], confidence=round(float(conf), 3)
+        )
         for i, conf in enumerate(confs)
     ]
     class_confs = sorted(class_confs, key=lambda x: x.confidence, reverse=True)
     return ClassPredictions(predictions=class_confs)
 
 
-## Functions for XAI API
+# Functions for XAI API
 def parse_target(target_class: int | str | None = None) -> int | None:
     """
     Parse target class for explainability from integer index or string.
     Default is None, for which explanation will be given for predicted class.
 
     Args:
-        target_class (int | str | None, optional): Target class to explain entered by user.
+        target_class (int | str | None, optional): Target class to explain
+                                                   entered by user.
                                                    Defaults to None.
 
     Raises:
@@ -305,9 +306,11 @@ def ig_explain(
     Args:
         raw (torch.Tensor): [3, H, W] float tensor in [0, 1]
         preprocessed (torch.Tensor): Preprocessed input [C, H, W].
-        baseline (torch.Tensor): Reference input [C, H, W], typically all-zeros.
+        baseline (torch.Tensor): Reference input [C, H, W],
+        typically all-zeros.
         predicted_class (int): Class predicted by the model.
-        target_class (int | None): Class being explained. Defaults to predicted_class if None.
+        target_class (int | None): Class being explained.
+        Defaults to predicted_class if None.
         n_steps (int): Number of interpolation steps (more = more accurate).
         image_type (str): File type. Options are "RGB" or "MS".
 
@@ -368,11 +371,14 @@ def gradcam_explain(
             model_ms, img_tensor, img_array, target_class
         )
     else:
-        raise ValueError(f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'.")
+        raise ValueError(
+            f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'."
+        )
 
     figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
     figure.suptitle(
-        f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}"
+        f"GradCAM | Predicted: {label_map[predicted_class]} | \
+        Explaining: {label_map[target_class]}"
     )
 
     ax1.imshow(img_array)
@@ -380,14 +386,15 @@ def gradcam_explain(
     ax1.axis("off")
     ax2.imshow(gradcam_visualization)
     ax2.set_title(
-        "GradCAM heatmap (overlaid)\nRed = most influential, Blue = least influential"
+        "GradCAM heatmap (overlaid)\nRed = most influential, "
+        "Blue = least influential"
     )
     ax2.axis("off")
 
     return figure
 
 
-## API endpoints
+# API endpoints
 @app.get("/", description="Root endpoint that redirects to API documentation.")
 async def root():
     return RedirectResponse(url="/docs")
@@ -503,9 +510,11 @@ async def predict_ms(
 # Explainability for RGB (i.e. baseline) model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_rgb",
-    summary="Provide explainability for RGB model on input image for desired class.",
+    summary="Provide explainability for RGB model on input image "
+    "for desired class.",
     description="RGB explainability endpoint to give insight into model "
-    "responses for RGB inputs. Requests should be of the format multipart/form-data, "
+    "responses for RGB inputs. Requests should be of the format "
+    "multipart/form-data, "
     "and include an image sent using the applicable 'image' field. The given "
     "image should be a three-channel RGB satellite image using a 10m ground "
     "sampling distance. That is, the distance between the center of two "
@@ -532,7 +541,8 @@ async def predict_ms(
             "for RGB input",
         },
         400: {
-            "description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."
+            "description": "Invalid `target_class`. "
+            "Must be an integer 0-9 or a class name e.g. `Forest`."
         },
         415: {
             "description": "Invalid file format. Expected an RGB JPEG or PNG."
@@ -594,13 +604,15 @@ async def explain_rgb(
 # Explainability for MS model - GradCAM & Integrated Gradients
 @app.post(
     "/explain_ms",
-    summary="Provide explainability for MS model on input image for desired class.",
+    summary="Provide explainability for MS model on input image "
+    "for desired class.",
     description="MS explainability endpoint to give insight into model "
-    "responses for MS inputs. Requests should be of the format multipart/form-data, "
+    "responses for MS inputs. Requests should be of the format "
+    "multipart/form-data, "
     "and include an image sent using the applicable 'image' field. The given "
     "image should be a thirteen-channel multispectral satellite image using a "
-    "10m ground sampling distance. That is, the distance between the center of two "
-    "consecutive pixels is 10m when measured on the ground. Optionally, a "
+    "10m ground sampling distance. That is, the distance between the center of"
+    "two consecutive pixels is 10m when measured on the ground. Optionally, a"
     "target class may be included in the request. This should either be an "
     "integer between 0 and 9 included, or a class name as written in the "
     "table above. When no target class is provided, the explanation of the "
@@ -611,18 +623,20 @@ async def explain_rgb(
     "a double panel: on the left, the Integrated Gradients explanation is "
     "shown (per-band and aggregated) alongside the original input, where "
     "brighter colors indicate more influential pixels; on the right, the "
-    "GradCAM explanation is shown alongside the original input, and red colors "
-    "indicate more influential pixels.",
-    response_description="Returns a side-by-side figure with Integrated Gradients (left) "
-    "and GradCAM (right) for the specified target class. "
+    "GradCAM explanation is shown alongside the original input, "
+    "and red colors indicate more influential pixels.",
+    response_description="Returns a side-by-side figure with Integrated "
+    "Gradients (left) and GradCAM (right) for the specified target class. "
     "The Integrated Gradients panel contains 15 heatmaps: \n"
     " - Cell 0: RGB composite (R=B4, G=B3, B=B2) for visual context."
-    " - Cells 1-13: Per-band attribution maps using a diverging red/blue colormap:"
+    " - Cells 1-13: Per-band attribution maps using a diverging red/blue "
+    "colormap:"
     "       Red = pushed model toward the class"
     "       Blue = pushed model away from the class"
-    " - Cell 14: Aggregate attribution (sum of absolute values across all bands)."
-    "The GradCAM panel shows the original image alongside the GradCAM heatmap overlaid: "
-    "red = most influential regions, blue = least influential.",
+    " - Cell 14: Aggregate attribution (sum of absolute values across all "
+    "bands)."
+    "The GradCAM panel shows the original image alongside the GradCAM heatmap "
+    "overlaid: red = most influential regions, blue = least influential.",
     response_class=StreamingResponse,
     responses={
         200: {
@@ -631,10 +645,12 @@ async def explain_rgb(
             "for MS input",
         },
         400: {
-            "description": "Invalid `target_class`. Must be an integer 0-9 or a class name e.g. `Forest`."
+            "description": "Invalid `target_class`. "
+            "Must be an integer 0-9 or a class name e.g. `Forest`."
         },
         415: {
-            "description": "Invalid file format. Expected a 13-band GeoTIFF (.tif)."
+            "description": "Invalid file format. "
+            "Expected a 13-band GeoTIFF (.tif)."
         },
         422: {"description": "Invalid image shape. Expected a 13-band image."},
     },
@@ -663,7 +679,7 @@ async def explain_ms(
         baseline = torch.zeros_like(preprocessed)
         array_image = _scaled_rgb_colour(raw)
 
-    except (tifffile.tifffile.TiffFileError, OSError):
+    except (tifffile.tifffile.TiffFileError, OSError, RuntimeError):
         raise HTTPException(
             status_code=415,
             detail="Invalid image extension specified. "
