@@ -23,8 +23,7 @@ def main():
             prediction_response = requests.post(f"{API_ENDPOINT}/predict_{endpoint}", files=file).json()
             top_pred = prediction_response["predictions"][0]
 
-            st.success(f"Predicted class: {top_pred["class_pred"]}\n",
-                       "Confidence in prediction: {top_pred["confidence"]:.1%}")
+            st.success(f"Predicted class: {top_pred["class_pred"]}\n, Confidence in prediction: {top_pred["confidence"]:.1%}")
             
         except requests.exceptions.HTTPError as e:
             prediction = None
