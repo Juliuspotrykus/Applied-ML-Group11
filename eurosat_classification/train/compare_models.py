@@ -11,7 +11,9 @@ from .train import evaluate, train_model
 
 def make_trainval_loader(image_type: str, batch_size: int):
     """Build train+validation and test loader."""
-    train_loader, val_loader, test_loader = create_dataloaders(image_type, batch_size)
+    train_loader, val_loader, test_loader = create_dataloaders(
+        image_type, batch_size
+    )
     trainval_ds = ConcatDataset([train_loader.dataset, val_loader.dataset])
     trainval_loader = DataLoader(
         trainval_ds,
@@ -53,7 +55,9 @@ def run_comparison(
 
     scores = []
     for run in range(1, n_runs + 1):
-        f1 = train_once(image_type, params, trainval_loader, test_loader, epochs)
+        f1 = train_once(
+            image_type, params, trainval_loader, test_loader, epochs
+        )
         scores.append(f1)
         print(f"[{image_type}] run {run}/{n_runs}: test F1 = {f1:.4f}")
 

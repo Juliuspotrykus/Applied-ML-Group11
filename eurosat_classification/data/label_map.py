@@ -1,7 +1,7 @@
 label_map = {
     0: "AnnualCrop",
     1: "Forest",
-    2: "HerbaceousVegetation",  
+    2: "HerbaceousVegetation",
     3: "Highway",
     4: "Industrial",
     5: "Pasture",

@@ -99,9 +99,15 @@ def create_dataloaders(
     train_path, val_path, test_path = get_train_val_test_splits()
 
     if image_type == "rgb":
-        train_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=train_path)
-        val_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
-        test_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
+        train_ds = EuroSATRGBDataset(
+            root=Path(path) / "EuroSAT", csv_path=train_path
+        )
+        val_ds = EuroSATRGBDataset(
+            root=Path(path) / "EuroSAT", csv_path=val_path
+        )
+        test_ds = EuroSATRGBDataset(
+            root=Path(path) / "EuroSAT", csv_path=test_path
+        )
     elif image_type == "ms":
         train_ds = EuroSATMSDataset(
             root=Path(path) / "EuroSATallBands",
@@ -119,7 +125,9 @@ def create_dataloaders(
             transform=normalize_MS_img,
         )
     else:
-        raise ValueError("Wrong image types! Possible image types include: rgb and ms")
+        raise ValueError(
+            "Wrong image types! Possible image types include: rgb and ms"
+        )
 
     train_loader = DataLoader(
         train_ds,

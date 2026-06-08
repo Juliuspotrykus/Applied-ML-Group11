@@ -66,23 +66,42 @@ def main():
         description="Dataset-level IG band attribution totals (train set, true-label target).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--model_path", required=True, help="Path to saved model (.pkl)")
+    parser.add_argument(
+        "--model_path", required=True, help="Path to saved model (.pkl)"
+    )
     parser.add_argument("--image_type", required=True, choices=["rgb", "ms"])
     parser.add_argument("--output_dir", default="results/band_attribution")
-    parser.add_argument("--n_steps", type=int, default=50,
-                        help="IG interpolation steps per image.")
-    parser.add_argument("--max_samples", type=int, default=None,
-                        help="Process only this many images (useful for quick smoke-tests).")
-    parser.add_argument("--device", default=None,
-                        help="Torch device (cuda/mps/cpu). Auto-detected if not set.")
-    parser.add_argument("--target_class", type=int, default=None,
-                        help="If set, only process images with this label and explain that class.")
+    parser.add_argument(
+        "--n_steps",
+        type=int,
+        default=50,
+        help="IG interpolation steps per image.",
+    )
+    parser.add_argument(
+        "--max_samples",
+        type=int,
+        default=None,
+        help="Process only this many images (useful for quick smoke-tests).",
+    )
+    parser.add_argument(
+        "--device",
+        default=None,
+        help="Torch device (cuda/mps/cpu). Auto-detected if not set.",
+    )
+    parser.add_argument(
+        "--target_class",
+        type=int,
+        default=None,
+        help="If set, only process images with this label and explain that class.",
+    )
     args = parser.parse_args()
 
     device = args.device or _auto_device()
     print(f"Device:     {device}")
 
-    model = torch.load(args.model_path, map_location=device, weights_only=False)
+    model = torch.load(
+        args.model_path, map_location=device, weights_only=False
+    )
     model.eval()
 
     data_root = Path(get_dataset_path())
@@ -96,15 +115,23 @@ def main():
         )
         band_names = MS_BAND_NAMES
     else:
-        dataset = EuroSATRGBDataset(root=data_root / "EuroSAT", csv_path=train_csv)
+        dataset = EuroSATRGBDataset(
+            root=data_root / "EuroSAT", csv_path=train_csv
+        )
         band_names = RGB_BAND_NAMES
 
-    n = len(dataset) if args.max_samples is None else min(args.max_samples, len(dataset))
+    n = (
+        len(dataset)
+        if args.max_samples is None
+        else min(args.max_samples, len(dataset))
+    )
     print(f"Image type: {args.image_type.upper()}")
     print(f"Split:      train  ({n} images)")
     print(f"n_steps:    {args.n_steps}")
     if args.target_class is not None:
-        print(f"Target class: {args.target_class} (only images with this label)")
+        print(
+            f"Target class: {args.target_class} (only images with this label)"
+        )
 
     results = band_attribution_totals(
         model=model,
@@ -119,8 +146,12 @@ def main():
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    class_suffix = f"_class{args.target_class}" if args.target_class is not None else ""
-    npz_path = out_dir / f"{args.image_type}_train_attribution{class_suffix}.npz"
+    class_suffix = (
+        f"_class{args.target_class}" if args.target_class is not None else ""
+    )
+    npz_path = (
+        out_dir / f"{args.image_type}_train_attribution{class_suffix}.npz"
+    )
     np.savez(
         npz_path,
         positive=results["positive"],
@@ -130,12 +161,17 @@ def main():
     )
     print(f"Saved data: {npz_path.resolve()}")
 
-    class_label = f" / class {args.target_class}" if args.target_class is not None else ""
+    class_label = (
+        f" / class {args.target_class}"
+        if args.target_class is not None
+        else ""
+    )
     plot_band_attribution(
         positive=results["positive"],
         negative=results["negative"],
         band_names=band_names,
-        output_path=out_dir / f"{args.image_type}_train_attribution{class_suffix}.png",
+        output_path=out_dir
+        / f"{args.image_type}_train_attribution{class_suffix}.png",
         title=(
             f"Band attribution — {args.image_type.upper()} / train{class_label} "
             f"(n={results['count']}, steps={args.n_steps})"

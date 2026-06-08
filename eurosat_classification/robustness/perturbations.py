@@ -5,11 +5,11 @@ RGB functions operate on [3, H, W] float tensors in [0, 1].
 MS functions operate on [13, H, W] z-score normalised tensors.
 All functions are pure: they do not modify the input tensor.
 """
+
 from __future__ import annotations
 
 import torch
 import torchvision.transforms.functional as TF
-
 
 # ── RGB perturbations ─────────────────────────────────────────────────────────
 
@@ -53,6 +53,7 @@ def vflip(img: torch.Tensor) -> torch.Tensor:
 
 
 # ── MS perturbations  ─────────────────────────────────────────
+
 
 def rotate_ms(img: torch.Tensor, degrees: float) -> torch.Tensor:
     """Rotate by a fixed angle; border filled with 0 (≈ band mean in z-score space)."""

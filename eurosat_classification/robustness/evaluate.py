@@ -1,4 +1,5 @@
 """Evaluation loop used by the robustness runner."""
+
 from __future__ import annotations
 
 from typing import Callable
@@ -53,8 +54,14 @@ def evaluate(
         dict with keys:
             f1 (float), mean_confidence (float),
     """
-    eval_ds = _PerturbedDataset(dataset, perturb_fn, seed) if perturb_fn is not None else dataset
-    loader = DataLoader(eval_ds, batch_size=batch_size, shuffle=False, num_workers=0)
+    eval_ds = (
+        _PerturbedDataset(dataset, perturb_fn, seed)
+        if perturb_fn is not None
+        else dataset
+    )
+    loader = DataLoader(
+        eval_ds, batch_size=batch_size, shuffle=False, num_workers=0
+    )
 
     all_preds: list[int] = []
     all_labels: list[int] = []

@@ -4,7 +4,9 @@ from .download import get_dataset_path
 
 
 def clean_sealake_folder() -> None:
-    ms_sealake_path = os.path.join(get_dataset_path(), "EuroSATallBands", "SeaLake")
+    ms_sealake_path = os.path.join(
+        get_dataset_path(), "EuroSATallBands", "SeaLake"
+    )
 
     bombay_files = []
     jakarta_files = []

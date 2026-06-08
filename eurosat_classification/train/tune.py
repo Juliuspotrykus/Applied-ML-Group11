@@ -20,7 +20,9 @@ KERNEL_OPTIONS = {
 
 def build_config(trial, image_type):
     n_blocks = trial.suggest_int("n_conv_blocks", 2, 15)
-    base = trial.suggest_categorical("base_channels", [16, 32, 64, 128, 256, 512])
+    base = trial.suggest_categorical(
+        "base_channels", [16, 32, 64, 128, 256, 512]
+    )
     conv_blocks = []
     for i in range(n_blocks):
         kernel_choice = trial.suggest_categorical(
@@ -48,7 +50,9 @@ def build_config(trial, image_type):
         conv_blocks=conv_blocks,
         fc_layers=fc_layers,
         dropout=trial.suggest_float("dropout", 0.2, 0.6),
-        activation=trial.suggest_categorical("activation", ["relu", "gelu", "silu"]),
+        activation=trial.suggest_categorical(
+            "activation", ["relu", "gelu", "silu"]
+        ),
     )
 
 

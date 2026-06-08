@@ -46,7 +46,10 @@ def load_rgb_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
     baseline = torch.zeros_like(image)
     return image, baseline
 
-def load_ms_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+
+def load_ms_ig(
+    path: str | Path,
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """Load a 13-band GeoTIFF as a [13, H, W] float tensor.
 
     Returns (raw, preprocessed, baseline) where raw holds the original
@@ -54,10 +57,13 @@ def load_ms_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tens
     z-score normalised for the model, and baseline is all-zeros in
     normalised space.
     """
-    raw = torch.from_numpy(tifffile.imread(str(path)).astype("float32")).permute(2, 0, 1)
+    raw = torch.from_numpy(
+        tifffile.imread(str(path)).astype("float32")
+    ).permute(2, 0, 1)
     preprocessed = normalize_MS_img(raw)
     baseline = torch.zeros_like(preprocessed)
     return raw, preprocessed, baseline
+
 
 def integrated_gradients(
     model: torch.nn.Module,
@@ -83,11 +89,19 @@ def integrated_gradients(
     Returns:
         Signed attribution tensor [C, H, W] per pixel and channel.
     """
-    alphas = torch.linspace(0, 1, n_steps + 1, device=input_tensor.device)# [n_steps+1]
-    path = baseline + alphas.view(-1, 1, 1, 1) * (input_tensor - baseline)  # [n_steps+1, C, H, W]
-    path = path.detach().requires_grad_(True) # This tells PyTorch to enable gradient tracking for the path
+    alphas = torch.linspace(
+        0, 1, n_steps + 1, device=input_tensor.device
+    )  # [n_steps+1]
+    path = baseline + alphas.view(-1, 1, 1, 1) * (
+        input_tensor - baseline
+    )  # [n_steps+1, C, H, W]
+    path = path.detach().requires_grad_(
+        True
+    )  # This tells PyTorch to enable gradient tracking for the path
 
-    model(path)[:, target_class].sum().backward() # Compute all gradients in one backward pass; path.grad will have shape [n_steps+1, C, H, W]
+    model(path)[
+        :, target_class
+    ].sum().backward()  # Compute all gradients in one backward pass; path.grad will have shape [n_steps+1, C, H, W]
 
     # Trapezoidal rule: average of gradients at consecutive interpolation points
     avg_grads = ((path.grad[:-1] + path.grad[1:]) / 2).mean(dim=0)  # [C, H, W]
@@ -140,14 +154,16 @@ def band_attribution_totals(
     device = torch.device(device)
     model = model.to(device).eval()
 
-    n_samples = len(dataset) if max_samples is None else min(max_samples, len(dataset))
+    n_samples = (
+        len(dataset) if max_samples is None else min(max_samples, len(dataset))
+    )
 
     pos_by_class: dict[int, np.ndarray] = {}
     neg_by_class: dict[int, np.ndarray] = {}
     count_by_class: dict[int, int] = {}
 
     for i in range(n_samples):
-        img, label = dataset[i]               # [C, H, W]
+        img, label = dataset[i]  # [C, H, W]
 
         if target_class is not None and int(label) != target_class:
             continue
@@ -157,7 +173,9 @@ def band_attribution_totals(
 
         tc = target_class if target_class is not None else int(label)
 
-        attrs = integrated_gradients(model, img, baseline, tc, n_steps)  # [C, H, W]
+        attrs = integrated_gradients(
+            model, img, baseline, tc, n_steps
+        )  # [C, H, W]
         attrs_np = attrs.cpu().numpy()
 
         pos = attrs_np.clip(min=0).sum(axis=(1, 2))  # [C]
@@ -179,8 +197,12 @@ def band_attribution_totals(
         return {"positive": np.array([]), "negative": np.array([]), "count": 0}
 
     classes = sorted(pos_by_class)
-    pos_means = np.stack([pos_by_class[c] / count_by_class[c] for c in classes])  # [n_classes, C]
-    neg_means = np.stack([neg_by_class[c] / count_by_class[c] for c in classes])  # [n_classes, C]
+    pos_means = np.stack(
+        [pos_by_class[c] / count_by_class[c] for c in classes]
+    )  # [n_classes, C]
+    neg_means = np.stack(
+        [neg_by_class[c] / count_by_class[c] for c in classes]
+    )  # [n_classes, C]
 
     return {
         "positive": pos_means.mean(axis=0),  # [C]
@@ -210,7 +232,7 @@ def visualise_rgb(
         output_path: Save figure here, or None to display interactively.
     """
     orig = raw.permute(1, 2, 0).numpy()
-    agg  = _aggregate_attribution(attrs)
+    agg = _aggregate_attribution(attrs)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
     fig.suptitle(
@@ -224,7 +246,9 @@ def visualise_rgb(
 
     ax2.imshow(orig)
     ax2.imshow(agg, cmap="hot", alpha=0.6)
-    ax2.set_title("Attribution heatmap (overlaid)\nBrighter = more influential pixels")
+    ax2.set_title(
+        "Attribution heatmap (overlaid)\nBrighter = more influential pixels"
+    )
     ax2.axis("off")
 
     plt.tight_layout()
@@ -264,8 +288,10 @@ def visualise_ms(
     flat[0].axis("off")
 
     for ch in range(13):
-        a    = attrs[ch].numpy()
-        vmax = max(abs(a.min()), abs(a.max())) or 1.0  # fall back to 1.0 if band has no attribution
+        a = attrs[ch].numpy()
+        vmax = (
+            max(abs(a.min()), abs(a.max())) or 1.0
+        )  # fall back to 1.0 if band has no attribution
         flat[ch + 1].imshow(a, cmap="RdBu_r", vmin=-vmax, vmax=vmax)
         flat[ch + 1].set_title(MS_BAND_NAMES[ch], fontsize=7)
         flat[ch + 1].axis("off")
@@ -278,7 +304,9 @@ def visualise_ms(
     return _save_or_show(fig, output_path)
 
 
-def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
+def _save_or_show(
+    fig: plt.Figure, output_path: str | Path | None
+) -> None | plt.Figure:
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -287,19 +315,27 @@ def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt
         return None
     else:
         return fig
-    
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="Integrated Gradients for EuroSAT CNN models.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--model_path",   required=True, help="Path to saved model (.pkl)")
-    parser.add_argument("--input_file",   required=True, help=".jpg for RGB or .tif for MS")
-    parser.add_argument("--target_class", type=int, default=None,
-                        help="Class index to explain. Defaults to the predicted class.")
-    parser.add_argument("--n_steps",      type=int, default=50)
-    parser.add_argument("--output_path",  default=None)
+    parser.add_argument(
+        "--model_path", required=True, help="Path to saved model (.pkl)"
+    )
+    parser.add_argument(
+        "--input_file", required=True, help=".jpg for RGB or .tif for MS"
+    )
+    parser.add_argument(
+        "--target_class",
+        type=int,
+        default=None,
+        help="Class index to explain. Defaults to the predicted class.",
+    )
+    parser.add_argument("--n_steps", type=int, default=50)
+    parser.add_argument("--output_path", default=None)
     args = parser.parse_args()
 
     # Infer image type from file extension
@@ -312,30 +348,45 @@ def main():
         raw, preprocessed, baseline = load_ms_ig(args.input_file)
     else:
         image, baseline = load_rgb_ig(args.input_file)
-        raw = preprocessed = image  # for RGB, the raw image is also the model input
+        raw = preprocessed = (
+            image  # for RGB, the raw image is also the model input
+        )
 
     with torch.no_grad():
-        predicted_class = int(model(preprocessed.unsqueeze(0)).argmax(1).item())
+        predicted_class = int(
+            model(preprocessed.unsqueeze(0)).argmax(1).item()
+        )
 
-    target_class = args.target_class if args.target_class is not None else predicted_class
+    target_class = (
+        args.target_class if args.target_class is not None else predicted_class
+    )
 
     if target_class not in label_map:
         valid = ", ".join(f"{k} ({v})" for k, v in label_map.items())
-        raise ValueError(f"Invalid target class {target_class}. Valid options are: {valid}")
+        raise ValueError(
+            f"Invalid target class {target_class}. Valid options are: {valid}"
+        )
 
     print(f"Predicted : {label_map[predicted_class]}")
     print(f"Explaining: {label_map[target_class]}")
 
-    attrs = integrated_gradients(model, preprocessed, baseline, target_class, args.n_steps)
+    attrs = integrated_gradients(
+        model, preprocessed, baseline, target_class, args.n_steps
+    )
 
     if is_ms:
-        fig = visualise_ms(raw, attrs, predicted_class, target_class, args.output_path)
+        fig = visualise_ms(
+            raw, attrs, predicted_class, target_class, args.output_path
+        )
     else:
-        fig = visualise_rgb(raw, attrs, predicted_class, target_class, args.output_path)
+        fig = visualise_rgb(
+            raw, attrs, predicted_class, target_class, args.output_path
+        )
 
     if fig is not None:
         plt.show()
         plt.close(fig)
+
 
 if __name__ == "__main__":
     main()

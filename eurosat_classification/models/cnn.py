@@ -3,6 +3,7 @@ from typing import Literal
 import torch
 from torch import nn
 
+
 class Kernel:
     """Geometry of a single convolutional kernel branch."""
 
@@ -132,7 +133,9 @@ def _build_activation(name: str) -> nn.Module:
     try:
         return _ACTIVATIONS[name]()
     except KeyError:
-        raise ValueError(f"Unknown activation '{name}'. Choose from {list(_ACTIVATIONS)}")
+        raise ValueError(
+            f"Unknown activation '{name}'. Choose from {list(_ACTIVATIONS)}"
+        )
 
 
 class _MultiKernelBlock(nn.Module):
@@ -214,7 +217,9 @@ class CNN(nn.Module):
                     layers.append(nn.BatchNorm2d(block_cfg.out_channels))
                 layers.append(_build_activation(self.config.activation))
                 if block_cfg.pool_size is not None:
-                    layers.append(nn.MaxPool2d(kernel_size=block_cfg.pool_size))
+                    layers.append(
+                        nn.MaxPool2d(kernel_size=block_cfg.pool_size)
+                    )
 
             in_ch = block_cfg.out_channels
 
@@ -224,7 +229,10 @@ class CNN(nn.Module):
         """Runs a dummy forward pass to determine the flattened backbone output size."""
         with torch.no_grad():
             dummy = torch.zeros(
-                1, self.config.in_channels, self.config.input_height, self.config.input_width
+                1,
+                self.config.in_channels,
+                self.config.input_height,
+                self.config.input_width,
             )
             return int(self.backbone(dummy).numel())
 
