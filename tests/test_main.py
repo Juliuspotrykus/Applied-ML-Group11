@@ -13,21 +13,18 @@ class APITest(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
 
-    def test_predict_rgb(self):
-        """Test for RGB prediction endpoint"""
-        # Create a dummy RGB image of the right
-        # shape with a random color
+        # Create a dummy RGB image.
         color = tuple(random.randint(0, 255) for _ in range(3))
         img = Image.new("RGB", (64, 64), color=color)
-
-        # Convert image to correct format for POST request,
-        # necessary when not loading a specific image from path
         buf = io.BytesIO()
         img.save(buf, format="JPEG")
+        self.rgb_buf = buf
 
+    def test_predict_rgb(self):
+        """Test for RGB prediction endpoint"""
         response = self.client.post(
             "/predict_rgb",
-            files={"image": ("test.jpg", buf)},
+            files={"image": ("test.jpg", self.rgb_buf)},
         )
 
         # POST request should be succesful
@@ -104,16 +101,10 @@ class APITest(unittest.TestCase):
 
     def test_rgb_explainability(self):
         """Tests for RGB explainability endpoint"""
-        # Create a dummy RGB image
-        color = tuple(random.randint(0, 255) for _ in range(3))
-        img = Image.new("RGB", (64, 64), color=color)
-        buf = io.BytesIO()
-        img.save(buf, format="JPEG")
-
         # Response should throw no errors.
         response = self.client.post(
             "/explain_rgb",
-            files={"image": ("test.jpg", buf)},
+            files={"image": ("test.jpg", self.rgb_buf)},
         )
 
         # Check for correct response and look for image output
