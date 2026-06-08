@@ -26,7 +26,7 @@ def noise_rgb(img: torch.Tensor, sigma: float) -> torch.Tensor:
 
 def brightness_rgb(img: torch.Tensor, factor: float) -> torch.Tensor:
     """Scale all pixel values by factor; simulates lighting change."""
-    return torch.clamp(img * factor, 0.0, 1.0)
+    return TF.adjust_brightness(img, factor)
 
 
 def salt_pepper_rgb(img: torch.Tensor, density: float) -> torch.Tensor:
@@ -52,8 +52,7 @@ def vflip(img: torch.Tensor) -> torch.Tensor:
     return TF.vflip(img)
 
 
-# ── MS perturbations (z-score space) ─────────────────────────────────────────
-
+# ── MS perturbations  ─────────────────────────────────────────
 
 def rotate_ms(img: torch.Tensor, degrees: float) -> torch.Tensor:
     """Rotate by a fixed angle; border filled with 0 (≈ band mean in z-score space)."""

@@ -107,7 +107,7 @@ def run_suite(model, dataset, specs, device, batch_size, seed) -> list[dict]:
     """Evaluate model on the clean dataset and on each perturbation level.
 
     Returns a list of dicts with keys: perturbation, severity_label, severity_value,
-    f1, mean_confidence, flip_rate.
+    f1, mean_confidence.
     """
     model.eval()
 
@@ -118,26 +118,24 @@ def run_suite(model, dataset, specs, device, batch_size, seed) -> list[dict]:
 
     rows = [{"perturbation": "clean", "severity_label": "—", "severity_value": "",
              "f1": round(clean["f1"], 6),
-             "mean_confidence": round(clean["mean_confidence"], 6),
-             "flip_rate": 0.0}]
+             "mean_confidence": round(clean["mean_confidence"], 6)}]
 
     for spec in specs:
         print(f"  [{spec.name}] …", flush=True)
         for i, sev in enumerate(spec.severities):
-            result = evaluate(model, dataset, spec.fn(sev), device, clean_preds, seed, batch_size)
+            result = evaluate(model, dataset, spec.fn(sev), device, seed, batch_size)
             lbl = spec.label(i)
             rows.append({"perturbation": spec.name, "severity_label": lbl,
                          "severity_value": sev,
                          "f1": round(result["f1"], 6),
-                         "mean_confidence": round(result["mean_confidence"], 6),
-                         "flip_rate": round(result["flip_rate"], 6)})
-            print(f"    {lbl:<16}  f1={result['f1']:.4f}  flip={result['flip_rate']:.4f}", flush=True)
+                         "mean_confidence": round(result["mean_confidence"], 6)})
+            print(f"    {lbl:<16}  f1={result['f1']:.4f}", flush=True)
 
     return rows
 
 
 def plot_results(rows: list[dict], clean_f1: float, modality: str, path: Path) -> None:
-    """Save a multi-panel figure with macro-F1 and flip-rate curves per perturbation.
+    """Save a multi-panel figure with macro-F1 curves per perturbation.
 
     Args:
         rows: Perturbed rows (clean row excluded).
@@ -158,8 +156,6 @@ def plot_results(rows: list[dict], clean_f1: float, modality: str, path: Path) -
     for ax, (name, data) in zip(axes_flat, by_perturb.items()):
         x = list(range(len(data)))
         ax.plot(x, [d["f1"] for d in data], marker="o", color="steelblue", label="Macro F1")
-        ax.plot(x, [d["flip_rate"] for d in data], marker="s", linestyle="--",
-                color="tomato", label="Flip rate")
         ax.axhline(clean_f1, color="seagreen", linestyle=":", linewidth=1.5,
                    label=f"Clean F1 ({clean_f1:.3f})")
         ax.set_xticks(x)
@@ -207,7 +203,7 @@ def run_for_modality(modality, data_root, test_csv, max_samples, device, batch_s
     csv_path = out_dir / f"robustness_{modality}.csv"
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["perturbation", "severity_label", "severity_value",
-                                               "f1", "mean_confidence", "flip_rate"])
+                                               "f1", "mean_confidence"])
         writer.writeheader()
         writer.writerows(rows)
     print(f"Saved CSV:  {csv_path.resolve()}")

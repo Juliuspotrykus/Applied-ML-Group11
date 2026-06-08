@@ -36,7 +36,6 @@ def evaluate(
     dataset: Dataset,
     perturb_fn: Callable | None,
     device: torch.device,
-    clean_preds: list[int] | None = None,
     seed: int = 42,
     batch_size: int = 64,
 ) -> dict:
@@ -47,14 +46,12 @@ def evaluate(
         dataset: Test dataset (un-perturbed raw version).
         perturb_fn: Applied to each image tensor before inference. None = clean run.
         device: Torch device.
-        clean_preds: If provided, compute prediction-flip rate against this baseline.
         seed: Base random seed for stochastic perturbations.
         batch_size: DataLoader batch size (num_workers=0 to respect per-sample seeds).
 
     Returns:
         dict with keys:
             f1 (float), mean_confidence (float),
-            flip_rate (float | None), preds (list[int])
     """
     eval_ds = _PerturbedDataset(dataset, perturb_fn, seed) if perturb_fn is not None else dataset
     loader = DataLoader(eval_ds, batch_size=batch_size, shuffle=False, num_workers=0)
@@ -76,14 +73,8 @@ def evaluate(
     n = len(all_labels)
     macro_f1 = f1_score(all_labels, all_preds, average="macro")
     mean_confidence = sum(all_confs) / n
-    flip_rate = (
-        sum(p != c for p, c in zip(all_preds, clean_preds)) / n
-        if clean_preds is not None
-        else None
-    )
     return {
         "f1": macro_f1,
         "mean_confidence": mean_confidence,
-        "flip_rate": flip_rate,
         "preds": all_preds,
     }
