@@ -375,12 +375,7 @@ def gradcam_explain(
             f"Unknown image_type '{image_type}'. Expected 'RGB' or 'MS'."
         )
 
-    figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-    figure.suptitle(
-        f"Predicted: {label_map[predicted_class]} | \
-        Explaining: {label_map[target_class]}\n"
-        "Red = most influential, Blue = least influential"
-    )
+    figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 
     ax1.imshow(img_array)
     ax1.set_title("Original image")
@@ -390,6 +385,16 @@ def gradcam_explain(
         "GradCAM heatmap"
     )
     ax2.axis("off")
+
+    plt.tight_layout(rect=[0, 0, 1, 0.85])
+    figure.suptitle(
+        (
+            f"Predicted: {label_map[predicted_class]} | "
+            f"Explaining: {label_map[target_class]}\n"
+            "Red = most influential, Blue = least influential"
+        ),
+        y=0.96
+    )
 
     return figure
 
