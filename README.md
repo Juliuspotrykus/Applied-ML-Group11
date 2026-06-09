@@ -218,37 +218,50 @@ uv run python -m eurosat_classification.train.ablation \
 ## Running the API
 
 ### Option A: Using FastAPI
+
 From the project root, run:
+
 ```bash
 uvicorn main:app --reload
 ```
+
 #### Access the API
+
 Open the following link in your browser: `http://127.0.0.1:8000`
 
 ### Option B: Using Docker
+
 From the project root, run:
+
 ```bash
 docker build -f docker/Dockerfile -t eurosat-api .
 docker run -p 8000:8000 eurosat-api
 ```
+
 #### Access the API
+
 Open the following link in your browser: `http://localhost:8000`
 
 ---
 
 ## Running the Streamlit Demo
+
 Interactive, user-friendly, tool for uploading satellite images, running predictions, and visualizing explainability.
 
 ### Make sure the API is running
+
 Start it via FastAPI or Docker (see above).
 
 ### Start the Streamlit App
+
 From the project root, run:
+
 ```bash
 streamlit run app.py
 ```
 
 ### Use the app through the website opened
+
 1. Select "RGB" or "Multispectral" mode
 2. Upload satellite image
 3. Click Submit
@@ -256,13 +269,9 @@ streamlit run app.py
 5. (Optionally) Select target class to explain
 6. View explainability outputs
 
-
 ---
 
 ## Results & Evaluation
-
-All numbers below are **test-set macro-F1**. Plots and raw outputs can be found in
-`models/` (loss/F1 curves, confusion matrices) and `results/`.
 
 ### Final model performance
 
@@ -273,15 +282,23 @@ All numbers below are **test-set macro-F1**. Plots and raw outputs can be found 
 
 #### RGB model
 
-| Training curves                       | Confusion matrix                                |
-| ------------------------------------- | ----------------------------------------------- |
-| ![RGB training curves](models/rgb_model_final.png) | ![RGB confusion matrix](models/rgb_model_final_confusion.png) |
+**Training curves**
+
+![RGB training curves](models/rgb_model_final.png)
+
+**Confusion matrix**
+
+![RGB confusion matrix](models/rgb_model_final_confusion.png)
 
 #### Multispectral model
 
-| Training curves                      | Confusion matrix                              |
-| ------------------------------------ | --------------------------------------------- |
-| ![MS training curves](models/ms_model_final.png) | ![MS confusion matrix](models/ms_model_final_confusion.png) |
+**Training curves**
+
+![MS training curves](models/ms_model_final.png)
+
+**Confusion matrix**
+
+![MS confusion matrix](models/ms_model_final_confusion.png)
 
 ### Statistical comparison
 
@@ -289,19 +306,18 @@ All numbers below are **test-set macro-F1**. Plots and raw outputs can be found 
 
 ### Ablation (MS bands, 40 runs each)
 
-Dropping individual bands barely moves the score — the model is robust to losing
-any one band. The largest drop comes from removing the visible bands together
+Dropping individual bands barely moves the score. The largest drop in performance comes from removing the visible bands (RGB) together
 (B2/B3/B4):
 
-| Configuration                       | Test macro-F1              |
-| ----------------------------------- | -------------------------- |
-| All 13 bands (baseline)             | 0.9786 ± 0.0005           |
-| Drop B7                             | 0.9792 ± 0.0005           |
-| Drop B5                             | 0.9791 ± 0.0006           |
-| Drop B9                             | 0.9788 ± 0.0007           |
-| Drop B10 / B6 / B8A / B12           | ≈ 0.9780–0.9782          |
-| Drop B1                             | 0.9765 ± 0.0009           |
-| **Drop B2, B3, B4 (visible)** | **0.9720 ± 0.0006** |
+| Configuration             | Test macro-F1              |
+| ------------------------- | -------------------------- |
+| All 13 bands (baseline)   | 0.9786 ± 0.0005           |
+| Drop B7                   | 0.9792 ± 0.0005           |
+| Drop B5                   | 0.9791 ± 0.0006           |
+| Drop B9                   | 0.9788 ± 0.0007           |
+| Drop B10 / B6 / B8A / B12 | ≈ 0.9780–0.9782          |
+| Drop B1                   | 0.9765 ± 0.0009           |
+| **Drop B2, B3, B4** | **0.9720 ± 0.0006** |
 
 ### Robustness -> @TODO
 
