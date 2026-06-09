@@ -241,11 +241,7 @@ def main() -> None:
 
     gradcam_visualization = gradcam(model, img_tensor, img_array, target_class)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-    fig.suptitle(
-        f"GradCAM | Predicted: {label_map[predicted_class]} | \
-        Explaining: {label_map[target_class]}"
-    )
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.5))
 
     ax1.imshow(img_array)
     ax1.set_title("Original image")
@@ -258,6 +254,13 @@ def main() -> None:
     )
     ax2.axis("off")
 
+    plt.tight_layout(rect=[0, 0, 1, 0.93])
+    fig.suptitle(
+        f"GradCAM | Predicted: {label_map[predicted_class]} | "
+        f"Explaining: {label_map[target_class]}",
+        fontsize=12,
+        y=0.98
+    )
     fig = _save_or_show(fig, args.output_path)
 
     if fig is not None:
