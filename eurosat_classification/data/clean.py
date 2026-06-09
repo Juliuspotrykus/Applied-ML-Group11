@@ -8,7 +8,9 @@ def clean_sealake_folder() -> None:
     Removes corrupt files from MS SeaLake dataset. Detected by file names
     beggining with "Bombay" and "Jakarta" instead of "SeaLake".
     """
-    ms_sealake_path = os.path.join(get_dataset_path(), "EuroSATallBands", "SeaLake")
+    ms_sealake_path = os.path.join(
+        get_dataset_path(), "EuroSATallBands", "SeaLake"
+    )
 
     bombay_files = []
     jakarta_files = []

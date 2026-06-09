@@ -1,6 +1,7 @@
-"""This script trains the final CNN model for a given modality (rgb or ms) using the best
-hyperparameters from tuning (stored in BEST_PARAMS). It also holds the shared
-config builder (build_config_from_params) reused by the other training scripts.
+"""This script trains the final CNN model for a given modality (rgb or ms)
+using the best hyperparameters from tuning (stored in BEST_PARAMS).
+It also holds the shared config builder (build_config_from_params)
+reused by the other training scripts.
 
 It has two modes. The default mode trains on the train set, evaluates on the
 val set, and saves the model plus loss/F1 curves. The --final mode trains on
@@ -11,7 +12,8 @@ Usage:
     # Train on train, evaluate on val:
     python -m eurosat_classification.train.run_training ms --epochs 30
 
-    # Train on train+val, evaluate on test (epochs from early stopping during tuning are rgb: 25 and ms: 22):
+    # Train on train+val, evaluate on test
+    # (epochs from early stopping during tuning are rgb: 25 and ms: 22):
     python -m eurosat_classification.train.run_training ms --final --epochs 22
 """
 
@@ -83,8 +85,10 @@ def build_config_from_params(image_type: str, params: dict) -> CNNConfig:
 
 
 def plot_history(history: dict, output_path: Path) -> None:
-    """Plots the training history and saves it to a file. If validation F1 is available, it plots train loss, val loss, and val F1.
-        Otherwise it plots train loss and test loss.
+    """Plots the training history and saves it to a file.
+       If validation F1 is available, it plots train loss,
+       val loss, and val F1. Otherwise it plots train loss
+       and test loss.
 
     Args:
         history (dict): A dictionary containing the training history.
@@ -101,7 +105,9 @@ def plot_history(history: dict, output_path: Path) -> None:
 
     ax1.plot(epochs, history["train_loss"], label="Train loss")
     ax1.plot(
-        epochs, history[other_loss], label=other_loss.replace("_", " ").capitalize()
+        epochs,
+        history[other_loss],
+        label=other_loss.replace("_", " ").capitalize(),
     )
     ax1.set_xlabel("Epoch")
     ax1.set_ylabel("Loss")
@@ -109,7 +115,9 @@ def plot_history(history: dict, output_path: Path) -> None:
     ax1.legend()
 
     if has_val_f1:
-        axes[1].plot(epochs, history["val_f1"], color="tab:green", label="Val F1")
+        axes[1].plot(
+            epochs, history["val_f1"], color="tab:green", label="Val F1"
+        )
         axes[1].set_xlabel("Epoch")
         axes[1].set_ylabel("Macro F1")
         axes[1].set_title("Validation F1")
@@ -129,19 +137,28 @@ def train_from_params(
     patience: int = 5,
     batch_size: int = 64,
 ) -> None:
-    """Trains a CNN on the train set and evaluates on the val set, using the specified hyperparameters,
-       and saves the model and training history plot to files.""
+    """Trains a CNN on the train set and evaluates on the val set,
+       using the specified hyperparameters, and saves the model
+       and training history plot to files.""
 
     Args:
         image_type (str): The type of image -> "rgb" or "ms".
         params (dict): The parameters for configuring the CNN.
         output (str | Path): The path where the model and plot will be saved.
-        epochs (int, optional): The number of epochs to train for. Defaults to 30.
-        patience (int, optional): The number of epochs to wait for improvement before stopping. Defaults to 5.
-        batch_size (int, optional): The batch size for training. Defaults to 64.
+
+        epochs (int, optional): The number of epochs to train for.
+        Defaults to 30.
+
+        patience (int, optional): The number of epochs to wait for
+        improvement before stopping. Defaults to 5.
+
+        batch_size (int, optional): The batch size for training.
+        Defaults to 64.
     """
     config = build_config_from_params(image_type, params)
-    train_loader, val_loader, _ = create_dataloaders(image_type, batch_size=batch_size)
+    train_loader, val_loader, _ = create_dataloaders(
+        image_type, batch_size=batch_size
+    )
 
     model, best_val_f1, history = train_model(
         config,
@@ -163,7 +180,9 @@ def train_from_params(
     plot_history(history, output.with_suffix(".png"))
 
 
-def plot_confusion_matrix(labels: list, preds: list, output_path: Path) -> None:
+def plot_confusion_matrix(
+    labels: list, preds: list, output_path: Path
+) -> None:
     """Plots the confusion matrix and saves it to a file.
 
     Args:
@@ -194,14 +213,17 @@ def train_final_from_params(
     epochs: int,
     batch_size: int = 64,
 ) -> float:
-    """Trains on the combined train+val set and evaluates on the test set, using the specified hyperparameters,
+    """Trains on the combined train+val set and evaluates
+       on the test set, using the specified hyperparameters,
 
     Args:
         image_type (str): The type of image -> "rgb" or "ms".
         params (dict): The parameters for configuring the CNN.
         output (str | Path): The path where the model and plot will be saved.
         epochs (int): The number of epochs to train for.
-        batch_size (int, optional): The batch size for training. Defaults to 64.
+
+        batch_size (int, optional): The batch size for training.
+        Defaults to 64.
 
     Returns:
         float: The test macro F1 score.
@@ -233,7 +255,9 @@ def train_final_from_params(
 
     plot_history(history, output.with_suffix(".png"))
     plot_confusion_matrix(
-        test_labels, test_preds, output.with_name(f"{output.stem}_confusion.png")
+        test_labels,
+        test_preds,
+        output.with_name(f"{output.stem}_confusion.png"),
     )
     return test_f1
 
@@ -280,7 +304,8 @@ if __name__ == "__main__":
         "--epochs",
         type=int,
         default=30,
-        help="Number of training epochs. For --final, this should be set to -> rgb: 25, ms: 22; which is when the validation F1's peaked",
+        help="Number of training epochs. For --final, this should be set to \
+        -> rgb: 25, ms: 22; which is when the validation F1's peaked",
     )
     parser.add_argument("--batch-size", type=int, default=64)
     args = parser.parse_args()

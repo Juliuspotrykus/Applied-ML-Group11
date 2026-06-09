@@ -86,7 +86,7 @@ def normalize_MS_img(img: torch.Tensor) -> torch.Tensor:
     """
     Clip extreme values of each band.
 
-    Normalize all bands of a given image, knowing their means and standard 
+    Normalize all bands of a given image, knowing their means and standard
     deviations.
 
     Args:

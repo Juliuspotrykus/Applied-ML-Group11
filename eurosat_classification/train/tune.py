@@ -73,7 +73,9 @@ def build_config(trial: optuna.Trial, image_type: str) -> CNNConfig:
         conv_blocks=conv_blocks,
         fc_layers=fc_layers,
         dropout=trial.suggest_float("dropout", 0.2, 0.6),
-        activation=trial.suggest_categorical("activation", ["relu", "gelu", "silu"]),
+        activation=trial.suggest_categorical(
+            "activation", ["relu", "gelu", "silu"]
+        ),
     )
 
 
@@ -83,8 +85,10 @@ def objective(
     train_loader: DataLoader,
     val_loader: DataLoader,
 ) -> float:
-    """The objective function for Optuna hyperparameter tuning. Builds a CNNConfig from the trial and image type,
-       trains the model using train_model, and reports the best validation F1 score back to Optuna for pruning.
+    """The objective function for Optuna hyperparameter tuning.
+       Builds a CNNConfig from the trial and image type, trains
+       the model using train_model, and reports the best validation
+       F1 score back to Optuna for pruning.
 
     Args:
         trial (optuna.Trial): The Optuna trial.
@@ -93,7 +97,8 @@ def objective(
         val_loader (DataLoader): The validation data loader.
 
     Raises:
-        optuna.TrialPruned: If the trial should be pruned based on the reported validation F1 score.
+        optuna.TrialPruned: If the trial should be pruned
+        based on the reported validation F1 score.
 
     Returns:
         float: The best validation F1 score.
@@ -102,14 +107,16 @@ def objective(
     lr = trial.suggest_float("lr", 1e-4, 1e-2, log=True)
 
     def report(epoch, val_f1):
-        """Reports the validation F1 score to Optuna to decide whether current trial should be pruned.
+        """Reports the validation F1 score to Optuna
+        to decide whether current trial should be pruned.
 
         Args:
             epoch (int): The current epoch.
             val_f1 (float): The validation F1 score.
 
         Raises:
-            optuna.TrialPruned: If the trial should be pruned based on the reported validation F1 score.
+            optuna.TrialPruned: If the trial should be pruned
+            based on the reported validation F1 score.
         """
         trial.report(val_f1, epoch)
         if trial.should_prune():
@@ -129,8 +136,9 @@ def objective(
 
 def tune_image_type(image_type: str, n_trials: int = 30) -> optuna.Study:
     """Tunes the hyperparameters for a given image type using Optuna.
-       Creates the training and validation data loaders, sets up the Optuna study with a median pruner,
-       and runs the optimization for the specified number of trials.
+       Creates the training and validation data loaders, sets up the
+       Optuna study with a median pruner, and runs the optimization
+       for the specified number of trials.
 
     Args:
         image_type (str): The type of image ("rgb" or "ms").
@@ -154,7 +162,9 @@ def tune_image_type(image_type: str, n_trials: int = 30) -> optuna.Study:
 
 
 def main():
-    """Main function to run the hyperparameter tuning. Parses command-line arguments for the image type and number of trials,"""
+    """Main function to run the hyperparameter tuning.
+    Parses command-line arguments for the image type
+    and number of trials"""
     parser = argparse.ArgumentParser(description="Hyperparameter tuning")
     parser.add_argument("image_type", choices=("rgb", "ms"))
     parser.add_argument("n_trials", type=int)
@@ -163,7 +173,8 @@ def main():
     print(f"\n=== Tuning {args.image_type} ===")
     study = tune_image_type(args.image_type, args.n_trials)
     print(
-        f"{args.image_type}: best F1 = {study.best_value:.4f}, params = {study.best_params}"
+        f"{args.image_type}: best F1 = {study.best_value:.4f}, \
+        params = {study.best_params}"
     )
 
 

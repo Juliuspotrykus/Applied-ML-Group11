@@ -5,13 +5,13 @@ RGB functions operate on [3, H, W] float tensors in [0, 1].
 MS functions operate on [13, H, W] z-score normalised tensors.
 All functions are pure: they do not modify the input tensor.
 """
+
 from __future__ import annotations
 
 import torch
 import torchvision.transforms.functional as TF
 
-
-# ── RGB perturbations ─────────────────────────────────────────────────────────
+# ── RGB perturbations ────────────────────────────────────────────────────────
 
 
 def rotate_rgb(img: torch.Tensor, degrees: float) -> torch.Tensor:
@@ -48,7 +48,7 @@ def brightness_rgb(img: torch.Tensor, factor: float) -> torch.Tensor:
 
     Args:
         img (torch.Tensor): Image to perturb.
-        factor (float): How much to adjust the brightness. 
+        factor (float): How much to adjust the brightness.
                         Can be any non-negative number. 0 gives a black image,
                         1 gives the original image while 2 increases the
                         brightness by a factor of 2
@@ -83,7 +83,7 @@ def contrast_rgb(img: torch.Tensor, factor: float) -> torch.Tensor:
 
     Args:
         img (torch.Tensor): Image to perturb.
-        factor (float): Contrast adjustment intensity factor. 
+        factor (float): Contrast adjustment intensity factor.
                         Factor > 1 increases contrast.
                         Factor < 1 decreases contrast.
 
@@ -122,9 +122,11 @@ def vflip(img: torch.Tensor) -> torch.Tensor:
 
 # ── MS perturbations  ─────────────────────────────────────────
 
+
 def rotate_ms(img: torch.Tensor, degrees: float) -> torch.Tensor:
     """
-    Rotate by a fixed angle; border filled with 0 (≈ band mean in z-score space).
+    Rotate by a fixed angle; border filled with 0
+    (≈ band mean in z-score space).
 
     Args:
         img (torch.Tensor): Image to perturb.
@@ -152,7 +154,8 @@ def noise_ms(img: torch.Tensor, sigma: float) -> torch.Tensor:
 
 def brightness_ms(img: torch.Tensor, factor: float) -> torch.Tensor:
     """
-    Scale all z-scores by factor; approximates uniform sensor-gain change.
+    Scale all z-scores by factor; approximates
+    uniform sensor-gain change.
 
     Args:
         img (torch.Tensor): Image to perturb.
@@ -166,7 +169,8 @@ def brightness_ms(img: torch.Tensor, factor: float) -> torch.Tensor:
 
 def salt_pepper_ms(img: torch.Tensor, density: float) -> torch.Tensor:
     """
-    Replace a fraction of spatial pixels with ±3 z-score values (dead/saturated pixels).
+    Replace a fraction of spatial pixels with
+    ±3 z-score values (dead/saturated pixels).
 
     Args:
         img (torch.Tensor): Image to perturb.
@@ -190,7 +194,8 @@ def salt_pepper_ms(img: torch.Tensor, density: float) -> torch.Tensor:
 
 def contrast_ms(img: torch.Tensor, factor: float) -> torch.Tensor:
     """
-    Scale each band around its spatial mean; factor > 1 increases contrast.
+    Scale each band around its spatial mean;
+    factor > 1 increases contrast.
 
     Args:
         img (torch.Tensor): Image to perturb.
@@ -205,7 +210,8 @@ def contrast_ms(img: torch.Tensor, factor: float) -> torch.Tensor:
 
 def band_dropout_ms(img: torch.Tensor, band_idx: int) -> torch.Tensor:
     """
-    Zero out a single band (sets z-scores to 0, equivalent to replacing with band mean).
+    Zero out a single band (sets z-scores to 0,
+    equivalent to replacing with band mean).
 
     Args:
         img (torch.Tensor): Image to perturb.

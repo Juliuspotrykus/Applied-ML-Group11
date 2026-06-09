@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Callable
 
 import torch
-import numpy as np
 import torch.nn.functional as F
 from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader, Dataset
@@ -19,6 +18,7 @@ class _PerturbedDataset(Dataset):
     so that stochastic perturbations (noise, salt-and-pepper) are reproducible
     across repeated calls with the same seed.
     """
+
     def __init__(self, base: Dataset, fn: Callable, seed: int = 42) -> None:
         """
         Initializes dataset wrapper.
@@ -71,19 +71,32 @@ def evaluate(
     Args:
         model (torch.nn.Module): Trained CNN already in eval mode.
         dataset (Dataset): Test dataset (un-perturbed raw version).
-        perturb_fn (Callable | None): Applied to each image tensor before inference. None = clean run.
+        perturb_fn (Callable | None): Applied to each image tensor
+        before inference. None = clean run.
+
         device (torch.device): Torch device.
+
         seed (42): Base random seed for stochastic perturbations.
-        batch_size (int): DataLoader batch size (num_workers=0 to respect per-sample seeds).
+
+        batch_size (int): DataLoader batch size (num_workers=0 to respect
+        per-sample seeds).
 
     Returns:
         dict[str, float | list[int]]: ;etrics summary containing:
             - "f1" (float): Macro-averaged classification F1 score.
-            - "mean_confidence" (float): Average probability magnitude of top predictions.
-            - "preds" (list[int]): Ordered sequence of scalar index class predictions.
+            - "mean_confidence" (float): Average probability magnitude of
+            top predictions.
+            - "preds" (list[int]): Ordered sequence of scalar index class
+            predictions.
     """
-    eval_ds = _PerturbedDataset(dataset, perturb_fn, seed) if perturb_fn is not None else dataset
-    loader = DataLoader(eval_ds, batch_size=batch_size, shuffle=False, num_workers=0)
+    eval_ds = (
+        _PerturbedDataset(dataset, perturb_fn, seed)
+        if perturb_fn is not None
+        else dataset
+    )
+    loader = DataLoader(
+        eval_ds, batch_size=batch_size, shuffle=False, num_workers=0
+    )
 
     all_preds: list[int] = []
     all_labels: list[int] = []
