@@ -377,8 +377,9 @@ def gradcam_explain(
 
     figure, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
     figure.suptitle(
-        f"GradCAM | Predicted: {label_map[predicted_class]} | \
-        Explaining: {label_map[target_class]}"
+        f"Predicted: {label_map[predicted_class]} | \
+        Explaining: {label_map[target_class]}\n"
+        "Red = most influential, Blue = least influential"
     )
 
     ax1.imshow(img_array)
@@ -386,8 +387,7 @@ def gradcam_explain(
     ax1.axis("off")
     ax2.imshow(gradcam_visualization)
     ax2.set_title(
-        "GradCAM heatmap (overlaid)\nRed = most influential, "
-        "Blue = least influential"
+        "GradCAM heatmap"
     )
     ax2.axis("off")
 
