@@ -73,7 +73,7 @@ def load_ms_ig(
         tifffile.imread(str(path)).astype("float32")
     ).permute(2, 0, 1)
     preprocessed = normalize_MS_img(raw)
-    baseline = torch.zeros_like(preprocessed)
+    baseline = torch.full_like(preprocessed, -3.0)
     return raw, preprocessed, baseline
 
 
