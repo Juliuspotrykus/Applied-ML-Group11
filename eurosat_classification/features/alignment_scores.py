@@ -1,4 +1,6 @@
 """
+To run: uv run python -m eurosat_classification.features.alignment_scores
+
 IMPORTANT: band_attribution_runner.py needs to have been run before this!!
 
 Main and secondary bands were chosen based on literature. 
