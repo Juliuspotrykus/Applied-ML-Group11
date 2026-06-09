@@ -100,7 +100,8 @@ def integrated_gradients(
         n_steps: Number of interpolation steps (more = more accurate).
 
     Returns:
-        torch.Tensor: Signed attribution tensor [C, H, W] per pixel and channel.
+        torch.Tensor: Signed attribution
+        tensor [C, H, W] per pixel and channel.
     """
     alphas = torch.linspace(
         0, 1, n_steps + 1, device=input_tensor.device
@@ -171,8 +172,10 @@ def band_attribution_totals(
 
     Returns:
         dict[str, np.ndarray]: Dictionary with keys:
-            "positive"  - [C] ndarray, class-balanced mean positive attribution per band.
-            "negative"  - [C] ndarray, class-balanced mean negative attribution per band (≤ 0).
+            "positive"  - [C] ndarray, class-balanced mean positive attribution
+                                                                per band.
+            "negative"  - [C] ndarray, class-balanced mean negative attribution
+                                                                per band (≤ 0).
             "count"     - number of images processed.
     """
     device = torch.device(device)
@@ -255,9 +258,10 @@ def visualise_rgb(
         predicted_class: Class predicted by the model.
         target_class: Class being explained.
         output_path: Save figure here, or None to display interactively.
-    
+
         Returns:
-            None | plt.Figure: None if figure is saved, else returns figure itself.
+            None | plt.Figure: None if figure is saved,
+            else returns figure itself.
     """
     orig = raw.permute(1, 2, 0).numpy()
     agg = _aggregate_attribution(attrs)
@@ -306,7 +310,7 @@ def visualise_ms(
         predicted_class: Class predicted by the model.
         target_class: Class being explained.
         output_path: Save figure here, or None to display interactively.
-    
+
     Returns:
         None | plt.Figure: None if figure is saved, else returns figure itself.
     """
@@ -338,7 +342,9 @@ def visualise_ms(
     return _save_or_show(fig, output_path)
 
 
-def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
+def _save_or_show(
+    fig: plt.Figure, output_path: str | Path | None
+) -> None | plt.Figure:
     """
     If an output path is specified, it saves the given figure to that path.
     Otherwise, it returns the image.
@@ -362,14 +368,15 @@ def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt
 
 def main() -> None:
     """
-    Performs Integrated Gradients on given input file using specified model. Optionally one
-    can specify the class to explain, otherwise defaults to predicted class.
-    Visualization includes original image and Integrated Gradients explanation.
-    For RGB, this is one image of attributions aggregated across bands.
-    For MS this includes one plot per band, and an aggregated plot
+    Performs Integrated Gradients on given input file using specified model.
+    Optionally one can specify the class to explain, otherwise defaults to
+    predicted class. Visualization includes original image and Integrated
+    Gradients explanation. For RGB, this is one image of attributions
+    aggregated across bands. For MS this includes one plot per band,
+    and an aggregated plot.
 
     Argument parser arguments when running in terminal:
-	    --model_path (float):
+            --model_path (float):
             Path of model to use.
         --input_file (jpg or tif):
             Image file to explain.
