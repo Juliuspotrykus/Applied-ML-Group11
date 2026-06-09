@@ -34,20 +34,7 @@ from .evaluate import evaluate
 
 
 class PerturbSpec:
-    """Describes a family of perturbations parameterised by severity level.
-
-    Args:
-        name: Short identifier used in CSV/plot output.
-        unit: Unit string appended to numeric
-        severity values in labels (e.g. "°").
-
-        severities: Ordered list of severity values passed to fn.
-        fn: Factory that takes a severity value and returns a
-        (tensor → tensor) callable.
-
-        labels: Optional per-severity display labels.
-        Overrides auto-generated labels.
-    """
+    """Describes a family of perturbations parameterised by severity level."""
 
     def __init__(
         self,
@@ -57,6 +44,19 @@ class PerturbSpec:
         fn: Callable[[Any], Callable[[torch.Tensor], torch.Tensor]],
         labels: list[str] | None = None,
     ) -> None:
+        """
+        Initializes the perturbation specification template.
+
+        Args:
+            name (str): Short identifier used in CSV/plot output.
+            unit (str): Unit string appended to numeric severity values in labels
+            severities (list[Any]): Ordered list of severity values passed to fn.
+            fn (Callable[[Any], Callable[[torch.Tensor], torch.Tensor]]): 
+                Factory that takes a severity value and returns a 
+                (tensor → tensor) callable.
+            labels (list[str] | None, optional): Optional per-severity display
+                    labels. Overrides auto-generated labels.. Defaults to None.
+        """
         self.name = name
         self.unit = unit
         self.severities = severities
@@ -64,7 +64,15 @@ class PerturbSpec:
         self.labels = labels
 
     def label(self, i: int) -> str:
-        """Return the display label for severity index i."""
+        """
+        Return the display label for severity index i.
+
+        Args:
+            i (int): Target element position index within the severity array.
+
+        Returns:
+            str: Descriptive label for given severity level.
+        """
         if self.labels:
             return self.labels[i]
         return (
@@ -162,11 +170,32 @@ MS_SPECS: list[PerturbSpec] = [
 ]
 
 
-def run_suite(model, dataset, specs, device, batch_size, seed) -> list[dict]:
-    """Evaluate model on the clean dataset and on each perturbation level.
+def run_suite(
+    model: torch.nn.Module, 
+    dataset: Any, 
+    specs: list[PerturbSpec], 
+    device: torch.device, 
+    batch_size: int, 
+    seed: int
+) -> list[dict[str, Any]]:    
+    """
+    Evaluate model on the clean dataset and on each perturbation level.
 
-    Returns a list of dicts with keys:
-    perturbation, severity_label, severity_value, f1, mean_confidence.
+    Args:
+        model (torch.nn.Module): Neural network classifier evaluating the samples.
+        dataset (Dataset): Evaluation testing set base data structures.
+        specs (list[PerturbSpec]): Specific transformation configurations to verify.
+        device (torch.device): target execution processing pipeline (e.g., CUDA).
+        batch_size (int): Data loader single inference windows.
+        seed (int): Absolute random seed initializer.
+
+    Returns:
+        list[dict[str, Any]]: Array of results dictionaries containing keys:
+            - "perturbation" (str): Name of transformation technique applied.
+            - "severity_label" (str): Printable formatted axis value representation.
+            - "severity_value" (Any): Metric quantity indicating degradation step.
+            - "f1" (float): Metric F1 classification score performance result.
+            - "mean_confidence" (float): Mean probability score magnitude tracker.
     """
     model.eval()
 
@@ -207,16 +236,15 @@ def run_suite(model, dataset, specs, device, batch_size, seed) -> list[dict]:
     return rows
 
 
-def plot_results(
-    rows: list[dict], clean_f1: float, modality: str, path: Path
-) -> None:
-    """Save a multi-panel figure with macro-F1 curves per perturbation.
+def plot_results(rows: list[dict], clean_f1: float, modality: str, path: Path) -> None:
+    """
+    Save a multi-panel figure with macro-F1 curves per perturbation.
 
     Args:
-        rows: Perturbed rows (clean row excluded).
-        clean_f1: Baseline macro-F1 drawn as a reference line in each subplot.
-        modality: "rgb" or "ms" — used for the figure title.
-        path: Output PNG path.
+        rows (list[dict]): Perturbed rows (clean row excluded).
+        clean_f1 (float): Baseline macro-F1 drawn as a reference line in each subplot.
+        modality (str): "rgb" or "ms" — used for the figure title.
+        path (Path): Output PNG path.
     """
     by_perturb: dict[str, list[dict]] = defaultdict(list)
     for r in rows:
@@ -268,18 +296,30 @@ def plot_results(
 
 
 def run_for_modality(
-    modality,
-    data_root,
-    test_csv,
-    max_samples,
-    device,
-    batch_size,
-    seed,
-    out_dir,
-):
-    """Load the saved model and test dataset for one modality
-    and run the full perturbation suite."""
-    print(f"\n{'=' * 50}\n  {modality.upper()}\n{'=' * 50}")
+    modality: str, 
+    data_root: Path, 
+    test_csv: str, 
+    max_samples: int, 
+    device: torch.device, 
+    batch_size: int, 
+    seed: int, 
+    out_dir: Path
+) -> None:
+    """
+    Load the saved model and test dataset for one modality and run the full
+    perturbation suite.
+
+    Args:
+        modality (str): Sensory variant designator flag ("rgb" or "ms").
+        data_root (Path): Root folder path target hosting standard file structural dirs.
+        test_csv (str): File metadata localization indexing path for evaluation tracking rows.
+        max_samples (int): Max sample index ceiling threshold count. If `-1`, checks full set.
+        device (torch.device): Compute context execution environment wrapper.
+        batch_size (int): Image indexing step stride configuration grouping.
+        seed (int): Global generator initialization initialization integer.
+        out_dir (Path): Output serialization targets base structure folder.
+    """    
+    print(f"\n{'='*50}\n  {modality.upper()}\n{'='*50}")
 
     model = torch.load(
         f"models/{modality}_model_final.pkl",
@@ -339,7 +379,12 @@ def run_for_modality(
 
 
 def _auto_device() -> str:
-    """Return the best available torch device string."""
+    """
+    Return best available torch device.
+
+    Returns:
+        str: Best available torch device.
+    """
     if torch.cuda.is_available():
         return "cuda"
     if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
@@ -348,10 +393,23 @@ def _auto_device() -> str:
 
 
 def main() -> None:
-    """Parse CLI arguments and run the robustness evaluation."""
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    """
+    Runs robustness evaluation for user-defined model.
+
+    Arguments for running from terminal:
+        --max_samples (int)
+            Limit test-set size (default 1000; -1 for all).
+        --output_dir (str)
+            Output directory (default: results/robustness).
+        --device (str)
+            cuda / mps / cpu (default: auto-detected)
+        --batch_size (int)
+            Default: 64.
+        --seed (int)
+            Default: 42.
+
+    """
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("modality", choices=["rgb", "ms"])
     parser.add_argument("--max_samples", type=int, default=1000)
     parser.add_argument("--output_dir", default="results/robustness")

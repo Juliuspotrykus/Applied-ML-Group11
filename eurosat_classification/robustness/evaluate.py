@@ -11,7 +11,8 @@ from torch.utils.data import DataLoader, Dataset
 
 
 class _PerturbedDataset(Dataset):
-    """Wraps an existing dataset and applies a perturbation on-the-fly.
+    """
+    Wraps an existing dataset and applies a perturbation.
 
     Each sample is perturbed with a deterministic seed (base_seed + index)
     so that stochastic perturbations (noise, salt-and-pepper) are reproducible
@@ -19,14 +20,38 @@ class _PerturbedDataset(Dataset):
     """
 
     def __init__(self, base: Dataset, fn: Callable, seed: int = 42) -> None:
+        """
+        Initializes dataset wrapper.
+
+        Args:
+            base (Dataset): Underlying dataset.
+            fn (Callable): Transformation function to perturb dataset.
+            seed (int, optional): Seed for reproducibility. Defaults to 42.
+        """
         self.base = base
         self.fn = fn
         self.seed = seed
 
     def __len__(self) -> int:
+        """
+        Returns number of samples available in baseline dataset.
+
+        Returns:
+            int: Number of samples.
+        """
         return len(self.base)
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        """
+        Gets a sample, applies perturbation function, and returns perturbed
+        sample with its label.
+
+        Args:
+            idx (int): Number of sample to get.
+
+        Returns:
+            tuple[torch.Tensor, int]: Perturbed tensor and its label.
+        """
         img, label = self.base[idx]
         torch.manual_seed(self.seed + idx)
         return self.fn(img), label
@@ -39,24 +64,23 @@ def evaluate(
     device: torch.device,
     seed: int = 42,
     batch_size: int = 64,
-) -> dict:
-    """Run a single forward pass over the dataset and return metrics.
+) -> dict[str, float | list[int]]:
+    """
+    Run a single forward pass over the dataset and return metrics.
 
     Args:
-        model: Trained CNN already in eval mode.
-        dataset: Test dataset (un-perturbed raw version).
-        perturb_fn: Applied to each image tensor before inference.
-        None = clean run.
-
-        device: Torch device.
-        seed: Base random seed for stochastic perturbations.
-
-        batch_size: DataLoader batch size
-        (num_workers=0 to respect per-sample seeds).
+        model (torch.nn.Module): Trained CNN already in eval mode.
+        dataset (Dataset): Test dataset (un-perturbed raw version).
+        perturb_fn (Callable | None): Applied to each image tensor before inference. None = clean run.
+        device (torch.device): Torch device.
+        seed (42): Base random seed for stochastic perturbations.
+        batch_size (int): DataLoader batch size (num_workers=0 to respect per-sample seeds).
 
     Returns:
-        dict with keys:
-            f1 (float), mean_confidence (float),
+        dict[str, float | list[int]]: ;etrics summary containing:
+            - "f1" (float): Macro-averaged classification F1 score.
+            - "mean_confidence" (float): Average probability magnitude of top predictions.
+            - "preds" (list[int]): Ordered sequence of scalar index class predictions.
     """
     eval_ds = (
         _PerturbedDataset(dataset, perturb_fn, seed)

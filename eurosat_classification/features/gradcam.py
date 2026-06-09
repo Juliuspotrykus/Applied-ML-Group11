@@ -19,6 +19,18 @@ from .retrieve_model import get_model
 
 
 def get_last_conv_layer(model: CNN) -> list[nn.Conv2d]:
+    """
+    Finds last convolutional layer in given model to use for GradCAM explanation.
+
+    Args:
+        model (CNN): Model to find last convolutional layer of.
+
+    Raises:
+        ValueError: No last convolutional layer found.
+
+    Returns:
+        list[nn.Conv2d]: Last convolutional layer of model in list.
+    """
     last_layer = None
 
     for layer in model.backbone:
@@ -32,13 +44,16 @@ def get_last_conv_layer(model: CNN) -> list[nn.Conv2d]:
 
 
 def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
-    """Load a 3-band JPG/PNG as a [1, 3, H, W]
-    float tensor in [0, 1] and as np.ndarray.
+    """
+    Load a 3-band JPG/PNG as a [1, 3, H, W] float tensor in [0, 1] and as np.ndarray.
+    - tensor used for gradcam
+    - np.ndarray used for visualization
 
-    tensor used for gradcam
-    np array used for visualization
+    Args:
+        path (str | Path): Path to RGB image file.
 
-    Returns (tensor, np array).
+    Returns:
+        tuple(Torch.tensor, np array): Both version of normalized RGB image.
     """
     img_tensor = transforms.ToTensor()(
         Image.open(path).convert("RGB")
@@ -49,11 +64,17 @@ def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
 
 
 def _scaled_rgb_colour(raw: torch.Tensor) -> np.ndarray:
-    """Build a uint8 scaled-rgb colour composite
-    from raw MS bands (R=B4, G=B3, B=B2).
+    """
+    Build a uint8 scaled-rgb colour composite from raw MS bands (R=B4, G=B3, B=B2).
 
-    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking
-    landscape view similar to what the human eye would see from a satellite.
+    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking landscape view
+    similar to what the human eye would see from a satellite.
+
+    Args:
+        raw (torch.Tensor): Raw MS image as tensor.
+
+    Returns:
+        np.ndarray: RGB view derived from MS RGB bands for visualization.
     """
 
     def scale(band):
@@ -66,30 +87,41 @@ def _scaled_rgb_colour(raw: torch.Tensor) -> np.ndarray:
 
 
 def load_ms(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
-    """Load a 13-band GeoTIFF as a [13, H, W]
-    float tensor in [0, 1] and as np.ndarray.
+    """
+    Load a 13-band GeoTIFF as a [13, H, W] float tensor in [0, 1] and as np.ndarray.
+    - tensor used for gradcam
+    - np.ndarray used for visualization
 
-    tensor used for gradcam
-    np array used for visualization
+    Preprocessing done is clipping and z-score normalisation on the image.
 
-    preprocessing is clipping and z-score normalisation for the model
+    Args:
+        path (str | Path): Path to MS image file.
+
+    Returns:
+        tuple(tensor, np array): Both version of normalized MS image
     """
     raw = torch.from_numpy(
         tifffile.imread(str(path)).astype("float32")
     ).permute(2, 0, 1)
     img_tensor = normalize_MS_img(raw)
-
     img_array = _scaled_rgb_colour(raw)
-
     return img_tensor.unsqueeze(0), img_array
 
 
-def gradcam(
-    model: CNN,
-    input_tensor: Tensor,
-    input_rgb_image: np.ndarray,
-    target_class: int | None = None,
-):
+def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, target_class: int | None = None) -> np.ndarray:
+    """
+    Runs GradCAM visualization using given model on a speciifc input, for a given
+    target class.
+
+    Args:
+        model (CNN): Model to analyze with GradCAM.
+        input_tensor (Tensor): Image tensor to explain.
+        input_rgb_image (np.ndarray): Image array to visualize.
+        target_class (int | None, optional): Class to explain. Defaults to None.
+
+    Returns:
+        np.ndarray: Visualization of GradCAM explanation.
+    """
     with GradCAM(model=model, target_layers=get_last_conv_layer(model)) as cam:
         if target_class is not None:
             targets = [ClassifierOutputTarget(target_class)]
@@ -102,16 +134,22 @@ def gradcam(
 
         # targets as none defaults to highest scoring category (per batch)
         grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
-
-        # In this example grayscale_cam has only one image in the batch:
         grayscale_cam = grayscale_cam[0, :]
-
         return show_cam_on_image(input_rgb_image, grayscale_cam, use_rgb=True)
+    
 
+def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
+    """
+    If an output path is specified, it saves the given figure to that path.
+    Otherwise, it returns the image.
 
-def _save_or_show(
-    fig: plt.Figure, output_path: str | Path | None
-) -> None | plt.Figure:
+    Args:
+        fig (plt.Figure): Figure to save or show.
+        output_path (str | Path | None): Path for saving figure.
+
+    Returns:
+        None | plt.Figure: None if figure is saved, else returns figure itself.
+    """
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -122,6 +160,24 @@ def _save_or_show(
 
 
 def main() -> None:
+    """
+    Performs GradCAM on given input file using specified model. Optionally one
+    can specify the class to explain, otherwise defaults to predicted class.
+    Visualization includes original image and GradCAM explanation.
+
+    Argument parser arguments when running in terminal:
+	    --model_path (float):
+            Path of model to use.
+        --input_file (jpg or tif):
+            Image file to explain.
+        --target_class (int):
+            Optionally selects a class to explain decision for.
+        --output_path (str):
+            Path to save visualiation to.
+    
+    Raises:
+        ValueError: Invalid target class provided.
+    """
     parser = argparse.ArgumentParser(
         description="GradCAM for EuroSAT CNN models.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,

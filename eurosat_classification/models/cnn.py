@@ -136,6 +136,19 @@ _ACTIVATIONS: dict[str, type[nn.Module]] = {
 
 
 def _build_activation(name: str) -> nn.Module:
+    """
+    Build NN module activation modules from string representation of activation
+    functions.
+
+    Args:
+        name (str): Activation fucntion name
+
+    Raises:
+        ValueError: Unknown activation function given.
+
+    Returns:
+        nn.Module: Torch NN module of requested activation function.
+    """
     try:
         return _ACTIVATIONS[name]()
     except KeyError:
@@ -154,6 +167,15 @@ class _MultiKernelBlock(nn.Module):
         block_cfg: ConvBlockConfig,
         activation: nn.Module,
     ) -> None:
+        """
+        Initializes the multi-kernel parallel convolutional block.
+
+        Args:
+            in_channels (int): Number of input channels.
+            block_cfg (ConvBlockConfig): Configuration object containing kernels, 
+                out_channels, batch_norm, and pool_size settings.
+            activation (nn.Module): Activation function layer.
+        """
         super().__init__()
 
         branch_channels = block_cfg.out_channels // len(block_cfg.kernels)
@@ -179,6 +201,15 @@ class _MultiKernelBlock(nn.Module):
         self.post = nn.Sequential(*post_layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Passes input through parallel branches and applies post-processing.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Processed tensor.
+        """
         branch_outputs = [branch(x) for branch in self.branches]
         concatenated = torch.cat(branch_outputs, dim=1)
         return self.post(concatenated)
@@ -190,6 +221,8 @@ class CNN(nn.Module):
 
     def __init__(self, config: CNNConfig | None = None) -> None:
         """
+        Initializes the network topology using a provided or default configuration.
+
         Args:
             config: CNNConfig instance. Defaults to CNNConfig()
             if not provided.
@@ -202,7 +235,15 @@ class CNN(nn.Module):
         self.classifier = self._build_classifier(flat_dim)
 
     def _build_backbone(self) -> nn.Sequential:
-        """Stacks conv blocks as defined in config.conv_blocks."""
+        """
+        Stacks conv blocks as defined in config.conv_blocks.
+        
+        Returns:
+            nn.Sequential: Compiled convolutional feature extractor.
+
+        Raises:
+            IndexError: If a configuration block contains an empty kernels list.
+        """
         layers: list[nn.Module] = []
         in_ch = self.config.in_channels
 
@@ -235,8 +276,16 @@ class CNN(nn.Module):
         return nn.Sequential(*layers)
 
     def _infer_flat_dim(self) -> int:
-        """Runs a dummy forward pass to determine the
-        flattened backbone output size."""
+        """
+        Runs a dummy forward pass to determine the flattened backbone output size.
+        
+        Returns:
+            int: Flattened size feature dimension (total elements per sample)
+
+        Raises:
+            RuntimeError: If spatial size configurations cause dimension 
+                reduction down to zero or negative dimensions during the pass.
+        """
         with torch.no_grad():
             dummy = torch.zeros(
                 1,
@@ -247,7 +296,16 @@ class CNN(nn.Module):
             return int(self.backbone(dummy).numel())
 
     def _build_classifier(self, flat_dim: int) -> nn.Sequential:
-        """Builds the FC head from flat_dim to the final output size."""
+        """
+        Builds the FC head from flat_dim to the final output size.
+        
+        Args:
+            flat_dim (int): Flattened size input feature dimension.
+
+        Returns:
+            nn.Sequential: Multi-layer linear head with dropout and 
+                            activation functions.
+        """
         layers: list[nn.Module] = []
         in_features = flat_dim
 
@@ -262,7 +320,18 @@ class CNN(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass: backbone → flatten → classifier."""
+        """
+        Forward pass:
+        - backbone 
+        - flatten 
+        - classifier
+
+        Args:
+            x (torch.Tensor): Raw image input tensor.
+
+        Returns:
+            torch.Tensor: Model prediction logits.
+        """
         x = self.backbone(x)
         x = x.flatten(start_dim=1)
         return self.classifier(x)

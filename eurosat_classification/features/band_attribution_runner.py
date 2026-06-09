@@ -34,6 +34,12 @@ from .integrated_gradients import band_attribution_totals
 
 
 def _auto_device() -> str:
+    """
+    Automatically selects the best available PyTorch device.
+
+    Returns:
+        str: "cuda" if a CUDA-capable GPU is available, otherwise "cpu".
+    """
     if torch.cuda.is_available():
         return "cuda"
     return "cpu"
@@ -46,6 +52,16 @@ def plot_band_attribution(
     output_path: Path,
     title: str,
 ) -> None:
+    """
+    Plots band attribution importance (positive and negative).
+
+    Args:
+        positive (np.ndarray): Positive attributions per band.
+        negative (np.ndarray): Negative  attributions per band.
+        band_names (list[str]): String representation of band names.
+        output_path (Path): Output path to save plot to.
+        title (str): Plot title.
+    """
     x = np.arange(len(band_names))
     fig, ax = plt.subplots(figsize=(max(8, len(band_names) * 0.9), 5))
     ax.bar(x, positive, color="tomato", label="Positive")
@@ -62,7 +78,30 @@ def plot_band_attribution(
     print(f"Saved plot: {output_path.resolve()}")
 
 
-def main():
+def main() -> None:
+    """
+    Computes attribution per band for either RGB or MS model based on integrated
+    gradients XAI method. Does so by aggregating band attributions over entire
+    train set of model.
+
+    Plots band attributions and saves them as npz file.
+
+	Argument parser arguments when running in terminal:
+	    --model_path (float):
+            Path of model to use.
+        --image_type (str):
+            Type of image used, either "rgb" or "ms".
+        --output_dir (str):
+            Directory to save attribution scores and images to.
+        --n_steps (int):
+            Number of interpolation steps for integrated gradients.
+        --max_samples (int):
+            Maximum number of images to use for calculating attributions.
+        --device (str):
+            Torch device to use.
+        --target_class (int):
+            Optionally selects a class to calculate band attributions for.
+    """
     parser = argparse.ArgumentParser(
         description="Dataset-level IG band attribution "
         "totals (train set, true-label target).",
