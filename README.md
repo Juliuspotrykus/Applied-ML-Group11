@@ -78,7 +78,6 @@ A configurable convolutional neural network trained on the [EuroSAT](https://git
 │   ├── models/                            # Results from model training land here
 │   └── robustness/                        # Results from robustness testing land here
 ├── docker/                                # Dockerfile for containerization
-├── logs/slurm/                            # SLURM job outputs (.out)
 ├── pyproject.toml                         # Project + Dependencies
 ├── uv.lock                                # Locked dependency versions
 ├── app.py                                 # Streamlit demo
