@@ -72,6 +72,11 @@ A configurable convolutional neural network trained on the [EuroSAT](https://git
 │       └── hyperparameters.sh             # SLURM submission script
 ├── tests/                                 # unittests
 ├── models/                                # Trained models land here
+├── results/ 
+│   ├── alignment/                         # Results from alignment land here
+│   ├── band_attribution/                  # Results from band attribution land here
+│   ├── models/                            # Results from model training land here
+│   └── robustness/                        # Results from robustness testing land here
 ├── docker/                                # Dockerfile for containerization
 ├── logs/slurm/                            # SLURM job outputs (.out)
 ├── pyproject.toml                         # Project + Dependencies
