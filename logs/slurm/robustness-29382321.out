@@ -1,0 +1,124 @@
+=== Job started: Tue Jun  9 11:18:53 CEST 2026 ===
+Node:      rtx6000gpu3
+Modality:  ms
+=== Python: Python 3.12.13 | venv active ===
+=== Starting robustness evaluation ===
+
+==================================================
+  MS
+==================================================
+  Samples: 2700  Device: cuda
+  [clean] …
+  [clean] f1=0.9755  conf=0.9852
+  [rotation] …
+    0°                f1=0.9755
+    15°               f1=0.9627
+    30°               f1=0.9454
+    45°               f1=0.9312
+    90°               f1=0.9670
+    135°              f1=0.9340
+    180°              f1=0.9608
+  [gaussian_noise] …
+    0                 f1=0.9755
+    0.1               f1=0.9634
+    0.25              f1=0.8095
+    0.5               f1=0.5115
+    1.0               f1=0.1676
+    2.0               f1=0.1569
+  [brightness] …
+    0.1×              f1=0.0200
+    0.25×             f1=0.0416
+    0.5×              f1=0.3813
+    0.75×             f1=0.9127
+    1.0×              f1=0.9755
+    1.25×             f1=0.9602
+    1.5×              f1=0.9262
+    2.0×              f1=0.7840
+  [salt_and_pepper] …
+    0%                f1=0.9755
+    1%                f1=0.7511
+    5%                f1=0.2213
+    10%               f1=0.2069
+    20%               f1=0.1993
+    40%               f1=0.1417
+  [contrast] …
+    0.1×              f1=0.4039
+    0.25×             f1=0.4284
+    0.5×              f1=0.7120
+    1.0×              f1=0.9755
+    2.0×              f1=0.7879
+    5.0×              f1=0.2353
+  [band_each] …
+    B1 - Coastal aerosol  f1=0.9007
+    B2 - Blue         f1=0.6278
+    B3 - Green        f1=0.6644
+    B4 - Red          f1=0.6878
+    B5 - Red Edge 1   f1=0.8531
+    B6 - Red Edge 2   f1=0.7968
+    B7 - Red Edge 3   f1=0.8050
+    B8 - NIR          f1=0.6471
+    B8A - Narrow NIR  f1=0.9356
+    B9 - Water Vapour  f1=0.9711
+    B10 - SWIR-Cirrus  f1=0.7968
+    B11 - SWIR 1      f1=0.6660
+    B12 - SWIR 2      f1=0.8631
+  [band_dropout] …
+    1 bands           f1=0.9007
+    2 bands           f1=0.6283
+    3 bands           f1=0.5698
+    4 bands           f1=0.4902
+    5 bands           f1=0.4661
+    6 bands           f1=0.4553
+    7 bands           f1=0.3791
+    8 bands           f1=0.1089
+    9 bands           f1=0.0818
+  [hflip] …
+    flipped           f1=0.9693
+  [vflip] …
+    flipped           f1=0.9635
+Saved CSV:  /scratch/s5949149/Applied-ML-Group11/results/robustness/robustness_ms.csv
+Saved plot: /scratch/s5949149/Applied-ML-Group11/results/robustness/robustness_ms.png
+
+Done.
+=== Job finished: Tue Jun  9 11:21:31 CEST 2026 ===
+
+###############################################################################
+Hábrók Cluster
+Job 29382321 for user s5949149
+Finished at: Tue Jun  9 11:21:35 CEST 2026
+
+Job details:
+============
+
+Job ID                         : 29382321
+Name                           : robustness
+User                           : s5949149
+Partition                      : gpushort
+Nodes                          : rtx6000gpu3
+Number of Nodes                : 1
+Cores                          : 8
+Number of Tasks                : 1
+State                          : COMPLETED  
+Submit                         : 2026-06-09T11:18:51
+Start                          : 2026-06-09T11:18:52
+End                            : 2026-06-09T11:21:31
+Reserved walltime              : 01:00:00
+Used walltime                  : 00:02:39
+Used CPU time                  : 00:16:01 (Efficiency: 75.54%)
+% User (Computation)           : 97.68%
+% System (I/O)                 :  2.32%
+Total memory reserved          : 32G
+Maximum memory used            : 1.43G
+Requested GPUs                 : rtx_pro_6000=1
+Allocated GPUs                 : rtx_pro_6000=1
+Max GPU utilization            : 4%
+Max GPU memory used            : 890.00M
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################

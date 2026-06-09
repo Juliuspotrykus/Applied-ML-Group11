@@ -1,0 +1,42 @@
+Usage: sbatch band_attribution.sh <rgb|ms> <model_path>
+
+###############################################################################
+Hábrók Cluster
+Job 29382329 for user s5949149
+Finished at: Tue Jun  9 11:19:21 CEST 2026
+
+Job details:
+============
+
+Job ID                         : 29382329
+Name                           : band_attribution
+User                           : s5949149
+Partition                      : gpushort
+Nodes                          : rtx6000gpu3
+Number of Nodes                : 1
+Cores                          : 8
+Number of Tasks                : 1
+State                          : FAILED  
+Submit                         : 2026-06-09T11:19:11
+Start                          : 2026-06-09T11:19:15
+End                            : 2026-06-09T11:19:17
+Reserved walltime              : 01:00:00
+Used walltime                  : 00:00:02
+Used CPU time                  : -- (Efficiency:  0.59%)
+% User (Computation)           : 16.84%
+% System (I/O)                 : 83.16%
+Total memory reserved          : 32G
+Maximum memory used            : 19.41M
+Requested GPUs                 : rtx_pro_6000=1
+Allocated GPUs                 : rtx_pro_6000=1
+Max GPU utilization            : 0%
+Max GPU memory used            : 0.00 
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################
