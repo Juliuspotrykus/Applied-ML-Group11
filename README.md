@@ -330,21 +330,21 @@ streamlit run app.py
 
 **Training curves**
 
-![RGB training curves](models/rgb_model_final.png)
+![RGB training curves](results/models/rgb_model_final.png)
 
 **Confusion matrix**
 
-![RGB confusion matrix](models/rgb_model_final_confusion.png)
+![RGB confusion matrix](results/models/rgb_model_final_confusion.png)
 
 #### Multispectral model
 
 **Training curves**
 
-![MS training curves](models/ms_model_final.png)
+![MS training curves](results/models/ms_model_final.png)
 
 **Confusion matrix**
 
-![MS confusion matrix](models/ms_model_final_confusion.png)
+![MS confusion matrix](results/models/ms_model_final_confusion.png)
 
 ### Statistical comparison
 
