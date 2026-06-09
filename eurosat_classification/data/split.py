@@ -4,6 +4,19 @@ from .download import get_dataset_path
 
 
 def get_train_val_test_splits() -> tuple[str, str, str]:
+    """
+    Finds the train, val, test splits from RGB version of Kaggle dataset as
+    CSV files. Contain filenames (which are unique) of which files are in each
+    dataset.
+
+    Raises:
+        ValueError: Train set path not found.
+        ValueError: Validation  set path not found.
+        ValueError: Test  set path not found.
+
+    Returns:
+        tuple[str, str, str]: Paths to each of the data splits.
+    """
     rgb_path = os.path.join(get_dataset_path(), "EuroSAT")
     train_path = None
     val_path = None

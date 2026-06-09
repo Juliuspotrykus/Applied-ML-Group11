@@ -396,7 +396,13 @@ def gradcam_explain(
 
 # API endpoints
 @app.get("/", description="Root endpoint that redirects to API documentation.")
-async def root():
+async def root() -> RedirectResponse:
+    """
+    Redirects root API path to the interactive documentation page.
+
+    Returns:
+        RedirectResponse: Starlette redirect response object targeting `/docs`
+    """
     return RedirectResponse(url="/docs")
 
 
@@ -438,8 +444,21 @@ async def predict_rgb(
         description=("An image file, PNG or JPEG, for example."),
     ),
 ) -> ClassPredictions:
-    # For final API version, create something
-    # that can handle more than 10x10 meter images. TODO
+    """
+    Classifies a standard 3-channel RGB satellite image using the baseline CNN.
+
+    Args:
+        image (UploadFile, optional): Multi-part form uploaded image file matrix
+
+    Raises:
+        HTTPException: 
+            - 415: If the file format cannot be recognized as an openable RGB 
+                image structure.
+
+    Returns:
+        ClassPredictions: Data container holding a list of names and corresponding 
+            confidence floats sorted descending by highest probability.
+    """
     try:
         tensor_image = process_image(image, "RGB")
     except (PIL.UnidentifiedImageError, OSError):
@@ -494,6 +513,25 @@ async def predict_ms(
         description=("A TIF image file."),
     ),
 ) -> ClassPredictions:
+    """
+    Classifies a 13-band multispectral satellite image using the specialized MS
+    CNN.
+
+    Args:
+        image (UploadFile, optional): Multi-part form uploaded multispectral 
+                                        TIF file.
+
+    Raises:
+        HTTPException: 
+            - 415: If the file is corrupted or not formatted as a valid TIF
+                dataset structure.
+            - 422: If the uploaded imagery has a channel dimension size distinct
+                from 13.
+
+    Returns:
+        ClassPredictions: Data container holding a list of names and corresponding 
+            confidence floats sorted descending by highest probability.
+    """
     try:
         tensor_image = process_image(image, "MS")
     except (tifffile.tifffile.TiffFileError, OSError):
@@ -563,6 +601,27 @@ async def explain_rgb(
         ),
     ),
 ) -> StreamingResponse:
+    """
+    Generates a side-by-side XAI visualization (Integrated Gradients and GradCAM) for RGB images.
+
+    Args:
+        image (UploadFile, optional): Multi-part form uploaded RGB image file 
+                                      (JPEG or PNG).
+        target_class (int | str | None, optional): Class index (0-9) or string
+                    name to explain. If None, defaults to explaining the class
+                    predicted by the model.
+        n_steps (_type_, optional): Number of interpolation steps to compute
+                        for Integrated Gradients. Defaults to 50.
+
+    Raises:
+        HTTPException: 
+            - 415: If the uploaded file is not a valid or readable image.
+            - 400: If `target_class` is an invalid class index or name (via `parse_target`).
+
+    Returns:
+        StreamingResponse: FastAPI binary stream containing the compiled
+            side-by-side visualization figure encoded as `image/png`.
+    """
     try:
         # GradCam inputs
         tensor_image = process_image(image, "RGB")  # dim (1, 3, H, W)
@@ -669,6 +728,28 @@ async def explain_ms(
         ),
     ),
 ) -> StreamingResponse:
+    """
+    Generates a side-by-side XAI visualization (Integrated Gradients and GradCAM) for multispectral data.
+
+
+    Args:
+        image (UploadFile): Multi-part form uploaded 13-band multispectral TIF file.
+        target_class (int | str | None, optional): The class index (0-9) or 
+                string name to explain. If None, defaults to explaining the
+                class predicted by the model.
+        n_steps (int): Number of interpolation steps to compute for Integrated
+            Gradients. Defaults to 50.
+
+    Raises:
+        HTTPException:
+            - 415: If the uploaded file is not a valid or readable multispectral TIF file.
+            - 422: If the uploaded image does not contain exactly 13 bands (via `process_image`).
+            - 400: If `target_class` is an invalid class index or name (via `parse_target`).
+
+    Returns:
+        StreamingResponse: FastAPI binary stream containing compiled multi-panel 
+            visualization figure encoded as `image/png`.
+    """
     try:
         tif_bytes = image.file.read()
 

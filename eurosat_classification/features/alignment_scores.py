@@ -84,17 +84,60 @@ from .integrated_gradients import band_attribution_totals
 
 
 def _auto_device() -> str:
-    if torch.cuda.is_available():
-        return "cuda"
-    return "cpu"
+	"""
+	Automatically selects the best available PyTorch device.
+
+	Returns:
+		str: "cuda" if a CUDA-capable GPU is available, otherwise "cpu".
+	"""
+	if torch.cuda.is_available():
+		return "cuda"
+	return "cpu"
 
 
-def load_class_attribution(class_idx: int):
-    path = Path("results/band_attribution") / f"ms_train_attribution_class{class_idx}.npz"
-    return np.load(path, allow_pickle=True)
+def load_class_attribution(class_idx: int) -> np.lib.npyio.NpzFile:
+	"""
+	Loads pre-calculated class attribution scores for specific class.
+	These are calculated by `band_attribution_runner.py` file.
+
+	Args:
+		class_idx (int): Integer index for class.
+
+	Returns:
+		np.lib.npyio.NpzFile: Numpy file with class attribution scores including:
+			- positive: Mean positive attribution per band.
+            - negative: Mean negative attribution per band.
+            - count: Number of images used.
+            - band_names: Sentinel-2 band names.
+	"""
+	path = Path("results/band_attribution") / f"ms_train_attribution_class{class_idx}.npz"
+	return np.load(path, allow_pickle=True)
 
 
-def main():
+def main() -> dict[int, float]:
+	"""
+	Computes band alignment scores with expected important bands per class.
+
+	Score is computed as follows:
+	- importance measure is calculated per band based on positive and negative
+		attributions
+	- proportion of importance of main bands relative to all bands is summed to
+		weighted proportion of importance of secondary bands relative to all
+		bands
+
+	These scores are printed and saved as npz file.
+
+	Argument parser arguments when running in terminal:
+	    --alpha (float):
+            Weight assigned to secondary bands when computing alignment.
+			Default to 0.75.
+        --output_dir (str):
+            Directory where alignment results are stored.
+			Default to "results/alignment".
+
+	Returns:
+		dict[int, float]: Alignment score for each class.
+	"""
 	parser = argparse.ArgumentParser(
 			description="Alignment of attribution scores with literature.",
 			formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -148,9 +191,12 @@ def main():
 			alignment[class_idx] = 0.0
 			continue
 
+		# Identify bands belonging to main and secondaryband sets for this class
 		main_mask = np.isin(band_names, expect_main_class_to_band[class_idx])
 		secondary_mask = np.isin(band_names, expect_secondary_class_to_band[class_idx])
 
+		# Compute fraction of total attribution mass assigned
+        # to main and secondary expected band groups
 		attr_main = importance[main_mask].sum() / total
 		attr_secondary = importance[secondary_mask].sum() / total
 

@@ -36,23 +36,34 @@ from .gradcam import _scaled_rgb_colour
 
 
 def load_rgb_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
-    """Load a 3-band JPG/PNG as a [3, H, W] float tensor in [0, 1].
+    """
+    Load a 3-band JPG/PNG as a [3, H, W] float tensor in [0, 1].
 
-    RGB training used no normalisation, so the raw image is also the model input.
+    Args:
+        path (str | Path): Path to RGB image file.
 
-    Returns (image, baseline).
+    Returns:
+        tuple[torch.Tensor, torch.Tensor]: Normalized RGB image and baseline.
     """
     image = transforms.ToTensor()(Image.open(path).convert("RGB"))
     baseline = torch.zeros_like(image)
     return image, baseline
 
 def load_ms_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    """Load a 13-band GeoTIFF as a [13, H, W] float tensor.
+    """
+    Load a 13-band GeoTIFF as a [13, H, W] float tensor.
 
     Returns (raw, preprocessed, baseline) where raw holds the original
     digital-number values for display, preprocessed is clipped and
     z-score normalised for the model, and baseline is all-zeros in
     normalised space.
+
+    Args:
+        path (str | Path): Path to MS image file.
+
+    Returns:
+        tuple[torch.Tensor, torch.Tensor, torch.Tensor]: Raw, preprocessed, and
+                            baseline versions of MS image.
     """
     raw = torch.from_numpy(tifffile.imread(str(path)).astype("float32")).permute(2, 0, 1)
     preprocessed = normalize_MS_img(raw)
@@ -66,7 +77,8 @@ def integrated_gradients(
     target_class: int,
     n_steps: int = 50,
 ) -> torch.Tensor:
-    """Compute Integrated Gradients attributions for a single image.
+    """
+    Compute Integrated Gradients attributions for a single image.
 
     Interpolates n_steps images between baseline and input_tensor, runs them
     through the model in one batch, and averages the gradients using the
@@ -81,7 +93,7 @@ def integrated_gradients(
         n_steps: Number of interpolation steps (more = more accurate).
 
     Returns:
-        Signed attribution tensor [C, H, W] per pixel and channel.
+        torch.Tensor: Signed attribution tensor [C, H, W] per pixel and channel.
     """
     alphas = torch.linspace(0, 1, n_steps + 1, device=input_tensor.device)# [n_steps+1]
     path = baseline + alphas.view(-1, 1, 1, 1) * (input_tensor - baseline)  # [n_steps+1, C, H, W]
@@ -96,10 +108,17 @@ def integrated_gradients(
 
 
 def _aggregate_attribution(attrs: torch.Tensor) -> np.ndarray:
-    """Sum absolute attributions across channels and normalise to [0, 1].
+    """
+    Sum absolute attributions across channels and normalise to [0, 1].
 
-    This gives a single spatial heatmap showing *where* the model looked,
+    This gives a single spatial heatmap showing where the model looked,
     regardless of which channel drove the attribution.
+
+    Args:
+        attrs (torch.tensor): Attribution scores across channels.
+
+    Returns:
+        np.ndarray: Summed and normalized attribution scores across channels.
     """
     agg = attrs.abs().sum(dim=0).numpy()
     # Normalise to [0, 1] for display (add small epsilon to avoid division by zero)
@@ -115,7 +134,8 @@ def band_attribution_totals(
     device: str | torch.device = "cpu",
     verbose: bool = True,
 ) -> dict[str, np.ndarray]:
-    """Compute class-balanced mean IG attributions per band over a dataset.
+    """
+    Compute class-balanced mean IG attributions per band over a dataset.
 
     For each image, computes Integrated Gradients and sums pixel-level attributions
     separately for positive (>0) and negative (<0) values per channel/band. Sums are
@@ -132,10 +152,10 @@ def band_attribution_totals(
         verbose: Print progress every 100 images.
 
     Returns:
-        Dict with keys:
-            "positive"  – [C] ndarray, class-balanced mean positive attribution per band.
-            "negative"  – [C] ndarray, class-balanced mean negative attribution per band (≤ 0).
-            "count"     – number of images processed.
+        dict[str, np.ndarray]: Dictionary with keys:
+            "positive"  - [C] ndarray, class-balanced mean positive attribution per band.
+            "negative"  - [C] ndarray, class-balanced mean negative attribution per band (≤ 0).
+            "count"     - number of images processed.
     """
     device = torch.device(device)
     model = model.to(device).eval()
@@ -196,7 +216,8 @@ def visualise_rgb(
     target_class: int,
     output_path: str | Path | None,
 ) -> None | plt.Figure:
-    """Plot a two-panel attribution figure for RGB images.
+    """
+    Plot a two-panel attribution figure for RGB images.
 
     Left panel shows the original image; right panel overlays the aggregate
     attribution heatmap (sum of absolute attributions across channels) on top
@@ -208,6 +229,9 @@ def visualise_rgb(
         predicted_class: Class predicted by the model.
         target_class: Class being explained.
         output_path: Save figure here, or None to display interactively.
+    
+        Returns:
+            None | plt.Figure: None if figure is saved, else returns figure itself.
     """
     orig = raw.permute(1, 2, 0).numpy()
     agg  = _aggregate_attribution(attrs)
@@ -238,7 +262,8 @@ def visualise_ms(
     target_class: int,
     output_path: str | Path | None,
 ) -> None | plt.Figure:
-    """Plot a 3x5 attribution grid for 13-band MS images.
+    """
+    Plot a 3x5 attribution grid for 13-band MS images.
 
     Cell 0 shows a RGB composite (R=B4, G=B3, B=B2) for visual context.
     Cells 1-13 show per-band attribution maps using a diverging red/blue colormap:
@@ -251,6 +276,9 @@ def visualise_ms(
         predicted_class: Class predicted by the model.
         target_class: Class being explained.
         output_path: Save figure here, or None to display interactively.
+    
+    Returns:
+        None | plt.Figure: None if figure is saved, else returns figure itself.
     """
     fig, axes = plt.subplots(3, 5, figsize=(15, 9))
     fig.suptitle(
@@ -279,6 +307,17 @@ def visualise_ms(
 
 
 def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
+    """
+    If an output path is specified, it saves the given figure to that path.
+    Otherwise, it returns the image.
+
+    Args:
+        fig (plt.Figure): Figure to save or show.
+        output_path (str | Path | None): Path for saving figure.
+
+    Returns:
+        None | plt.Figure: None if figure is saved, else returns figure itself.
+    """
     if output_path:
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -289,7 +328,29 @@ def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt
         return fig
     
 
-def main():
+def main() -> None:
+    """
+    Performs Integrated Gradients on given input file using specified model. Optionally one
+    can specify the class to explain, otherwise defaults to predicted class.
+    Visualization includes original image and Integrated Gradients explanation.
+    For RGB, this is one image of attributions aggregated across bands.
+    For MS this includes one plot per band, and an aggregated plot
+
+    Argument parser arguments when running in terminal:
+	    --model_path (float):
+            Path of model to use.
+        --input_file (jpg or tif):
+            Image file to explain.
+        --target_class (int):
+            Optionally selects a class to explain decision for.
+        --n_steps (int):
+            Number of interpolation steps.
+        --output_path (str):
+            Path to save visualiation to.
+
+    Raises:
+        ValueError: Invalid target class provided.
+    """
     parser = argparse.ArgumentParser(
         description="Integrated Gradients for EuroSAT CNN models.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
