@@ -1,7 +1,7 @@
 [project]
 name = "applied-ml-group11"
 version = "0.1.0"
-description = "Add your description here"
+description = "Satellite image classification"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
