@@ -256,7 +256,7 @@ def main() -> None:
 
     plt.tight_layout(rect=[0, 0, 1, 0.93])
     fig.suptitle(
-        f"GradCAM | Predicted: {label_map[predicted_class]} | "
+        f"GradCAM | Predicted: {label_map[predicted_class]}\n"
         f"Explaining: {label_map[target_class]}",
         fontsize=12,
         y=0.98
