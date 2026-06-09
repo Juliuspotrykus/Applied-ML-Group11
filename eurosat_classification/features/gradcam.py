@@ -32,7 +32,8 @@ def get_last_conv_layer(model: CNN) -> list[nn.Conv2d]:
 
 
 def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
-    """Load a 3-band JPG/PNG as a [1, 3, H, W] float tensor in [0, 1] and as np.ndarray.
+    """Load a 3-band JPG/PNG as a [1, 3, H, W]
+    float tensor in [0, 1] and as np.ndarray.
 
     tensor used for gradcam
     np array used for visualization
@@ -48,22 +49,25 @@ def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
 
 
 def _scaled_rgb_colour(raw: torch.Tensor) -> np.ndarray:
-    """Build a uint8 scaled-rgb colour composite from raw MS bands (R=B4, G=B3, B=B2).
+    """Build a uint8 scaled-rgb colour composite
+    from raw MS bands (R=B4, G=B3, B=B2).
 
-    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking landscape view
-    similar to what the human eye would see from a satellite.
+    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking
+    landscape view similar to what the human eye would see from a satellite.
     """
 
     def scale(band):
         lo, hi = band.min(), band.max()
         return (band - lo) / (hi - lo + 1e-8)
 
-    # Stack the three bands into a single [H, W, 3] array and scale to [0, 255] uint8 for display
+    # Stack the three bands into a single [H, W, 3] array
+    # and scale to [0, 255] uint8 for display
     return np.stack([scale(raw[i].numpy()) for i in (3, 2, 1)], axis=-1)
 
 
 def load_ms(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
-    """Load a 13-band GeoTIFF as a [13, H, W] float tensor in [0, 1] and as np.ndarray..
+    """Load a 13-band GeoTIFF as a [13, H, W]
+    float tensor in [0, 1] and as np.ndarray.
 
     tensor used for gradcam
     np array used for visualization
@@ -171,7 +175,8 @@ def main() -> None:
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
     fig.suptitle(
-        f"GradCAM | Predicted: {label_map[predicted_class]} | Explaining: {label_map[target_class]}"
+        f"GradCAM | Predicted: {label_map[predicted_class]} | \
+        Explaining: {label_map[target_class]}"
     )
 
     ax1.imshow(img_array)
@@ -180,7 +185,8 @@ def main() -> None:
 
     ax2.imshow(gradcam_visualization)
     ax2.set_title(
-        "GradCAM heatmap (overlaid)\nRed = most influential, Blue = least influential"
+        "GradCAM heatmap (overlaid)\nRed = most influential, "
+        "Blue = least influential"
     )
     ax2.axis("off")
 

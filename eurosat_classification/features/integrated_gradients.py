@@ -4,8 +4,8 @@ Compute and visualise Integrated Gradients for a trained EuroSAT CNN.
 Integrated Gradients attribute a model's prediction
 to its input features by accumulating gradients along a straight-line path from
 a baseline (all-zeros) to the actual input.  A large positive attribution means
-that pixel/channel pushed the model toward the explained class; a large negative
-attribution means it pushed against it.
+that pixel/channel pushed the model toward the explained class;
+a large negative attribution means it pushed against it.
 
 Usage:
     python -m eurosat_classification.features.integrated_gradients \
@@ -38,7 +38,8 @@ from .gradcam import _scaled_rgb_colour
 def load_rgb_ig(path: str | Path) -> tuple[torch.Tensor, torch.Tensor]:
     """Load a 3-band JPG/PNG as a [3, H, W] float tensor in [0, 1].
 
-    RGB training used no normalisation, so the raw image is also the model input.
+    RGB training used no normalisation, so the
+    raw image is also the model input.
 
     Returns (image, baseline).
     """
@@ -99,11 +100,12 @@ def integrated_gradients(
         True
     )  # This tells PyTorch to enable gradient tracking for the path
 
-    model(path)[
-        :, target_class
-    ].sum().backward()  # Compute all gradients in one backward pass; path.grad will have shape [n_steps+1, C, H, W]
+    # Compute all gradients in one backward pass;
+    # path.grad will have shape [n_steps+1, C, H, W]
+    model(path)[:, target_class].sum().backward()
 
-    # Trapezoidal rule: average of gradients at consecutive interpolation points
+    # Trapezoidal rule: average of gradients
+    # at consecutive interpolation points
     avg_grads = ((path.grad[:-1] + path.grad[1:]) / 2).mean(dim=0)  # [C, H, W]
 
     return ((input_tensor - baseline) * avg_grads).detach()
@@ -112,11 +114,12 @@ def integrated_gradients(
 def _aggregate_attribution(attrs: torch.Tensor) -> np.ndarray:
     """Sum absolute attributions across channels and normalise to [0, 1].
 
-    This gives a single spatial heatmap showing *where* the model looked,
-    regardless of which channel drove the attribution.
+    This gives a single spatial heatmap showing *where* the model
+    looked, regardless of which channel drove the attribution.
     """
     agg = attrs.abs().sum(dim=0).numpy()
-    # Normalise to [0, 1] for display (add small epsilon to avoid division by zero)
+    # Normalise to [0, 1] for display
+    # (add small epsilon to avoid division by zero)
     return (agg - agg.min()) / (agg.max() - agg.min() + 1e-8)
 
 
@@ -131,10 +134,11 @@ def band_attribution_totals(
 ) -> dict[str, np.ndarray]:
     """Compute class-balanced mean IG attributions per band over a dataset.
 
-    For each image, computes Integrated Gradients and sums pixel-level attributions
-    separately for positive (>0) and negative (<0) values per channel/band. Sums are
-    accumulated per class, averaged within each class, then macro-averaged across
-    classes so that no class dominates due to having more samples.
+    For each image, computes Integrated Gradients and sums pixel-level
+    attributions separately for positive (>0) and negative (<0) values
+    per channel/band. Sums are accumulated per class, averaged within
+    each class, then macro-averaged across classes so that no class
+    dominates due to having more samples.
 
     Args:
         model: Trained nn.Module in eval mode.
@@ -147,8 +151,10 @@ def band_attribution_totals(
 
     Returns:
         Dict with keys:
-            "positive"  – [C] ndarray, class-balanced mean positive attribution per band.
-            "negative"  – [C] ndarray, class-balanced mean negative attribution per band (≤ 0).
+            "positive"  – [C] ndarray, class-balanced mean
+                        positive attribution per band.
+            "negative"  – [C] ndarray, class-balanced mean
+                        negative attribution per band (≤ 0).
             "count"     – number of images processed.
     """
     device = torch.device(device)
@@ -265,9 +271,11 @@ def visualise_ms(
     """Plot a 3x5 attribution grid for 13-band MS images.
 
     Cell 0 shows a RGB composite (R=B4, G=B3, B=B2) for visual context.
-    Cells 1-13 show per-band attribution maps using a diverging red/blue colormap:
-    red = pushed model toward the class, blue = pushed model away from it.
-    Cell 14 shows the aggregate attribution (sum of absolute values across all bands).
+    Cells 1-13 show per-band attribution maps using a diverging red/blue
+    colormap: red = pushed model toward the class, blue = pushed model
+    away from it.
+    Cell 14 shows the aggregate attribution
+    (sum of absolute values across all bands).
 
     Args:
         raw: [13, H, W] raw digital-number tensor, used for the RGB composite.

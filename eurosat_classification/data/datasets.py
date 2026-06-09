@@ -30,7 +30,8 @@ class EuroSATDataset(Dataset, ABC):
         self.transform = transform
         self.samples = []
 
-        # Get the file names for the files in the split (without folder name or extension)
+        # Get the file names for the files in the split
+        # (without folder name or extension)
         self.split_filenames = set(
             self.split_csv["Filename"].apply(lambda path: Path(path).stem)
         )
@@ -65,10 +66,13 @@ class EuroSATRGBDataset(EuroSATDataset):
 
 
 class EuroSATMSDataset(EuroSATDataset):
-    """Dataset for MS tif files, return torch tensor of dimension [13, H, W], so for us [13, 64, 64]"""
+    """Dataset for MS tif files, return torch tensor of
+    dimension [13, H, W], so for us [13, 64, 64]"""
 
     def _load_image(self, path: Path) -> torch.Tensor:
-        import tifffile  # placed here so package does not need to be imported when not necessary
+        # placed here so package does not need
+        # to be imported when not necessary
+        import tifffile
 
         arr = tifffile.imread(path)
         arr = arr.astype(np.float32)
@@ -91,7 +95,8 @@ def create_dataloaders(
         ValueError: If wrong type is passed it will raise a value error
 
     Returns:
-        type (DataLoader): The three data loaders for train, test, and validation split.
+        type (DataLoader): The three data loaders
+        for train, test, and validation split.
     """
     path = get_dataset_path()
     clean_sealake_folder()

@@ -45,10 +45,14 @@ def evaluate(
     Args:
         model: Trained CNN already in eval mode.
         dataset: Test dataset (un-perturbed raw version).
-        perturb_fn: Applied to each image tensor before inference. None = clean run.
+        perturb_fn: Applied to each image tensor before inference.
+        None = clean run.
+
         device: Torch device.
         seed: Base random seed for stochastic perturbations.
-        batch_size: DataLoader batch size (num_workers=0 to respect per-sample seeds).
+
+        batch_size: DataLoader batch size
+        (num_workers=0 to respect per-sample seeds).
 
     Returns:
         dict with keys:

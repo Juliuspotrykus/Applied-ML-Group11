@@ -29,12 +29,13 @@ class Kernel:
 
 
 class ConvBlockConfig:
-    """Configuration for a convolutional block (Conv2d → BN → activation → MaxPool).
+    """Configuration for a convolutional block
+    (Conv2d → BN → activation → MaxPool).
 
-    Pass a list of Kernel objects to get an inception-style block where each kernel
-    runs in parallel and the outputs are concatenated along the channel axis.
-    out_channels is then split evenly across branches, so it must be divisible by
-    the number of kernels.
+    Pass a list of Kernel objects to get an inception-style block where
+    each kernel runs in parallel and the outputs are concatenated along
+    the channel axis out_channels is then split evenly across branches,
+    so it must be divisible by the number of kernels.
     """
 
     def __init__(
@@ -46,8 +47,9 @@ class ConvBlockConfig:
     ) -> None:
         """
         Args:
-            out_channels: Total output filters. For multiple kernels this must be
-                divisible by the number of kernels (each branch gets an equal share).
+            out_channels: Total output filters. For multiple kernels
+            this must be divisible by the number of kernels
+            (each branch gets an equal share).
             kernels: A single Kernel or a list of Kernel objects.
             batch_norm: Whether to add BatchNorm2d after the conv output.
             pool_size: Kernel size for MaxPool2d. None disables pooling.
@@ -72,13 +74,15 @@ class ConvBlockConfig:
         if num_kernels > 1:
             if out_channels % num_kernels != 0:
                 raise ValueError(
-                    f"out_channels ({out_channels}) must be divisible by the number "
+                    f"out_channels ({out_channels}) must be divisible "
+                    "by the number "
                     f"of kernels ({num_kernels}) for multi-kernel blocks."
                 )
             strides = {k.stride for k in self.kernels}
             if len(strides) > 1:
                 raise ValueError(
-                    "All kernels in a multi-kernel block must share the same stride "
+                    "All kernels in a multi-kernel block must share the "
+                    "same stride "
                     f"so their outputs can be concatenated. Got: {strides}"
                 )
 
@@ -98,13 +102,15 @@ class CNNConfig:
     ) -> None:
         """
         Args:
-            in_channels: Number of input channels (e.g. 1 for grayscale, 3 for RGB).
+            in_channels: Number of input channels
+                (e.g. 1 for grayscale, 3 for RGB).
             input_height: Height of the input image in pixels.
             input_width: Width of the input image in pixels.
             conv_blocks: List of ConvBlockConfig objects defining the backbone.
                 Defaults to three blocks with 32, 64, and 128 filters.
-            fc_layers: Widths of the fully-connected head layers. The last value
-                is the number of output classes. Defaults to [256, 10].
+            fc_layers: Widths of the fully-connected head layers.
+                The last value is the number of output classes.
+                Defaults to [256, 10].
             dropout: Dropout probability applied between FC layers.
             activation: Activation function used after conv and FC layers.
         """
@@ -139,7 +145,8 @@ def _build_activation(name: str) -> nn.Module:
 
 
 class _MultiKernelBlock(nn.Module):
-    """Inception-style block: parallel Conv2d branches concatenated along the channel axis."""
+    """Inception-style block: parallel Conv2d branches
+    concatenated along the channel axis."""
 
     def __init__(
         self,
@@ -178,12 +185,14 @@ class _MultiKernelBlock(nn.Module):
 
 
 class CNN(nn.Module):
-    """Configurable CNN with a convolutional backbone and fully-connected classifier head."""
+    """Configurable CNN with a convolutional backbone
+    and fully-connected classifier head."""
 
     def __init__(self, config: CNNConfig | None = None) -> None:
         """
         Args:
-            config: CNNConfig instance. Defaults to CNNConfig() if not provided.
+            config: CNNConfig instance. Defaults to CNNConfig()
+            if not provided.
         """
         super().__init__()
         self.config = config or CNNConfig()
@@ -226,7 +235,8 @@ class CNN(nn.Module):
         return nn.Sequential(*layers)
 
     def _infer_flat_dim(self) -> int:
-        """Runs a dummy forward pass to determine the flattened backbone output size."""
+        """Runs a dummy forward pass to determine the
+        flattened backbone output size."""
         with torch.no_grad():
             dummy = torch.zeros(
                 1,

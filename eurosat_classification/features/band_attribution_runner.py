@@ -14,7 +14,8 @@ Usage (local):
     # Use --max_samples 200 to do a quick smoke-test before the full run.
 
 Usage (cluster):
-    sbatch eurosat_classification/features/band_attribution.sh ms models/ms_model_final.pkl
+    sbatch eurosat_classification/features/band_attribution.sh \
+    ms models/ms_model_final.pkl
 """
 
 import argparse
@@ -63,7 +64,8 @@ def plot_band_attribution(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Dataset-level IG band attribution totals (train set, true-label target).",
+        description="Dataset-level IG band attribution "
+        "totals (train set, true-label target).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -92,7 +94,8 @@ def main():
         "--target_class",
         type=int,
         default=None,
-        help="If set, only process images with this label and explain that class.",
+        help="If set, only process images with this "
+        "label and explain that class.",
     )
     args = parser.parse_args()
 
@@ -173,7 +176,8 @@ def main():
         output_path=out_dir
         / f"{args.image_type}_train_attribution{class_suffix}.png",
         title=(
-            f"Band attribution — {args.image_type.upper()} / train{class_label} "
+            f"Band attribution — {args.image_type.upper()} \
+             / train{class_label} "
             f"(n={results['count']}, steps={args.n_steps})"
         ),
     )
