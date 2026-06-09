@@ -1,6 +1,8 @@
 import torch
 from torchvision import transforms
 
+# Values for normalization from Jupyter notebook
+
 clip_mins = torch.tensor(
     [
         1000.0,
@@ -82,8 +84,16 @@ normalize = transforms.Normalize(means, stdevs)
 
 def normalize_MS_img(img: torch.Tensor) -> torch.Tensor:
     """
-    Normalize all bands of a given image,
-    knowing their means and standard deviations
+    Clip extreme values of each band.
+
+    Normalize all bands of a given image, knowing their means and standard
+    deviations.
+
+    Args:
+        img (torch.Tensor): Image tensor to normalize.
+
+    Returns:
+        torch.Tensor: Normalized image
     """
     # First clip per band
     img = torch.clip(img, clip_mins, clip_maxs)

@@ -17,7 +17,23 @@ from .split import get_train_val_test_splits
 
 
 class EuroSATDataset(Dataset, ABC):
-    """Abstract class for RGB and MS dataset"""
+    """
+    Abstract class for RGB and MS dataset
+
+    Attributes:
+        root (Path): Root directory of the dataset.
+
+        split_csv (pd.DataFrame): Dataframe containing filenames belonging
+        to the split.
+
+        transform (Optional[Callable]): Transform or augmentation function
+        to apply to images.
+
+        samples (list[tuple[str, Path, int]]): List of tuples containing
+                                            (filename, full path, label index).
+        split_filenames (set[str]): Set of unique stem filenames included in
+                                    this dataset split.
+    """
 
     def __init__(
         self,
@@ -25,12 +41,22 @@ class EuroSATDataset(Dataset, ABC):
         csv_path: str,
         transform: Optional[Callable] = None,
     ) -> None:
+        """
+        Initializes Dataset splot for EuroSAT data.
+
+        Args:
+            root (str | Path): Root directory of the dataset.
+            csv_path (str): Path to the CSV file specifying the dataset split.
+            transform (Optional[Callable], optional): Transform or augmentation
+                                function to apply to images.. Defaults to None.
+        """
         self.root = Path(root)
         self.split_csv = pd.read_csv(csv_path)
         self.transform = transform
         self.samples = []
 
-        # Get the file names for the files in the split (without folder name or extension)
+        # Get the file names for the files in the split
+        # (without folder name or extension)
         self.split_filenames = set(
             self.split_csv["Filename"].apply(lambda path: Path(path).stem)
         )
@@ -42,13 +68,37 @@ class EuroSATDataset(Dataset, ABC):
                     self.samples.append((f.name, f, idx))
 
     def __len__(self) -> int:
+        """
+        Returns total number of samples in this dataset split.
+
+        Returns:
+            int: Number of samples.
+        """
         return len(self.samples)
 
     @abstractmethod
     def _load_image(self, path: Path) -> torch.Tensor:
+        """
+        Abstract method to load image from path into tensor.
+
+        Args:
+            path (Path): Path to image.
+
+        Returns:
+            torch.Tensor: Tensor with loaded image.
+        """
         pass
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        """
+        Gets tensor for image at given index and its associated integer label.
+
+        Args:
+            idx (int): Index of sample.
+
+        Returns:
+            tuple[torch.Tensor, int]: Image tensor and image label.
+        """
         _, path, label = self.samples[idx]
         img = self._load_image(path)
         if self.transform is not None:
@@ -60,15 +110,38 @@ class EuroSATRGBDataset(EuroSATDataset):
     """Dataset for RGB jpg images"""
 
     def _load_image(self, path: Path) -> torch.Tensor:
+        """
+        Loads RGB image as torch tensor of dimension (3, 64, 64).
+        Normalizes values to [0, 1] range
+
+        Args:
+            path (Path): Path to JPG RGB image.
+
+        Returns:
+            torch.Tensor: Normalized tensor with image.
+        """
         img = Image.open(path).convert("RGB")
         return transforms.ToTensor()(img)
 
 
 class EuroSATMSDataset(EuroSATDataset):
-    """Dataset for MS tif files, return torch tensor of dimension [13, H, W], so for us [13, 64, 64]"""
+    """Dataset for MS tif files, return torch tensor of
+    dimension [13, H, W], so for us [13, 64, 64]"""
 
     def _load_image(self, path: Path) -> torch.Tensor:
-        import tifffile  # placed here so package does not need to be imported when not necessary
+        """
+        Loads MS TIF files and reorders axes returning
+        tensor of dimension (13, 64, 64)
+
+        Args:
+            path (Path): Path to TIF file
+
+        Returns:
+            torch.Tensor: Image tensor of dimension (13, 64, 64)
+        """
+        # placed here so package does not need
+        # to be imported when not necessary
+        import tifffile
 
         arr = tifffile.imread(path)
         arr = arr.astype(np.float32)
@@ -81,7 +154,8 @@ class EuroSATMSDataset(EuroSATDataset):
 def create_dataloaders(
     image_type: str, batch_size: int = 64
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
-    """Method to create the dataloaders for either the RGB or the MS data
+    """
+    Method to create the dataloaders for either the RGB or the MS data
 
     Args:
         type (str): Possible values are "rgb" or "ms"
@@ -91,7 +165,8 @@ def create_dataloaders(
         ValueError: If wrong type is passed it will raise a value error
 
     Returns:
-        type (DataLoader): The three data loaders for train, test, and validation split.
+        tuple[DataLoader, DataLoader, DataLoader]:
+            The three data loaders for train, test, and validation split.
     """
     path = get_dataset_path()
     clean_sealake_folder()
@@ -99,9 +174,15 @@ def create_dataloaders(
     train_path, val_path, test_path = get_train_val_test_splits()
 
     if image_type == "rgb":
-        train_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=train_path)
-        val_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=val_path)
-        test_ds = EuroSATRGBDataset(root=Path(path) / "EuroSAT", csv_path=test_path)
+        train_ds = EuroSATRGBDataset(
+            root=Path(path) / "EuroSAT", csv_path=train_path
+        )
+        val_ds = EuroSATRGBDataset(
+            root=Path(path) / "EuroSAT", csv_path=val_path
+        )
+        test_ds = EuroSATRGBDataset(
+            root=Path(path) / "EuroSAT", csv_path=test_path
+        )
     elif image_type == "ms":
         train_ds = EuroSATMSDataset(
             root=Path(path) / "EuroSATallBands",
@@ -119,7 +200,9 @@ def create_dataloaders(
             transform=normalize_MS_img,
         )
     else:
-        raise ValueError("Wrong image types! Possible image types include: rgb and ms")
+        raise ValueError(
+            "Wrong image types! Possible image types include: rgb and ms"
+        )
 
     train_loader = DataLoader(
         train_ds,
