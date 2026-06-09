@@ -209,11 +209,53 @@ uv run python -m eurosat_classification.train.ablation \
     --drop B1 --drop B2 B3 B4 --n-runs 40
 ```
 
-#### Robustness evaluation -> @TODO someone do this
+#### Robustness evaluation
 
-#### Band attribution & literature alignment -> @TODO someone do this
+`run_robustness.py` runs the robustness evluation for both RGB and MS classifiers. Pertubations for RGB include `rotation`, `gaussian_noise`, `brightness`, `salt_and_pepper`, `contrast`. Additionally, for MS it evaluates `band_each` which drops each band individually and `band_dropout` which drops bands cummulatively. 
+
+To change the severity, modify them in list of pertubation specs in `run_robustness.py`.
+
+```bash
+# For RGB: 
+python -m eurosat_classification.robustness.run_robustness rgb
+#For MS:
+python -m eurosat_classification.robustness.run_robustness ms
+```
+
+#### Band attribution & literature alignment
+
+The file `band_attribution_runner` iterates over the training set, accumulates total positive and negative IG
+attributions per band (using each image's true label as the target class),
+saves results to .npz, and writes a bar chart. You can specify the target class to only accumulate attribution for one class with the flag `--target_class`. The valid tokens are integers indexes `[0,12]`. 
+
+```bash
+#Local usage
+python -m eurosat_classification.features.band_attribution_runner \
+        --model_path models/ms_model_final.pkl \
+        --image_type ms \
+        --output_dir results/band_attribution \
+
+#Usage on Habrok cluster (per class) --> runs for each class
+sbatch eurosat_classification/features/band_attribution_per_class.sh \
+    ms models/ms_model_final.pkl
+
+#Usage on Habrok cluster (total) --> returns total attriubtion
+sbatch eurosat_classification/features/band_attribution_per_class.sh \
+    ms models/ms_model_final.pkl
+```
+
+To run the literature alignment:
+
+
+```bash
+python -m eurosat_classification.features.alignment_scores
+```
+##### IMPORTANT: band_attribution_runner.py needs to have been run before this!
+
 
 ---
+
+
 
 ## Running the API
 
@@ -319,6 +361,32 @@ Dropping individual bands barely moves the score. The largest drop in performanc
 | Drop B1                   | 0.9765 ± 0.0009     |
 | **Drop B2, B3, B4**       | **0.9720 ± 0.0006** |
 
-### Robustness -> @TODO
+### Robustness
 
-### Band attribution & literature alignment -> @TODO
+![Robstuness plots RGB](results/robustness/robustness_rgb.png)
+
+![Robstuness plots MS](results/robustness/robustness_ms.png)
+
+### Band attribution & literature alignment
+#### Total band attribution for RGB
+![Band_attribution_total_rgb](results/band_attribution/rgb_train_attribution.png)
+
+#### Total band attribution for MS
+![Band_attribution_total_ms](results/band_attribution/ms_train_attribution.png)
+
+
+#### Alignment Scores
+
+| Class                | Alignment Score |
+| -------------------- | --------------- |
+| AnnualCrop           | 0.568           |
+| Forest               | 0.479           |
+| HerbaceousVegetation | 0.383           |
+| Highway              | 0.409           |
+| Industrial           | 0.392           |
+| Pasture              | 0.511           |
+| PermanentCrop        | 0.509           |
+| Residential          | 0.409           |
+| River                | 0.363           |
+| SeaLake              | 0.332           |
+| **Mean alignment**   | **0.435**       |
