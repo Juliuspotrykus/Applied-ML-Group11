@@ -20,4 +20,5 @@ dependencies = [
     "uvicorn>=0.48.0",
     "opencv-python-headless",
     "streamlit>=1.58.0",
+    "pytest>=9.0.3",
 ]

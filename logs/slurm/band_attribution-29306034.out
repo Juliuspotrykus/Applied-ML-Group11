@@ -1,0 +1,67 @@
+=== Job started: Thu Jun  4 17:00:25 CEST 2026 ===
+Node:        rtx6000gpu3
+Image type:  rgb
+Model:       models/rgb_model_final.pkl
+=== Python: Python 3.12.13 | venv active ===
+=== Starting band attribution ===
+Device:     cuda
+Image type: RGB
+Split:      train  (18900 images)
+n_steps:    50
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/scratch/s5949149/Applied-ML-Group11/eurosat_classification/features/band_attribution_runner.py", line 142, in <module>
+    main()
+  File "/scratch/s5949149/Applied-ML-Group11/eurosat_classification/features/band_attribution_runner.py", line 107, in main
+    results = band_attribution_totals(
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/s5949149/Applied-ML-Group11/eurosat_classification/features/integrated_gradients.py", line 156, in band_attribution_totals
+    attrs = integrated_gradients(model, img, baseline, tc, n_steps)  # [C, H, W]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/s5949149/Applied-ML-Group11/eurosat_classification/features/integrated_gradients.py", line 87, in integrated_gradients
+    path = baseline + alphas.view(-1, 1, 1, 1) * (input_tensor - baseline)  # [n_steps+1, C, H, W]
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!
+=== Job finished: Thu Jun  4 17:00:36 CEST 2026 ===
+
+###############################################################################
+Hábrók Cluster
+Job 29306034 for user s5949149
+Finished at: Thu Jun  4 17:00:40 CEST 2026
+
+Job details:
+============
+
+Job ID                         : 29306034
+Name                           : band_attribution
+User                           : s5949149
+Partition                      : gpushort
+Nodes                          : rtx6000gpu3
+Number of Nodes                : 1
+Cores                          : 8
+Number of Tasks                : 1
+State                          : COMPLETED  
+Submit                         : 2026-06-04T16:59:41
+Start                          : 2026-06-04T17:00:23
+End                            : 2026-06-04T17:00:36
+Reserved walltime              : 02:00:00
+Used walltime                  : 00:00:13
+Used CPU time                  : 00:00:07 (Efficiency:  6.56%)
+% User (Computation)           : 75.36%
+% System (I/O)                 : 24.63%
+Total memory reserved          : 32G
+Maximum memory used            : 606.88M
+Requested GPUs                 : rtx_pro_6000=1
+Allocated GPUs                 : rtx_pro_6000=1
+Max GPU utilization            : 0%
+Max GPU memory used            : 0.00 
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################

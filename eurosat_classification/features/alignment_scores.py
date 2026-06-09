@@ -1,15 +1,68 @@
 """
-The alignment score measures how much of the model's Integrated Gradients attribution
-mass falls within predefined “expected” spectral bands for each class, based on
-domain knowledge. It is computed as a weighted sum of attribution in primary and
-secondary bands, indicating how closely the model's explanations align with
-physically meaningful remote sensing signals.
+To run: uv run python -m eurosat_classification.features.alignment_scores
 
-PREREQUISITE: `band_attribution_runner.py` needs to have been run before this!!
+IMPORTANT: band_attribution_runner.py needs to have been run before this!!
 
-Main and secondary bands were chosen based on literature. Main bands were those
-identified by both sources, secondary bands are those identified by only one
-of the sources.
+Main and secondary bands were chosen based on literature. 
+Main bands were those identified by both sources, secondary bands are those identified by only one of the sources.
+
+AnnualCrop
+- B5, B6, B7, B8A [1]
+- B5, B6, B7, B8, B8A [2] -> vegetation classification
+- B11, B12 [2] -> moisture
+- B4 [2] -> soil contrast 
+
+Forest
+- B5, B6, B7, B8 [1]
+- B5, B6, B7, B8, B8A [2] -> vegetation classification
+- B11, B12 [2] -> moisture
+- B4 [2] -> soil contrast 
+
+HerbaceousVegetation
+- B5, B6, B7, B8A [1]
+- B5, B6, B7, B8, B8A [2] -> vegetation classification
+- B11, B12 [2] -> moisture
+
+Highway
+- B11, B12, B8 [1]
+- B2 [2] -> man-made object detection
+- B4 [2] -> urban and soil separation
+- B11, B12 [2] -> moisture contrast
+
+Industrial
+- B11, B12, B8 [1]
+- B2 [2] -> man-made object detection
+- B4 [2] -> urban and soil separation
+- B11, B12 [2] -> moisture contrast
+
+Pasture
+- B5, B6, B7, B8A [1]
+- B5, B6, B7, B8, B8A [2] -> vegetation classification
+- B11, B12 [2] -> moisture
+
+PermanentCrop
+- B5, B6, B7, B8A [1]
+- B5, B6, B7, B8, B8A [2] -> vegetation classification
+- B11, B12 [2] -> moisture
+- B4 [2] -> soil contrast 
+
+Residential
+- B11, B12, B8 [1]
+- B2 [2] -> man-made object detection
+- B4 [2] -> urban and soil separation
+- B11, B12 [2] -> moisture contrast
+
+River
+- B3, B8, B11 [1]
+- B3 [2] -> water contrast
+- B8 [2] -> shoreline mapping
+- B4 [2] -> land water separation
+
+SeaLake
+- B3, B8, B11 [1]
+- B3 [2] -> water contrast
+- B8 [2] -> shoreline mapping
+- B4 [2] -> land water separation
 
 [1] https://www.mdpi.com/2071-1050/17/22/10324
 [2] https://custom-scripts.sentinel-hub.com/sentinel-2/bands/
