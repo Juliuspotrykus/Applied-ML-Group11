@@ -249,15 +249,15 @@ def main() -> None:
 
     ax2.imshow(gradcam_visualization)
     ax2.set_title(
-        "GradCAM heatmap (overlaid)\nRed = most influential, "
-        "Blue = least influential"
+        "GradCAM heatmap"
     )
     ax2.axis("off")
 
     plt.tight_layout(rect=[0, 0, 1, 0.93])
     fig.suptitle(
-        f"GradCAM | Predicted: {label_map[predicted_class]}\n"
-        f"Explaining: {label_map[target_class]}",
+        f"Predicted: {label_map[predicted_class]}\n"
+        f"Explaining: {label_map[target_class]}\n"
+        "Red = most influential, Blue = least influential",
         fontsize=12,
         y=0.98
     )
