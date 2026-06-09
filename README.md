@@ -12,11 +12,11 @@ A configurable convolutional neural network trained on the [EuroSAT](https://git
 4. [Reproducing the Project Locally](#reproducing-the-project-locally)
 5. [Running the API](#running-the-api)
 6. [Running the Streamlit Demo](#running-the-streamlit-demo)
-7. [Results &amp; Evaluation](#results--evaluation)
+7. [Results & Evaluation](#results--evaluation)
 
 ---
 
-## Project overview
+## Project Overview
 
 - **Input**: 64x64 pixel satellite image with 10 meter ground sampling distance
 - **Output**: Land type classification prediction from 10 possible classes:
@@ -33,51 +33,51 @@ A configurable convolutional neural network trained on the [EuroSAT](https://git
 
 ---
 
-## Project structure
+## Project Structure
 
 ```
- .
+.
 ├── eurosat_classification/
 │   ├── data/
-│   │   ├── datasets.py          	   # PyTorch Datasets + DataLoaders
-│   │   ├── download.py          	   # Downloads EuroSAT via kagglehub
-│   │   ├── split.py             	   # Train/val/test splitting
-│   │   ├── clean.py             	   # SeaLake folder cleanup
-│   │   ├── label_map.py         	   # Label map for class names
-│   │   ├── band_names.py        	   # MS band names and indices
-│   │   └── preprocessors.py     	   # MS-band normalisation
+│   │   ├── datasets.py                    # PyTorch Datasets + DataLoaders
+│   │   ├── download.py                    # Downloads EuroSAT via kagglehub
+│   │   ├── split.py                       # Train/val/test splitting
+│   │   ├── clean.py                       # SeaLake folder cleanup
+│   │   ├── label_map.py                   # Label map for class names
+│   │   ├── band_names.py                  # MS band names and indices
+│   │   └── preprocessors.py               # MS-band normalisation
 │   ├── models/
-│   │   └── cnn.py               	   # CNN, CNNConfig, ConvBlockConfig
-│   ├── features/                	   # Explainability & Band attributions
-│   │   ├── gradcam.py           	   # Grad-CAM
+│   │   └── cnn.py                         # CNN, CNNConfig, ConvBlockConfig
+│   ├── features/                          # Explainability & Band attributions
+│   │   ├── gradcam.py                     # Grad-CAM
 │   │   ├── integrated_gradients.py        # Integrated gradients
 │   │   ├── band_attribution_runner.py     # Calculated attribution per band
-│   │   ├── alignment_scores.py  	   # Calculates alignment of band attribution with literature
+│   │   ├── alignment_scores.py            # Calculates alignment of band attribution with literature
 │   │   ├── band_attribution_total.sh      # SLURM: whole-dataset attribution
 │   │   ├── band_attribution_per_class.sh  # SLURM: per-class attribution (all 10 classes)
-│   │   ├── test_files/          	   # Satellite images for testing
-│   │   └── retrieve_model.py    	   # Loads a saved model from .pkl
-│   ├── notebooks/               	   # Preprocessing experiments
-│   ├── robustness/              	   # Preprocessing experiments
+│   │   ├── test_files/                    # Satellite images for testing
+│   │   └── retrieve_model.py              # Loads a saved model from .pkl
+│   ├── notebooks/                         # Preprocessing experiments
+│   ├── robustness/                        # Preprocessing experiments
 │   │   ├── evaluate.py                    # Evaluation of robustness experiments
-│   │   ├── perturbations.py           # Perturbation functions to test robustness
-│   │   ├── run_robustness.py          # Robustness evaluation + plot creation
-│   │   └── run_robustness.sh          # SLURM submission script
+│   │   ├── perturbations.py               # Perturbation functions to test robustness
+│   │   ├── run_robustness.py              # Robustness evaluation + plot creation
+│   │   └── run_robustness.sh              # SLURM submission script
 │   └── train/
-│       ├── train.py                   # train_model() + evaluate()
-│       ├── tune.py                    # Optuna search
-│       ├── run_training.py            # Trains best config + saves the model
-│       ├── compare_models.py          # Trains model several runs to obtain mean & SEM
-│       ├── ablation.py                # Trains model without certain bands removed
-│       └── hyperparameters.sh         # SLURM submission script
-├── tests/                             # unittests
-├── models/                            # Trained models land here
-├── docker/                            # Dockerfile for containerization
-├── logs/slurm/                        # SLURM job outputs (.out)
-├── pyproject.toml                     # Project + Dependencies
-├── uv.lock                            # Locked dependency versions
-├── app.py                             # Streamlit demo 
-└── main.py                            # FastAPI app
+│       ├── train.py                       # train_model() + evaluate()
+│       ├── tune.py                        # Optuna search
+│       ├── run_training.py                # Trains best config + saves the model
+│       ├── compare_models.py              # Trains model several runs to obtain mean & SEM
+│       ├── ablation.py                    # Trains model without certain bands removed
+│       └── hyperparameters.sh             # SLURM submission script
+├── tests/                                 # unittests
+├── models/                                # Trained models land here
+├── docker/                                # Dockerfile for containerization
+├── logs/slurm/                            # SLURM job outputs (.out)
+├── pyproject.toml                         # Project + Dependencies
+├── uv.lock                                # Locked dependency versions
+├── app.py                                 # Streamlit demo
+└── main.py                                # FastAPI app
 ```
 
 ---
@@ -97,7 +97,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ### Installation
 
 ```bash
-git clone https://github.com/Juliuspotrykus/Applied-ML-Group11.git 
+git clone https://github.com/Juliuspotrykus/Applied-ML-Group11.git
 cd Applied-ML-Group11
 uv sync
 source .venv/bin/activate
@@ -117,14 +117,14 @@ The multispectral contains some spurious files in the
 `EuroSATallBands/SeaLake` folder. These are removed automatically by
 `clean_sealake_folder()` before the datasets are constructed.
 
-To download and clean the data independently, e.g. to inspect it before training, start a Python session and run::
+To download and clean the data independently, e.g. to inspect it before training, start a Python session and run:
 
 ```python
 from eurosat_classification.data.download import get_dataset_path
 from eurosat_classification.data.clean import clean_sealake_folder
 
-path = get_dataset_path()   
-clean_sealake_folder()  
+path = get_dataset_path()
+clean_sealake_folder()
 ```
 
 ### Usage
@@ -309,15 +309,15 @@ streamlit run app.py
 Dropping individual bands barely moves the score. The largest drop in performance comes from removing the visible bands (RGB) together
 (B2/B3/B4):
 
-| Configuration             | Test macro-F1              |
-| ------------------------- | -------------------------- |
-| All 13 bands (baseline)   | 0.9786 ± 0.0005           |
-| Drop B7                   | 0.9792 ± 0.0005           |
-| Drop B5                   | 0.9791 ± 0.0006           |
-| Drop B9                   | 0.9788 ± 0.0007           |
-| Drop B10 / B6 / B8A / B12 | ≈ 0.9780–0.9782          |
-| Drop B1                   | 0.9765 ± 0.0009           |
-| **Drop B2, B3, B4** | **0.9720 ± 0.0006** |
+| Configuration             | Test macro-F1       |
+| ------------------------- | ------------------- |
+| All 13 bands (baseline)   | 0.9786 ± 0.0005     |
+| Drop B7                   | 0.9792 ± 0.0005     |
+| Drop B5                   | 0.9791 ± 0.0006     |
+| Drop B9                   | 0.9788 ± 0.0007     |
+| Drop B10 / B6 / B8A / B12 | ≈ 0.9780–0.9782     |
+| Drop B1                   | 0.9765 ± 0.0009     |
+| **Drop B2, B3, B4**       | **0.9720 ± 0.0006** |
 
 ### Robustness -> @TODO
 
