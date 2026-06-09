@@ -1,0 +1,58 @@
+=== Job started: Thu Jun  4 16:56:10 CEST 2026 ===
+Node:        rtx6000gpu3
+Image type:  ms
+Model:       models/ms_model_final.pkl
+=== Python: Python 3.12.13 | venv active ===
+=== Starting band attribution ===
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/scratch/s5949149/Applied-ML-Group11/eurosat_classification/features/band_attribution_runner.py", line 32, in <module>
+    from .integrated_gradients import band_attribution_totals
+  File "/scratch/s5949149/Applied-ML-Group11/eurosat_classification/features/integrated_gradients.py", line 35, in <module>
+    from .gradcam import _scaled_rgb_colour
+  File "/scratch/s5949149/Applied-ML-Group11/eurosat_classification/features/gradcam.py", line 10, in <module>
+    from pytorch_grad_cam import GradCAM
+ModuleNotFoundError: No module named 'pytorch_grad_cam'
+=== Job finished: Thu Jun  4 16:57:42 CEST 2026 ===
+
+###############################################################################
+Hábrók Cluster
+Job 29305770 for user s5949149
+Finished at: Thu Jun  4 16:57:46 CEST 2026
+
+Job details:
+============
+
+Job ID                         : 29305770
+Name                           : band_attribution
+User                           : s5949149
+Partition                      : gpushort
+Nodes                          : rtx6000gpu3
+Number of Nodes                : 1
+Cores                          : 8
+Number of Tasks                : 1
+State                          : COMPLETED  
+Submit                         : 2026-06-04T16:55:47
+Start                          : 2026-06-04T16:56:08
+End                            : 2026-06-04T16:57:42
+Reserved walltime              : 02:00:00
+Used walltime                  : 00:01:34
+Used CPU time                  : 00:00:06 (Efficiency:  0.74%)
+% User (Computation)           : 71.30%
+% System (I/O)                 : 28.68%
+Total memory reserved          : 32G
+Maximum memory used            : 728.12M
+Requested GPUs                 : rtx_pro_6000=1
+Allocated GPUs                 : rtx_pro_6000=1
+Max GPU utilization            : 0%
+Max GPU memory used            : 0.00 
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Hábrók in your publications:
+
+https://wiki.hpc.rug.nl/habrok/introduction/scientific_output
+
+################################################################################
