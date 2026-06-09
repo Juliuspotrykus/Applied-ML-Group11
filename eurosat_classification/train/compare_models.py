@@ -1,11 +1,16 @@
-"""This script compares the RGB and MS models over repeated training runs.
+"""This script compares the rgb and ms models over repeated training runs.
 For each image type it retrains the model from scratch on the combined
 train+val set, evaluates on the test set, and prints the mean and standard
 error of the test macro F1 across several runs.
 
 Usage:
+    # Run both modalities rgb and ms:
     python -m eurosat_classification.train.compare_models \\
         --n-runs 10 --epochs 30 --batch-size 64
+
+    # Split into two separate jobs:
+    python -m eurosat_classification.train.compare_models rgb --n-runs 10
+    python -m eurosat_classification.train.compare_models ms --n-runs 10
 """
 
 import argparse
@@ -118,6 +123,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Compare RGB and MS models over repeated training runs."
     )
+    parser.add_argument(
+        "modality",
+        choices=["rgb", "ms", "both"],
+        default="both",
+    )
     parser.add_argument("--n-runs", type=int, default=100)
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=64)
@@ -128,18 +138,12 @@ if __name__ == "__main__":
             "--n-runs must be at least 2 to compute a standard error of the mean"
         )
 
-    run_comparison(
-        "rgb",
-        BEST_PARAMS["rgb"],
-        n_runs=args.n_runs,
-        epochs=args.epochs,
-        batch_size=args.batch_size,
-    )
-
-    run_comparison(
-        "ms",
-        BEST_PARAMS["ms"],
-        n_runs=args.n_runs,
-        epochs=args.epochs,
-        batch_size=args.batch_size,
-    )
+    modalities = ["rgb", "ms"] if args.modality == "both" else [args.modality]
+    for modality in modalities:
+        run_comparison(
+            modality,
+            BEST_PARAMS[modality],
+            n_runs=args.n_runs,
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+        )
