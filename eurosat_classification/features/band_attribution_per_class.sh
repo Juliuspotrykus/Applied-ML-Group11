@@ -13,11 +13,11 @@ IMAGE_TYPE=$1
 MODEL_PATH=$2
 
 if [[ "$IMAGE_TYPE" != "rgb" && "$IMAGE_TYPE" != "ms" ]]; then
-    echo "Usage: sbatch band_attribution.sh <rgb|ms> <model_path>"
+    echo "Usage: sbatch band_attribution_per_class.sh <rgb|ms> <model_path>"
     exit 1
 fi
 if [[ -z "$MODEL_PATH" ]]; then
-    echo "Usage: sbatch band_attribution.sh <rgb|ms> <model_path>"
+    echo "Usage: sbatch band_attribution_per_class.sh <rgb|ms> <model_path>"
     exit 1
 fi
 
