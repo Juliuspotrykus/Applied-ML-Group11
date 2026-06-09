@@ -172,8 +172,8 @@ class _MultiKernelBlock(nn.Module):
 
         Args:
             in_channels (int): Number of input channels.
-            block_cfg (ConvBlockConfig): Configuration object containing kernels, 
-                out_channels, batch_norm, and pool_size settings.
+            block_cfg (ConvBlockConfig): Configuration object containing
+                kernels, out_channels, batch_norm, and pool_size settings.
             activation (nn.Module): Activation function layer.
         """
         super().__init__()
@@ -221,7 +221,8 @@ class CNN(nn.Module):
 
     def __init__(self, config: CNNConfig | None = None) -> None:
         """
-        Initializes the network topology using a provided or default configuration.
+        Initializes the network topology using a provided or
+        default configuration.
 
         Args:
             config: CNNConfig instance. Defaults to CNNConfig()
@@ -237,12 +238,13 @@ class CNN(nn.Module):
     def _build_backbone(self) -> nn.Sequential:
         """
         Stacks conv blocks as defined in config.conv_blocks.
-        
+
         Returns:
             nn.Sequential: Compiled convolutional feature extractor.
 
         Raises:
-            IndexError: If a configuration block contains an empty kernels list.
+            IndexError: If a configuration block contains an
+            empty kernels list.
         """
         layers: list[nn.Module] = []
         in_ch = self.config.in_channels
@@ -277,13 +279,14 @@ class CNN(nn.Module):
 
     def _infer_flat_dim(self) -> int:
         """
-        Runs a dummy forward pass to determine the flattened backbone output size.
-        
+        Runs a dummy forward pass to determine the flattened backbone
+        output size.
+
         Returns:
             int: Flattened size feature dimension (total elements per sample)
 
         Raises:
-            RuntimeError: If spatial size configurations cause dimension 
+            RuntimeError: If spatial size configurations cause dimension
                 reduction down to zero or negative dimensions during the pass.
         """
         with torch.no_grad():
@@ -298,12 +301,12 @@ class CNN(nn.Module):
     def _build_classifier(self, flat_dim: int) -> nn.Sequential:
         """
         Builds the FC head from flat_dim to the final output size.
-        
+
         Args:
             flat_dim (int): Flattened size input feature dimension.
 
         Returns:
-            nn.Sequential: Multi-layer linear head with dropout and 
+            nn.Sequential: Multi-layer linear head with dropout and
                             activation functions.
         """
         layers: list[nn.Module] = []
@@ -322,8 +325,8 @@ class CNN(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass:
-        - backbone 
-        - flatten 
+        - backbone
+        - flatten
         - classifier
 
         Args:

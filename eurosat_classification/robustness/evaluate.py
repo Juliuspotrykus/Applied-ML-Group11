@@ -71,16 +71,23 @@ def evaluate(
     Args:
         model (torch.nn.Module): Trained CNN already in eval mode.
         dataset (Dataset): Test dataset (un-perturbed raw version).
-        perturb_fn (Callable | None): Applied to each image tensor before inference. None = clean run.
+        perturb_fn (Callable | None): Applied to each image tensor
+        before inference. None = clean run.
+
         device (torch.device): Torch device.
+
         seed (42): Base random seed for stochastic perturbations.
-        batch_size (int): DataLoader batch size (num_workers=0 to respect per-sample seeds).
+
+        batch_size (int): DataLoader batch size (num_workers=0 to respect
+        per-sample seeds).
 
     Returns:
         dict[str, float | list[int]]: ;etrics summary containing:
             - "f1" (float): Macro-averaged classification F1 score.
-            - "mean_confidence" (float): Average probability magnitude of top predictions.
-            - "preds" (list[int]): Ordered sequence of scalar index class predictions.
+            - "mean_confidence" (float): Average probability magnitude of
+            top predictions.
+            - "preds" (list[int]): Ordered sequence of scalar index class
+            predictions.
     """
     eval_ds = (
         _PerturbedDataset(dataset, perturb_fn, seed)

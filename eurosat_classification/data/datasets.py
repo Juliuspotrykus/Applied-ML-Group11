@@ -19,12 +19,17 @@ from .split import get_train_val_test_splits
 class EuroSATDataset(Dataset, ABC):
     """
     Abstract class for RGB and MS dataset
-    
+
     Attributes:
         root (Path): Root directory of the dataset.
-        split_csv (pd.DataFrame): Dataframe containing filenames belonging to the split.
-        transform (Optional[Callable]): Transform or augmentation function to apply to images.
-        samples (list[tuple[str, Path, int]]): List of tuples containing 
+
+        split_csv (pd.DataFrame): Dataframe containing filenames belonging
+        to the split.
+
+        transform (Optional[Callable]): Transform or augmentation function
+        to apply to images.
+
+        samples (list[tuple[str, Path, int]]): List of tuples containing
                                             (filename, full path, label index).
         split_filenames (set[str]): Set of unique stem filenames included in
                                     this dataset split.
@@ -125,7 +130,8 @@ class EuroSATMSDataset(EuroSATDataset):
 
     def _load_image(self, path: Path) -> torch.Tensor:
         """
-        Loads MS TIF files and reorders axes returning tensor of dimension (13, 64, 64)
+        Loads MS TIF files and reorders axes returning
+        tensor of dimension (13, 64, 64)
 
         Args:
             path (Path): Path to TIF file
@@ -135,7 +141,7 @@ class EuroSATMSDataset(EuroSATDataset):
         """
         # placed here so package does not need
         # to be imported when not necessary
-        import tifffile  
+        import tifffile
 
         arr = tifffile.imread(path)
         arr = arr.astype(np.float32)

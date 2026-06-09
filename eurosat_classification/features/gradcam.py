@@ -20,7 +20,8 @@ from .retrieve_model import get_model
 
 def get_last_conv_layer(model: CNN) -> list[nn.Conv2d]:
     """
-    Finds last convolutional layer in given model to use for GradCAM explanation.
+    Finds last convolutional layer in given model to use for
+    GradCAM explanation.
 
     Args:
         model (CNN): Model to find last convolutional layer of.
@@ -45,7 +46,8 @@ def get_last_conv_layer(model: CNN) -> list[nn.Conv2d]:
 
 def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
     """
-    Load a 3-band JPG/PNG as a [1, 3, H, W] float tensor in [0, 1] and as np.ndarray.
+    Load a 3-band JPG/PNG as a [1, 3, H, W] float tensor in [0, 1]
+    and as np.ndarray.
     - tensor used for gradcam
     - np.ndarray used for visualization
 
@@ -65,10 +67,11 @@ def load_rgb(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
 
 def _scaled_rgb_colour(raw: torch.Tensor) -> np.ndarray:
     """
-    Build a uint8 scaled-rgb colour composite from raw MS bands (R=B4, G=B3, B=B2).
+    Build a uint8 scaled-rgb colour composite from raw MS bands
+    (R=B4, G=B3, B=B2).
 
-    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking landscape view
-    similar to what the human eye would see from a satellite.
+    Bands B4/B3/B2 map to red/green/blue, giving a natural-looking landscape
+    view similar to what the human eye would see from a satellite.
 
     Args:
         raw (torch.Tensor): Raw MS image as tensor.
@@ -88,7 +91,8 @@ def _scaled_rgb_colour(raw: torch.Tensor) -> np.ndarray:
 
 def load_ms(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
     """
-    Load a 13-band GeoTIFF as a [13, H, W] float tensor in [0, 1] and as np.ndarray.
+    Load a 13-band GeoTIFF as a [13, H, W] float tensor in [0, 1]
+    and as np.ndarray.
     - tensor used for gradcam
     - np.ndarray used for visualization
 
@@ -108,16 +112,22 @@ def load_ms(path: str | Path) -> tuple[torch.Tensor, np.ndarray]:
     return img_tensor.unsqueeze(0), img_array
 
 
-def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, target_class: int | None = None) -> np.ndarray:
+def gradcam(
+    model: CNN,
+    input_tensor: Tensor,
+    input_rgb_image: np.ndarray,
+    target_class: int | None = None,
+) -> np.ndarray:
     """
-    Runs GradCAM visualization using given model on a speciifc input, for a given
-    target class.
+    Runs GradCAM visualization using given model on a speciifc input,
+    for a given target class.
 
     Args:
         model (CNN): Model to analyze with GradCAM.
         input_tensor (Tensor): Image tensor to explain.
         input_rgb_image (np.ndarray): Image array to visualize.
-        target_class (int | None, optional): Class to explain. Defaults to None.
+        target_class (int | None, optional): Class to explain.
+        Defaults to None.
 
     Returns:
         np.ndarray: Visualization of GradCAM explanation.
@@ -136,9 +146,11 @@ def gradcam(model: CNN, input_tensor: Tensor, input_rgb_image: np.ndarray, targe
         grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
         grayscale_cam = grayscale_cam[0, :]
         return show_cam_on_image(input_rgb_image, grayscale_cam, use_rgb=True)
-    
 
-def _save_or_show(fig: plt.Figure, output_path: str | Path | None) -> None | plt.Figure:
+
+def _save_or_show(
+    fig: plt.Figure, output_path: str | Path | None
+) -> None | plt.Figure:
     """
     If an output path is specified, it saves the given figure to that path.
     Otherwise, it returns the image.
@@ -166,7 +178,7 @@ def main() -> None:
     Visualization includes original image and GradCAM explanation.
 
     Argument parser arguments when running in terminal:
-	    --model_path (float):
+            --model_path (float):
             Path of model to use.
         --input_file (jpg or tif):
             Image file to explain.
@@ -174,7 +186,7 @@ def main() -> None:
             Optionally selects a class to explain decision for.
         --output_path (str):
             Path to save visualiation to.
-    
+
     Raises:
         ValueError: Invalid target class provided.
     """

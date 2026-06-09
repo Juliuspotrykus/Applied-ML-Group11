@@ -49,10 +49,12 @@ class PerturbSpec:
 
         Args:
             name (str): Short identifier used in CSV/plot output.
-            unit (str): Unit string appended to numeric severity values in labels
-            severities (list[Any]): Ordered list of severity values passed to fn.
-            fn (Callable[[Any], Callable[[torch.Tensor], torch.Tensor]]): 
-                Factory that takes a severity value and returns a 
+            unit (str): Unit string appended to numeric severity values
+            in labels
+            severities (list[Any]): Ordered list of severity values
+            passed to fn.
+            fn (Callable[[Any], Callable[[torch.Tensor], torch.Tensor]]):
+                Factory that takes a severity value and returns a
                 (tensor → tensor) callable.
             labels (list[str] | None, optional): Optional per-severity display
                     labels. Overrides auto-generated labels.. Defaults to None.
@@ -171,31 +173,39 @@ MS_SPECS: list[PerturbSpec] = [
 
 
 def run_suite(
-    model: torch.nn.Module, 
-    dataset: Any, 
-    specs: list[PerturbSpec], 
-    device: torch.device, 
-    batch_size: int, 
-    seed: int
-) -> list[dict[str, Any]]:    
+    model: torch.nn.Module,
+    dataset: Any,
+    specs: list[PerturbSpec],
+    device: torch.device,
+    batch_size: int,
+    seed: int,
+) -> list[dict[str, Any]]:
     """
     Evaluate model on the clean dataset and on each perturbation level.
 
     Args:
-        model (torch.nn.Module): Neural network classifier evaluating the samples.
+        model (torch.nn.Module): Neural network classifier evaluating
+        the samples.
         dataset (Dataset): Evaluation testing set base data structures.
-        specs (list[PerturbSpec]): Specific transformation configurations to verify.
-        device (torch.device): target execution processing pipeline (e.g., CUDA).
+        specs (list[PerturbSpec]): Specific transformation configurations
+        to verify.
+        device (torch.device): target execution processing pipeline
+        (e.g., CUDA).
         batch_size (int): Data loader single inference windows.
         seed (int): Absolute random seed initializer.
 
     Returns:
         list[dict[str, Any]]: Array of results dictionaries containing keys:
-            - "perturbation" (str): Name of transformation technique applied.
-            - "severity_label" (str): Printable formatted axis value representation.
-            - "severity_value" (Any): Metric quantity indicating degradation step.
-            - "f1" (float): Metric F1 classification score performance result.
-            - "mean_confidence" (float): Mean probability score magnitude tracker.
+            - "perturbation" (str): Name of transformation technique
+            applied.
+            - "severity_label" (str): Printable formatted axis value
+            representation.
+            - "severity_value" (Any): Metric quantity indicating
+            degradation step.
+            - "f1" (float): Metric F1 classification score performance
+            result.
+            - "mean_confidence" (float): Mean probability score
+            magnitude tracker.
     """
     model.eval()
 
@@ -236,13 +246,16 @@ def run_suite(
     return rows
 
 
-def plot_results(rows: list[dict], clean_f1: float, modality: str, path: Path) -> None:
+def plot_results(
+    rows: list[dict], clean_f1: float, modality: str, path: Path
+) -> None:
     """
     Save a multi-panel figure with macro-F1 curves per perturbation.
 
     Args:
         rows (list[dict]): Perturbed rows (clean row excluded).
-        clean_f1 (float): Baseline macro-F1 drawn as a reference line in each subplot.
+        clean_f1 (float): Baseline macro-F1 drawn as a reference
+        line in each subplot.
         modality (str): "rgb" or "ms" — used for the figure title.
         path (Path): Output PNG path.
     """
@@ -296,14 +309,14 @@ def plot_results(rows: list[dict], clean_f1: float, modality: str, path: Path) -
 
 
 def run_for_modality(
-    modality: str, 
-    data_root: Path, 
-    test_csv: str, 
-    max_samples: int, 
-    device: torch.device, 
-    batch_size: int, 
-    seed: int, 
-    out_dir: Path
+    modality: str,
+    data_root: Path,
+    test_csv: str,
+    max_samples: int,
+    device: torch.device,
+    batch_size: int,
+    seed: int,
+    out_dir: Path,
 ) -> None:
     """
     Load the saved model and test dataset for one modality and run the full
@@ -311,15 +324,19 @@ def run_for_modality(
 
     Args:
         modality (str): Sensory variant designator flag ("rgb" or "ms").
-        data_root (Path): Root folder path target hosting standard file structural dirs.
-        test_csv (str): File metadata localization indexing path for evaluation tracking rows.
-        max_samples (int): Max sample index ceiling threshold count. If `-1`, checks full set.
+        data_root (Path): Root folder path target hosting standard file
+        structural dirs.
+        test_csv (str): File metadata localization indexing path for evaluation
+        tracking rows.
+        max_samples (int): Max sample index ceiling threshold count. If `-1`,
+        checks full set.
+
         device (torch.device): Compute context execution environment wrapper.
         batch_size (int): Image indexing step stride configuration grouping.
         seed (int): Global generator initialization initialization integer.
         out_dir (Path): Output serialization targets base structure folder.
-    """    
-    print(f"\n{'='*50}\n  {modality.upper()}\n{'='*50}")
+    """
+    print(f"\n{'=' * 50}\n  {modality.upper()}\n{'=' * 50}")
 
     model = torch.load(
         f"models/{modality}_model_final.pkl",
@@ -409,7 +426,9 @@ def main() -> None:
             Default: 42.
 
     """
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument("modality", choices=["rgb", "ms"])
     parser.add_argument("--max_samples", type=int, default=1000)
     parser.add_argument("--output_dir", default="results/robustness")

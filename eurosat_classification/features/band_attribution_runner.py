@@ -80,14 +80,14 @@ def plot_band_attribution(
 
 def main() -> None:
     """
-    Computes attribution per band for either RGB or MS model based on integrated
-    gradients XAI method. Does so by aggregating band attributions over entire
-    train set of model.
+    Computes attribution per band for either RGB or MS model based on
+    integrated gradients XAI method. Does so by aggregating band
+    attributions over entire train set of model.
 
     Plots band attributions and saves them as npz file.
 
-	Argument parser arguments when running in terminal:
-	    --model_path (float):
+        Argument parser arguments when running in terminal:
+            --model_path (float):
             Path of model to use.
         --image_type (str):
             Type of image used, either "rgb" or "ms".
