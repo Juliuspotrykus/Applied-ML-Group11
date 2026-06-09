@@ -317,7 +317,9 @@ def visualise_ms(
     fig, axes = plt.subplots(3, 5, figsize=(15, 9))
     fig.suptitle(
         f"Predicted: {label_map[predicted_class]}   "
-        f"Explained: {label_map[target_class]}"
+        f"Explained: {label_map[target_class]}\n"
+        f"Bands: Red = positive attribution, Blue = negative attribution\n"
+        f"Aggregate: Brighter = more influential pixels"
     )
     flat = axes.flatten()
 
